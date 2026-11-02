@@ -1,0 +1,52 @@
+ID,Parent_ID,Parent_Menu,Sub_Menu,Page_Title,Relative_URL_Path,Full_URL,Depth_Level,Depth_Number,Link_Type,Content_Type,Nav_Order,Is_External,Also_Linked_From
+N001,ROOT,Home,(none),Home (Logo Link),/,https://www.metaltek.com/,Level 1,1,Header Navigation,homepage,1,false,(none)
+N002,ROOT,Utility Bar,(none),Careers,/careers/,https://www.metaltek.com/careers/,Level 1,1,Utility Link,landing,2,false,Homepage careers teaser (Learn More); Footer Additional Resources
+N003,ROOT,Utility Bar,(none),Why MetalTek?,/why-metaltek/,https://www.metaltek.com/why-metaltek/,Level 1,1,Utility Link,landing,3,false,(none)
+N004,ROOT,Utility Bar,(none),Sales Contacts,/sales-contacts/,https://www.metaltek.com/sales-contacts/,Level 1,1,Utility Link,contact,4,false,(none)
+N005,ROOT,Metal Casting,(none),Metal Casting,/metal-casting/,https://www.metaltek.com/metal-casting/,Level 1,1,Header Navigation,hub,5,false,Homepage capability card
+N006,N005,Metal Casting,Centrifugal Casting,Centrifugal Casting,/metal-casting/centrifugal-casting/,https://www.metaltek.com/metal-casting/centrifugal-casting/,Level 2,2,Header Navigation,process_page,6,false,(none)
+N007,N005,Metal Casting,Sand Casting,Sand Casting,/metal-casting/sand-casting/,https://www.metaltek.com/metal-casting/sand-casting/,Level 2,2,Header Navigation,process_page,7,false,(none)
+N008,N005,Metal Casting,Investment Casting,Investment Casting,/metal-casting/investment-casting/,https://www.metaltek.com/metal-casting/investment-casting/,Level 2,2,Header Navigation,process_page,8,false,(none)
+N009,N005,Metal Casting,High-Integrity Ingot,High-Integrity Ingot,/metal-casting/ingot/,https://www.metaltek.com/metal-casting/ingot/,Level 2,2,Header Navigation,process_page,9,false,(none)
+N010,N005,Metal Casting,Argon Oxygen Decarburization (AOD),Argon Oxygen Decarburization (AOD),/metal-casting/aod/,https://www.metaltek.com/metal-casting/aod/,Level 2,2,Header Navigation,process_page,10,false,(none)
+N011,ROOT,Capabilities,(none),Capabilities,/capabilities/,https://www.metaltek.com/capabilities/,Level 1,1,Header Navigation,hub,11,false,(none)
+N012,N011,Capabilities,Additive Manufacturing,Additive Manufacturing,/capabilities/additive-manufacturing/,https://www.metaltek.com/capabilities/additive-manufacturing/,Level 2,2,Header Navigation,capability_page,12,false,Footer Our Capabilities
+N013,N011,Capabilities,Metallurgy & Engineering,Metallurgy & Engineering,/capabilities/metallurgy-engineering/,https://www.metaltek.com/capabilities/metallurgy-engineering/,Level 2,2,Header Navigation,capability_page,13,false,Homepage capability card
+N014,N011,Capabilities,Metal Heat Treatment,Metal Heat Treatment,/capabilities/heat-treatment/,https://www.metaltek.com/capabilities/heat-treatment/,Level 2,2,Header Navigation,capability_page,14,false,Homepage capability card; Footer Our Capabilities
+N015,N011,Capabilities,Metal Machining,Metal Machining,/capabilities/metal-machining/,https://www.metaltek.com/capabilities/metal-machining/,Level 2,2,Header Navigation,capability_page,15,false,Homepage capability card
+N016,N011,Capabilities,Metal Fabrication,Metal Fabrication,/capabilities/metal-fabrication/,https://www.metaltek.com/capabilities/metal-fabrication/,Level 2,2,Header Navigation,capability_page,16,false,Homepage capability card
+N017,N011,Capabilities,Metal Testing & Analysis,Metal Testing & Analysis,/capabilities/metal-testing-analysis/,https://www.metaltek.com/capabilities/metal-testing-analysis/,Level 2,2,Header Navigation,capability_page,17,false,Homepage capability card
+N018,N011,Capabilities,TekSession Training,TekSession Training,/capabilities/training/,https://www.metaltek.com/capabilities/training/,Level 2,2,Header Navigation,capability_page,18,false,Footer Our Capabilities
+N019,ROOT,Alloys,(none),Alloys,/alloys/,https://www.metaltek.com/alloys/,Level 1,1,Header Navigation,hub,19,false,(none)
+N020,ROOT,Market Solutions,(none),Market Solutions,/market-solutions/,https://www.metaltek.com/market-solutions/,Level 1,1,Header Navigation,hub,20,false,(none)
+N021,N020,Market Solutions,Aerospace,Aerospace,/market-solutions/aerospace/,https://www.metaltek.com/market-solutions/aerospace/,Level 2,2,Header Navigation,market_page,21,false,Homepage market card
+N022,N020,Market Solutions,Defense,Defense,/market-solutions/defense/,https://www.metaltek.com/market-solutions/defense/,Level 2,2,Header Navigation,market_page,22,false,Homepage market card
+N023,N020,Market Solutions,Energy,Energy,/market-solutions/energy/,https://www.metaltek.com/market-solutions/energy/,Level 2,2,Header Navigation,market_page,23,false,Homepage market card
+N024,N020,Market Solutions,Petrochemical,Petrochemical,/market-solutions/petrochemical/,https://www.metaltek.com/market-solutions/petrochemical/,Level 2,2,Header Navigation,market_page,24,false,Homepage market card
+N025,N020,Market Solutions,Process Equipment,Process Equipment,/market-solutions/process-equipment/,https://www.metaltek.com/market-solutions/process-equipment/,Level 2,2,Header Navigation,market_page,25,false,Homepage market card; Don't See Your Market? CTA (Take Me To More Markets)
+N026,N020,Market Solutions,Turbine Engine,Turbine Engine,/market-solutions/turbine-engine/,https://www.metaltek.com/market-solutions/turbine-engine/,Level 2,2,Header Navigation,market_page,26,false,Homepage market card
+N027,ROOT,Divisions,(none),Divisions,/divisions/,https://www.metaltek.com/divisions/,Level 1,1,Header Navigation,hub,27,false,(none)
+N028,N027,Divisions,Carondelet,Carondelet,/divisions/carondelet/,https://www.metaltek.com/divisions/carondelet/,Level 2,2,Header Navigation,division_page,28,false,(none)
+N029,N027,Divisions,Sandusky International,Sandusky International,/divisions/sandusky-international/,https://www.metaltek.com/divisions/sandusky-international/,Level 2,2,Header Navigation,division_page,29,false,(none)
+N030,N027,Divisions,Wisconsin Centrifugal,Wisconsin Centrifugal,/divisions/wisconsin-centrifugal/,https://www.metaltek.com/divisions/wisconsin-centrifugal/,Level 2,2,Header Navigation,division_page,30,false,(none)
+N031,N027,Divisions,Wisconsin Investcast,Wisconsin Investcast,/divisions/wisconsin-investcast/,https://www.metaltek.com/divisions/wisconsin-investcast/,Level 2,2,Header Navigation,division_page,31,false,(none)
+N032,N027,Divisions,Oil Systems,Oil Systems,/divisions/oil-systems/,https://www.metaltek.com/divisions/oil-systems/,Level 2,2,Header Navigation,division_page,32,false,(none)
+N033,ROOT,Resources,(none),Resources,/resources/,https://www.metaltek.com/resources/,Level 1,1,Header Navigation,hub,33,false,(none)
+N034,N033,Resources,Blog,Blog,/resources/blog/,https://www.metaltek.com/resources/blog/,Level 2,2,Header Navigation,listing,34,false,Utility Bar (Blogs); Homepage View All Blogs CTA; Footer Additional Resources
+N035,N033,Resources,Case Studies,Case Studies,/resources/case-studies/,https://www.metaltek.com/resources/case-studies/,Level 2,2,Header Navigation,listing,35,false,Utility Bar; Footer Additional Resources
+N036,N033,Resources,Videos,Videos,/resources/videos/,https://www.metaltek.com/resources/videos/,Level 2,2,Header Navigation,listing,36,false,(none)
+N037,N033,Resources,FAQs,FAQs,/resources/faqs/,https://www.metaltek.com/resources/faqs/,Level 2,2,Header Navigation,listing,37,false,Footer Additional Resources
+N038,N033,Resources,Glossary,Glossary,/resources/glossary/,https://www.metaltek.com/resources/glossary/,Level 2,2,Header Navigation,listing,38,false,(none)
+N039,N033,Resources,Downloads,Downloads,/resources/downloads/,https://www.metaltek.com/resources/downloads/,Level 2,2,Header Navigation,listing,39,false,(none)
+N040,N034,Resources,Blog,Nuclear Metal Castings for Small Modular Reactors and Microreactors,/blog/nuclear-metal-castings-smrs-microreactors/,https://www.metaltek.com/blog/nuclear-metal-castings-smrs-microreactors/,Level 3,3,Content Link,blog_post,40,false,Homepage latest blogs (published 2026-09-22)
+N041,N034,Resources,Blog,MetalTek Names David Bacon CEO,/blog/metaltek-names-david-bacon-ceo/,https://www.metaltek.com/blog/metaltek-names-david-bacon-ceo/,Level 3,3,Content Link,blog_post,41,false,Homepage latest blogs (published 2026-08-10)
+N042,ROOT,Contact Us,(none),Contact Us,/contact-us/,https://www.metaltek.com/contact-us/,Level 1,1,Header Navigation,contact,42,false,Homepage hero CTA; Ask the Metal Experts CTA; Footer Locations
+N043,ROOT,Footer,Additional Resources,Certifications,/certifications/,https://www.metaltek.com/certifications/,Level 1,1,Footer Link,landing,43,false,(none)
+N044,ROOT,Footer,Additional Resources,Company History,/company-history/,https://www.metaltek.com/company-history/,Level 1,1,Footer Link,landing,44,false,(none)
+N045,ROOT,Footer,Legal,Privacy Policy,/privacy-policy/,https://www.metaltek.com/privacy-policy/,Level 1,1,Footer Link,legal,45,false,(none)
+N046,ROOT,Footer,Legal,Accessibility Statement,/accessibility-statement/,https://www.metaltek.com/accessibility-statement/,Level 1,1,Footer Link,legal,46,false,(none)
+N047,ROOT,Footer,Legal,Website Terms & Conditions,/website-terms-conditions/,https://www.metaltek.com/website-terms-conditions/,Level 1,1,Footer Link,legal,47,false,(none)
+N048,ROOT,Footer,Legal,Do Not Sell or Share My Personal Information,/do-not-sell-or-share-my-personal-information/,https://www.metaltek.com/do-not-sell-or-share-my-personal-information/,Level 1,1,Footer Link,legal,48,false,(none)
+N049,ROOT,Footer,Legal,EEO Posting (PDF),/wp-content/uploads/2020/11/EEO-is-the-Law.pdf,https://www.metaltek.com/wp-content/uploads/2020/11/EEO-is-the-Law.pdf,Level 1,1,Footer Link,pdf,49,false,(none)
+N050,ROOT,Footer,Legal,EEO Supplement (PDF),/wp-content/uploads/2020/11/EEO-Supplement.pdf,https://www.metaltek.com/wp-content/uploads/2020/11/EEO-Supplement.pdf,Level 1,1,Footer Link,pdf,50,false,(none)
+N051,ROOT,Footer,Legal,Pay Transparency (PDF),/wp-content/uploads/2020/11/Pay-Transparency.pdf,https://www.metaltek.com/wp-content/uploads/2020/11/Pay-Transparency.pdf,Level 1,1,Footer Link,pdf,51,false,(none)

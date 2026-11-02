@@ -1,0 +1,6 @@
+{
+  "name": "Metal Tech BD - High-Integrity Metal Castings & Industrial Engineering",
+  "description": "B2B manufacturer of high-integrity metal castings, centrifugal & sand casting, specialty alloys, and precision machining based in Bangladesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MetalTek Design System Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1D4ED8;--primary-dark:#163A9E;--secondary:#0F1B2D;--accent:#F5B800;
+  --surface:#F3F4F6;--border:#D9DCE1;--muted:#5B6470;
+  --bg:#FFFFFF;--text:#1F2933;--card:#FFFFFF;--head:#0F1B2D;--link:#1D4ED8;
+  --font:"Open Sans",Arial,Helvetica,sans-serif;--brand:"Arial Black",Arial,sans-serif;
+  --shadow:0 2px 8px rgba(15,27,45,.08);--shadow-h:0 8px 24px rgba(15,27,45,.16);
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1220;--text:#E6E9EE;--card:#121B2D;--surface:#101A2C;--border:#26324A;--muted:#9AA4B2;--head:#FFFFFF;--link:#7FA2FF;--shadow:0 2px 8px rgba(0,0,0,.4);--shadow-h:0 8px 24px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#0B1220;--text:#E6E9EE;--card:#121B2D;--surface:#101A2C;--border:#26324A;--muted:#9AA4B2;--head:#FFFFFF;--link:#7FA2FF;--shadow:0 2px 8px rgba(0,0,0,.4);--shadow-h:0 8px 24px rgba(0,0,0,.6)}
+html{scroll-padding-top:calc(72px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.65 var(--font)}
+h1,h2,h3{color:var(--head);margin:0 0 .5em}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.15;font-weight:700}
+h2{font-size:clamp(26px,3vw,36px);line-height:1.2;font-weight:700}
+h3{font-size:22px;line-height:1.3;font-weight:600}
+p{margin:0 0 1em;max-width:68ch}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+section{padding:72px 0;border-top:1px solid var(--border)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--secondary);color:#fff}
+header.top .wrap{display:flex;align-items:center;gap:20px;height:56px;overflow-x:auto;white-space:nowrap}
+header.top b{font-family:var(--brand);font-size:18px;margin-right:auto}
+header.top a{color:#fff;opacity:.85;text-decoration:none;font-size:14px;font-weight:600}
+header.top a:hover{opacity:1;text-decoration:underline}
+header.top button{background:none;border:1px solid #ffffff55;color:#fff;border-radius:4px;padding:4px 10px;font:600 13px var(--font);cursor:pointer}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--secondary);z-index:30}
+.hero{background:var(--secondary);color:#fff;padding:88px 0;border:0}
+.hero h1{color:#fff}.hero p{color:#cfd6e2}
+.eyebrow{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.btn{display:inline-block;padding:14px 28px;font:600 16px/1 var(--font);border-radius:4px;border:2px solid transparent;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s}
+.btn.p{background:var(--primary);color:#fff}
+.btn.p:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:var(--shadow)}
+.btn.o{border-color:var(--link);color:var(--link);background:transparent}
+.btn.o:hover{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn:focus-visible,.sw:focus-visible,header.top button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.grid{display:grid;gap:30px;grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.swatches{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.sw{all:unset;cursor:pointer;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.sw i{display:block;height:84px}
+.sw span{display:block;padding:10px 12px;font-size:13px;line-height:1.4}
+.sw b{display:block;font-size:14px}
+.sw em{font-style:normal;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:baseline}
+th{color:var(--muted);font-weight:600;font-size:13px}
+.scroll{overflow-x:auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .25s,transform .25s}
+.card:hover{box-shadow:var(--shadow-h);transform:translateY(-4px)}
+.card .body{padding:24px}
+.card .media{height:150px;background:linear-gradient(135deg,var(--primary-dark),var(--secondary));display:grid;place-items:center;color:#fff;font:600 14px var(--font)}
+.card .ico{width:44px;height:44px;border-radius:8px;background:var(--surface);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+.card small{color:var(--muted);font-size:14px}
+.card a.more{color:var(--link);font-weight:600;text-decoration:none}
+.card a.more:hover{text-decoration:underline}
+.sp{display:flex;flex-direction:column;gap:10px}
+.sp div{display:flex;align-items:center;gap:14px;font-size:14px}
+.sp i{display:block;height:16px;background:var(--primary);border-radius:2px}
+pre{background:var(--secondary);color:#dbe4f5;padding:20px;border-radius:8px;overflow-x:auto;margin:0}
+.bp{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+.bp div{border:1px solid var(--border);border-radius:8px;padding:16px;background:var(--card)}
+.bp .m{height:70px;background:var(--surface);border-radius:4px;display:grid;gap:8px;padding:8px;margin-bottom:10px}
+.bp .m s{background:var(--primary);border-radius:3px;opacity:.75}
+.note{background:var(--surface);border-left:4px solid var(--accent);padding:14px 18px;border-radius:4px;font-size:15px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--secondary);color:#fff;padding:10px 18px;border-radius:4px;opacity:0;pointer-events:none;transition:.25s;font-size:14px;z-index:40}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+footer{background:var(--secondary);color:#cfd6e2;padding:40px 0;font-size:14px}
+@media (max-width:1024px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:768px){body{font-size:16px}section{padding:48px 0}.grid,.g2,.bp{grid-template-columns:1fr}.btn{width:100%;text-align:center}.hero{padding:56px 0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <b>metaltek</b>
+  <a href="#colors">Color</a><a href="#type">Type</a><a href="#components">Components</a><a href="#layout">Layout</a><a href="#code">CSS</a>
+  <button id="theme" type="button">Dark mode</button>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">Design system guide</div>
+  <h1>Manufacturing critical metal components</h1>
+  <p>A frontend-ready style guide modeled on metaltek.com: royal blue on white, deep navy sections, and a restrained yellow accent. Values are estimates until checked in DevTools.</p>
+  <div class="row"><a class="btn p" href="#components">See components</a><a class="btn o" href="#code" style="color:#fff;border-color:#fff">Copy the CSS</a></div>
+</div></section>
+
+<section id="colors"><div class="wrap">
+  <h2>1. Color palette</h2>
+  <p>Select any swatch to copy its hex code.</p>
+  <div class="swatches" id="sw"></div>
+  <p class="note" style="margin-top:24px">Royal blue on white is about 6.7:1 contrast and passes AA for text. Don’t set white text on the yellow accent.</p>
+</div></section>
+
+<section id="type"><div class="wrap">
+  <h2>2. Typography</h2>
+  <p>Brand wordmark in Arial Black; headings and body in Open Sans (400, 600, 700).</p>
+  <div class="scroll"><table>
+    <tr><th>Level</th><th>Specimen</th><th>Desktop / mobile</th><th>Weight · Line</th></tr>
+    <tr><td>Eyebrow</td><td><span class="eyebrow" style="margin:0">Making a lasting difference</span></td><td>14 / 13px</td><td>600 · 1.4</td></tr>
+    <tr><td>H1</td><td style="font-size:34px;font-weight:700;color:var(--head);line-height:1.15">Hero headline</td><td>52 / 32px</td><td>700 · 1.15</td></tr>
+    <tr><td>H2</td><td style="font-size:28px;font-weight:700;color:var(--head)">Section heading</td><td>36 / 26px</td><td>700 · 1.2</td></tr>
+    <tr><td>H3</td><td style="font-size:22px;font-weight:600;color:var(--head)">Card title</td><td>22 / 20px</td><td>600 · 1.3</td></tr>
+    <tr><td>Body</td><td>Precision components for the most demanding applications.</td><td>17 / 16px</td><td>400 · 1.65</td></tr>
+    <tr><td>Meta</td><td style="font-size:14px;color:var(--muted)">September 22, 2026</td><td>14px</td><td>400 · 1.5</td></tr>
+    <tr><td>Button</td><td style="font-weight:600">Contact us</td><td>16px</td><td>600 · 1</td></tr>
+  </table></div>
+</div></section>
+
+<section id="components"><div class="wrap">
+  <h2>3. UI components</h2>
+  <h3>Buttons</h3>
+  <p>4px radius, 14px 28px padding. Hover darkens and lifts 2px; keyboard focus shows a yellow ring.</p>
+  <div class="row" style="margin-bottom:40px"><a class="btn p" href="#components">Contact us</a><a class="btn o" href="#components">Take me to more markets</a><a class="card more" style="all:unset;color:var(--link);font-weight:600;cursor:pointer" href="#components">Read more &gt;&gt;</a></div>
+
+  <h3>Capability card</h3>
+  <p>Icon, title, one-line description. The whole card links. 8px radius, 1px border, lifts on hover.</p>
+  <div class="grid" style="margin-bottom:40px">
+    <a class="card" href="#components" style="text-decoration:none;color:inherit"><div class="body"><div class="ico">⚙</div><h3>Metal casting</h3><small>Centrifugal, sand, and investment casting, plus ingot and AOD.</small></div></a>
+    <a class="card" href="#components" style="text-decoration:none;color:inherit"><div class="body"><div class="ico">🔥</div><h3>Heat treatment</h3><small>Technical expertise to deliver the material properties customers need.</small></div></a>
+    <a class="card" href="#components" style="text-decoration:none;color:inherit"><div class="body"><div class="ico">🔧</div><h3>Metal machining</h3><small>Over 200 machining centers for exact specifications.</small></div></a>
+  </div>
+
+  <h3>Market and blog cards</h3>
+  <div class="grid g2">
+    <div class="card"><div class="media">Image: wide panorama, about 2.9:1</div><div class="body"><h3>Nuclear metal castings for small modular reactors</h3><small>September 22, 2026</small><p style="margin-top:8px">Rising global energy demand is bringing new attention to nuclear baseload power…</p><a class="more" href="#components">Read more &gt;&gt;</a></div></div>
+    <div class="card"><div class="media">Image: market photo</div><div class="body"><h3>Aerospace</h3><small>High-specification components that push the limits of what is possible.</small></div></div>
+  </div>
+</div></section>
+
+<section id="layout"><div class="wrap">
+  <h2>4. Spacing and layout</h2>
+  <p>1100px container, 12-column grid, 30px gutter, 8px spacing base. Section padding is 72px on desktop and 48px on mobile.</p>
+  <div class="grid" style="margin-bottom:40px">
+    <div><h3>Spacing scale</h3><div class="sp" id="sp"></div></div>
+    <div style="grid-column:span 2"><h3>Breakpoints</h3>
+      <div class="bp">
+        <div><div class="m" style="grid-template-columns:repeat(3,1fr)"><s></s><s></s><s></s></div><b>Desktop, above 1024px</b><br><small>3 columns, 30px gutter</small></div>
+        <div><div class="m" style="grid-template-columns:repeat(2,1fr)"><s></s><s></s></div><b>Tablet, 769–1024px</b><br><small>2 columns</small></div>
+        <div><div class="m" style="grid-template-columns:1fr"><s></s></div><b>Mobile, 768px and below</b><br><small>1 column, full-width buttons, hamburger nav</small></div>
+      </div>
+      <p class="note" style="margin-top:20px">Breakpoints follow Beaver Builder defaults (about 992px and 768px). Verify against the live site.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="code"><div class="wrap">
+  <h2>Design tokens</h2>
+  <p>Paste into your stylesheet. Component CSS is in the earlier chat reply.</p>
+  <div class="row" style="margin-bottom:16px"><button class="btn p" id="copy" type="button">Copy tokens</button></div>
+<pre id="tok">:root {
+  --color-primary: #1D4ED8;
+  --color-primary-dark: #163A9E;
+  --color-secondary: #0F1B2D;
+  --color-accent: #F5B800;
+  --color-bg: #FFFFFF;
+  --color-surface: #F3F4F6;
+  --color-border: #D9DCE1;
+  --color-text: #1F2933;
+  --color-text-muted: #5B6470;
+  --color-text-inverse: #FFFFFF;
+
+  --font-brand: "Arial Black", Arial, sans-serif;
+  --font-base: "Open Sans", Arial, Helvetica, sans-serif;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px;
+  --space-5: 32px; --space-6: 48px; --space-7: 64px; --space-8: 96px;
+
+  --radius-sm: 4px; --radius-md: 8px;
+  --shadow-card: 0 2px 8px rgba(15, 27, 45, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(15, 27, 45, 0.16);
+  --container: 1100px;
+}</pre>
+</div></section>
+
+<footer><div class="wrap"><b style="font-family:var(--brand);color:#fff">metaltek</b><p style="margin:8px 0 0">Unofficial design-system study. Colors and fonts are estimates; confirm exact values with browser DevTools before production use.</p></div></footer>
+<div id="toast" role="status"></div>
+
+<script>
+var colors=[
+["Primary","#1D4ED8","Buttons, links"],["Primary dark","#163A9E","Hover, pressed"],
+["Secondary","#0F1B2D","Footer, dark sections"],["Accent","#F5B800","Highlights only"],
+["Background","#FFFFFF","Page"],["Surface","#F3F4F6","Alt sections, cards"],
+["Border","#D9DCE1","Dividers"],["Text","#1F2933","Body copy"],["Text muted","#5B6470","Dates, captions"]];
+var sw=document.getElementById("sw");
+colors.forEach(function(c){
+  var b=document.createElement("button");b.type="button";b.className="sw";
+  b.innerHTML='<i style="background:'+c[1]+'"></i><span><b>'+c[0]+'</b>'+c[1]+'<br><em>'+c[2]+'</em></span>';
+  b.onclick=function(){copy(c[1])};sw.appendChild(b);
+});
+var sp=document.getElementById("sp");
+[4,8,16,24,32,48,64,96].forEach(function(n,i){
+  var d=document.createElement("div");d.innerHTML='<code>--space-'+(i+1)+'</code><i style="width:'+n+'px"></i>'+n+'px';sp.appendChild(d);
+});
+var t=document.getElementById("toast"),tm;
+function toast(m){t.textContent=m;t.classList.add("on");clearTimeout(tm);tm=setTimeout(function(){t.classList.remove("on")},1600)}
+function copy(s){
+  var done=function(){toast("Copied "+(s.length<12?s:"tokens"))};
+  try{navigator.clipboard.writeText(s).then(done,fallback)}catch(e){fallback()}
+  function fallback(){var a=document.createElement("textarea");a.value=s;document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){toast("Copy failed. Select the text manually.")}a.remove()}
+}
+document.getElementById("copy").onclick=function(){copy(document.getElementById("tok").textContent)};
+var th=document.getElementById("theme"),root=document.documentElement;
+th.onclick=function(){
+  var dark=root.getAttribute("data-theme")==="dark"||(!root.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
+  root.setAttribute("data-theme",dark?"light":"dark");th.textContent=dark?"Dark mode":"Light mode";
+};
+</script>
+</body>
+</html>

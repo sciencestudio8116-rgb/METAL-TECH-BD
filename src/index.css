@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #3B82F6;
+    --primary-dark: #2563EB;
+    --secondary: #0B132B;
+    --card: #1C2541;
+    --card-hover: #223055;
+    --accent: #4CC9F0;
+    --border: #2B3E50;
+    --border-hover: #3B82F6;
+    --muted: #8D99AE;
+    --bg: #0B132B;
+    --text: #FFFFFF;
+    --text-muted: #8D99AE;
+    --head: #FFFFFF;
+    --link: #4CC9F0;
+    --font: 'Open Sans', Arial, Helvetica, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font);
+    background-color: #0B132B;
+    color: #FFFFFF;
+  }
+
+  body {
+    background-color: #0B132B;
+    color: #FFFFFF;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom industrial glow utilities */
+.glow-blue {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+}
+
+.glow-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-card:hover {
+  transform: translateY(-4px);
+  border-color: #3B82F6;
+  box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
+}
