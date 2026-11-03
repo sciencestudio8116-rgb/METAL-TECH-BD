@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PageRoute, Language } from '../types/navigation';
 import { CASTING_PROCESSES, CAPABILITIES, MARKET_SOLUTIONS, DIVISIONS, SITE_METADATA } from '../data/siteData';
+import { useAdmin, NavigationSubItem } from '../context/AdminContext';
 import { 
   Phone, Mail, Search, Menu, X, ChevronDown, 
   ArrowRight, Globe
@@ -23,10 +24,40 @@ export const Header: React.FC<HeaderProps> = ({
   language,
   onToggleLanguage,
 }) => {
+  const { navigationMenu } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<{ [key: string]: boolean }>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const castingSubItems = navigationMenu.find(m => m.id === 'casting')?.subItems || [];
+  const capabilitiesSubItems = navigationMenu.find(m => m.id === 'capabilities')?.subItems || [];
+  const alloysSubItems = navigationMenu.find(m => m.id === 'alloys')?.subItems || [];
+  const marketsSubItems = navigationMenu.find(m => m.id === 'markets')?.subItems || [];
+  const aboutSubItems = navigationMenu.find(m => m.id === 'about')?.subItems || [];
+  const resourcesSubItems = navigationMenu.find(m => m.id === 'resources')?.subItems || [];
+
+  const handleSubItemClick = (sub: NavigationSubItem) => {
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+    if (sub.routeView === 'about-us') {
+      onNavigate({ view: 'about-us', subSection: (sub.subSection as any) || 'overview' });
+    } else if (sub.routeView === 'resources') {
+      onNavigate({ view: 'resources', subTab: (sub.subTab as any) || 'blog' });
+    } else if (sub.routeView === 'metal-casting') {
+      onNavigate({ view: 'metal-casting', subSlug: sub.subSlug });
+    } else if (sub.routeView === 'capabilities') {
+      onNavigate({ view: 'capabilities', subSlug: sub.subSlug });
+    } else if (sub.routeView === 'market-solutions') {
+      onNavigate({ view: 'market-solutions', subSlug: sub.subSlug });
+    } else if (sub.routeView === 'alloys') {
+      onNavigate({ view: 'alloys' });
+    } else if (sub.routeView === 'contact-us') {
+      onNavigate({ view: 'contact-us' });
+    } else {
+      onNavigate({ view: 'home' });
+    }
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -156,16 +187,13 @@ export const Header: React.FC<HeaderProps> = ({
                     {isBn ? 'সব দেখুন' : 'Overview Hub'} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                {CASTING_PROCESSES.map((proc) => (
+                {castingSubItems.map((sub) => (
                   <button
-                    key={proc.slug}
-                    onClick={() => {
-                      setActiveDropdown(null);
-                      onNavigate({ view: 'metal-casting', subSlug: proc.slug });
-                    }}
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {proc.title}
+                    {sub.label}
                   </button>
                 ))}
               </div>
@@ -197,31 +225,56 @@ export const Header: React.FC<HeaderProps> = ({
                     {isBn ? 'সব দেখুন' : 'View Hub'} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                {CAPABILITIES.map((cap) => (
+                {capabilitiesSubItems.map((sub) => (
                   <button
-                    key={cap.slug}
-                    onClick={() => {
-                      setActiveDropdown(null);
-                      onNavigate({ view: 'capabilities', subSlug: cap.slug });
-                    }}
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {cap.title}
+                    {sub.label}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Alloys */}
-          <button
-            onClick={() => { setActiveDropdown(null); onNavigate({ view: 'alloys' }); }}
-            className={`px-3 py-2 rounded-sm hover:text-[#1D4ED8] transition-colors cursor-pointer ${
-              currentRoute.view === 'alloys' ? 'text-[#1D4ED8] font-bold' : ''
-            }`}
-          >
-            {isBn ? 'অ্যালয় ও উপাদান' : 'Alloys & Materials'}
-          </button>
+          {/* Alloys & Materials */}
+          <div className="relative">
+            <button
+              onClick={() => setActiveDropdown(activeDropdown === 'alloys' ? null : 'alloys')}
+              className={`flex items-center gap-1 px-3 py-2 rounded-sm hover:text-[#1D4ED8] transition-colors cursor-pointer ${
+                currentRoute.view === 'alloys' ? 'text-[#1D4ED8] font-bold' : ''
+              }`}
+            >
+              <span>{isBn ? 'অ্যালয় ও উপাদান' : 'Alloys & Materials'}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'alloys' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {activeDropdown === 'alloys' && (
+              <div className="absolute top-full left-0 mt-1 w-[320px] bg-white border border-[#D9DCE1] rounded-sm shadow-xl p-3 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="pb-2 mb-1 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    {isBn ? 'উপাদান নির্দেশিকা' : 'Materials & Spec Finder'}
+                  </span>
+                  <button 
+                    onClick={() => { setActiveDropdown(null); onNavigate({ view: 'alloys' }); }}
+                    className="text-xs text-[#1D4ED8] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    {isBn ? 'সব দেখুন' : 'Alloy Finder Hub'} <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+                {alloysSubItems.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
+                    className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Market Solutions */}
           <div className="relative">
@@ -248,23 +301,20 @@ export const Header: React.FC<HeaderProps> = ({
                     {isBn ? 'সব দেখুন' : 'All Markets'} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                {MARKET_SOLUTIONS.map((mkt) => (
+                {marketsSubItems.map((sub) => (
                   <button
-                    key={mkt.slug}
-                    onClick={() => {
-                      setActiveDropdown(null);
-                      onNavigate({ view: 'market-solutions', subSlug: mkt.slug });
-                    }}
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {mkt.title}
+                    {sub.label}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* About Us Dropdown (Replaces Divisions and Facilities) */}
+          {/* About Us Dropdown */}
           <div className="relative">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'about' ? null : 'about')}
@@ -289,36 +339,15 @@ export const Header: React.FC<HeaderProps> = ({
                     {isBn ? 'মূল পাতা' : 'Overview'} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                <button
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'about-us', subSection: 'overview' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Company Overview / Who We Are
-                </button>
-                <button
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'about-us', subSection: 'history' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Our History / Legacy
-                </button>
-                <button
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'about-us', subSection: 'mission-vision' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Mission & Vision
-                </button>
-                <button
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'about-us', subSection: 'leadership' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Leadership & Team
-                </button>
-                <button
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'about-us', subSection: 'certifications' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Quality Standards & Certifications
-                </button>
+                {aboutSubItems.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
+                    className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+                  >
+                    {sub.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -336,7 +365,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {activeDropdown === 'resources' && (
-              <div className="absolute top-full right-0 mt-1 w-[260px] bg-white border border-[#D9DCE1] rounded-sm shadow-xl p-3 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute top-full right-0 mt-1 w-[280px] bg-white border border-[#D9DCE1] rounded-sm shadow-xl p-3 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-top-1 duration-150">
                 <div className="pb-2 mb-1 border-b border-slate-100 flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     {isBn ? 'কারিগরি রিসোর্স' : 'Technical Resources'}
@@ -348,36 +377,15 @@ export const Header: React.FC<HeaderProps> = ({
                     {isBn ? 'সব দেখুন' : 'Resource Hub'} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                <button 
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'resources', subTab: 'blog' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Technical Blog
-                </button>
-                <button 
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'resources', subTab: 'case-studies' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Engineering Case Studies
-                </button>
-                <button 
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'resources', subTab: 'faqs' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Technical FAQs
-                </button>
-                <button 
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'resources', subTab: 'glossary' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Metallurgy Glossary
-                </button>
-                <button 
-                  onClick={() => { setActiveDropdown(null); onNavigate({ view: 'resources', subTab: 'downloads' }); }}
-                  className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
-                >
-                  Downloads & Brochures
-                </button>
+                {resourcesSubItems.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => handleSubItemClick(sub)}
+                    className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+                  >
+                    {sub.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -454,16 +462,13 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     → Casting Overview Hub
                   </button>
-                  {CASTING_PROCESSES.map((proc) => (
+                  {castingSubItems.map((sub) => (
                     <button
-                      key={proc.slug}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        onNavigate({ view: 'metal-casting', subSlug: proc.slug });
-                      }}
-                      className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {proc.title}
+                      {sub.label}
                     </button>
                   ))}
                 </div>
@@ -487,29 +492,48 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     → Capabilities Overview
                   </button>
-                  {CAPABILITIES.map((cap) => (
+                  {capabilitiesSubItems.map((sub) => (
                     <button
-                      key={cap.slug}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        onNavigate({ view: 'capabilities', subSlug: cap.slug });
-                      }}
-                      className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {cap.title}
+                      {sub.label}
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Mobile: Alloys */}
-            <button
-              onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'alloys' }); }}
-              className="w-full text-left py-2.5 font-bold text-[#0F1B2D] text-base cursor-pointer"
-            >
-              {isBn ? 'অ্যালয় ও উপকরণ' : 'Alloys (Guide & Finder)'}
-            </button>
+            {/* Mobile: Alloys Accordion */}
+            <div>
+              <button
+                onClick={() => toggleMobileSub('alloys')}
+                className="w-full flex items-center justify-between py-2.5 font-bold text-[#0F1B2D] text-base cursor-pointer"
+              >
+                <span>{isBn ? 'অ্যালয় ও উপকরণ' : 'Alloys & Materials'}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${mobileExpanded['alloys'] ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileExpanded['alloys'] && (
+                <div className="pl-4 pb-2 space-y-1.5 border-l-2 border-slate-200 ml-2">
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'alloys' }); }}
+                    className="block py-1 text-sm font-semibold text-[#1D4ED8] cursor-pointer"
+                  >
+                    → All Alloys & Finder Hub
+                  </button>
+                  {alloysSubItems.map((sub) => (
+                    <button
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Mobile: Market Solutions */}
             <div>
@@ -528,16 +552,13 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     → Market Solutions Hub
                   </button>
-                  {MARKET_SOLUTIONS.map((mkt) => (
+                  {marketsSubItems.map((sub) => (
                     <button
-                      key={mkt.slug}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        onNavigate({ view: 'market-solutions', subSlug: mkt.slug });
-                      }}
-                      className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {mkt.title}
+                      {sub.label}
                     </button>
                   ))}
                 </div>
@@ -555,36 +576,15 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               {mobileExpanded['about'] && (
                 <div className="pl-4 pb-2 space-y-1.5 border-l-2 border-slate-200 ml-2">
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'about-us', subSection: 'overview' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Company Overview / Who We Are
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'about-us', subSection: 'history' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Our History / Legacy
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'about-us', subSection: 'mission-vision' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Mission & Vision
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'about-us', subSection: 'leadership' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Leadership & Team
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'about-us', subSection: 'certifications' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Quality Standards & Certifications
-                  </button>
+                  {aboutSubItems.map((sub) => (
+                    <button
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -600,36 +600,15 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               {mobileExpanded['resources'] && (
                 <div className="pl-4 pb-2 space-y-1.5 border-l-2 border-slate-200 ml-2">
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'resources', subTab: 'blog' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Technical Blog
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'resources', subTab: 'case-studies' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Case Studies
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'resources', subTab: 'faqs' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    FAQs
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'resources', subTab: 'glossary' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Metallurgy Glossary
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); onNavigate({ view: 'resources', subTab: 'downloads' }); }}
-                    className="block py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
-                  >
-                    Downloads
-                  </button>
+                  {resourcesSubItems.map((sub) => (
+                    <button
+                      key={sub.id}
+                      onClick={() => handleSubItemClick(sub)}
+                      className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

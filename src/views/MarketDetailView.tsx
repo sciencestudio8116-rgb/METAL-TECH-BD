@@ -15,7 +15,18 @@ interface MarketDetailViewProps {
 }
 
 export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavigate, onOpenRfq }) => {
-  const currentMarket: MarketItem | undefined = MARKET_SOLUTIONS.find(m => m.slug === slug);
+  const currentMarket: MarketItem | undefined = MARKET_SOLUTIONS.find(
+    m =>
+      m.slug === slug ||
+      (slug === 'locomotives-and-wagons' && m.slug === 'railway') ||
+      (slug === 'locomotive' && m.slug === 'railway') ||
+      (slug === 'ships-and-vessel' && m.slug === 'navy-marine') ||
+      (slug === 'marine-defense' && m.slug === 'navy-marine') ||
+      (slug === 'buss-and-truck-break' && m.slug === 'heavy-vehicles') ||
+      (slug === 'truck-bus-brake' && m.slug === 'heavy-vehicles') ||
+      (slug === 'pumps-and-valves' && m.slug === 'industry') ||
+      (slug === 'industrial-equipment' && m.slug === 'industry')
+  );
 
   // If no slug, show Market Solutions Hub
   if (!slug || !currentMarket) {

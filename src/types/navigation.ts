@@ -19,6 +19,7 @@ export type PageRoute =
   | { view: 'privacy-policy' }
   | { view: 'accessibility-statement' }
   | { view: 'terms-conditions' }
-  | { view: 'search'; query?: string };
+  | { view: 'search'; query?: string }
+  | { view: 'admin'; subSection?: string };
 
 export type Language = 'en' | 'bn';

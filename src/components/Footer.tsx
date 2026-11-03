@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { SITE_METADATA } from '../data/siteData';
-import { MapPin, Phone, Mail, Shield, Linkedin, Youtube, Facebook } from 'lucide-react';
+import { MapPin, Phone, Mail, ShieldCheck, ArrowRight, Linkedin, Youtube, Facebook } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (route: PageRoute) => void;
@@ -11,211 +11,235 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpenRfq }) => {
   return (
-    <footer className="bg-[#070D1E] text-[#8D99AE] border-t border-[#2B3E50] pt-16 pb-12">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
-        {/* Main Grid: 4 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-[#1E293B]">
-          {/* Column 1: Brand & Global Headquarters (4 cols) */}
-          <div className="lg:col-span-4 space-y-5">
+    <footer className="bg-[#070D1E] text-slate-400 border-t border-slate-800/80">
+      {/* Upper Footer: 4-Column Structured Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+          
+          {/* Column 1: Brand & Contact Info */}
+          <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-[#1D4ED8] flex items-center justify-center text-white font-black text-xl shadow-[0_0_20px_rgba(29,78,216,0.45)]">
+              <div className="w-9 h-9 rounded bg-[#1D4ED8] flex items-center justify-center text-white font-black text-lg tracking-tight shadow-md shadow-blue-900/30">
                 M
               </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tight text-white leading-none">
-                  METAL TECH BD
+              <div>
+                <span className="text-lg font-black tracking-tight text-white block leading-tight">
+                  METAL TEK BD
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#F5B800] mt-1">
-                  {SITE_METADATA.tagline}
+                <span className="text-[10px] uppercase font-semibold tracking-wider text-[#F5B800] block">
+                  Foundry & Heavy Engineering
                 </span>
               </div>
             </div>
 
-            <p className="text-sm text-[#8D99AE] leading-relaxed max-w-sm">
-              Metal Tech BD manufactures precision metal castings and engineered components for the most demanding industrial applications that power, protect, and connect our world.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              High-integrity centrifugal, sand, and investment castings engineered for mission-critical industrial applications across South Asia and global markets.
             </p>
 
-            {/* Headquarters Block */}
-            <div className="space-y-3 text-xs text-slate-300">
+            {/* Direct Contact Details */}
+            <div className="space-y-2.5 text-xs pt-1">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#F5B800] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-white block">Metal Tech BD Corporate Headquarters:</span>
-                  <span className="text-[#8D99AE]">{SITE_METADATA.headquartersAddress}</span>
-                </div>
+                <span className="text-slate-300 leading-snug">
+                  {SITE_METADATA.headquartersAddress}
+                </span>
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#3B82F6] shrink-0" />
-                <a href={`tel:${SITE_METADATA.phoneRaw}`} className="text-white hover:text-[#4CC9F0] font-semibold transition-colors">
+                <Phone className="w-4 h-4 text-sky-400 shrink-0" />
+                <a 
+                  href={`tel:${SITE_METADATA.phoneRaw}`} 
+                  className="text-slate-300 hover:text-white transition-colors"
+                >
                   {SITE_METADATA.phone}
                 </a>
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#3B82F6] shrink-0" />
-                <a href={`mailto:${SITE_METADATA.salesEmail}`} className="text-slate-300 hover:text-[#4CC9F0] transition-colors">
+                <Mail className="w-4 h-4 text-sky-400 shrink-0" />
+                <a 
+                  href={`mailto:${SITE_METADATA.salesEmail}`} 
+                  className="text-slate-300 hover:text-white transition-colors"
+                >
                   {SITE_METADATA.salesEmail}
                 </a>
               </div>
             </div>
 
-            {/* Social Icons (LinkedIn, YouTube, Facebook) */}
-            <div className="flex items-center gap-3 pt-2">
-              <a 
-                href="https://www.linkedin.com/company/metaltek-international" 
-                target="_blank" 
+            {/* Social Channels */}
+            <div className="flex items-center gap-2.5 pt-2">
+              <a
+                href="https://www.linkedin.com"
+                target="_blank"
                 rel="noopener noreferrer"
-                aria-label="MetalTek International on LinkedIn"
-                className="w-9 h-9 rounded-md bg-[#1C2541] border border-[#2B3E50] hover:bg-[#3B82F6] hover:border-[#3B82F6] flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300"
+                aria-label="LinkedIn"
+                className="w-8 h-8 rounded bg-slate-900 border border-slate-800 hover:border-sky-500 hover:bg-sky-500/10 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-200"
               >
-                <Linkedin className="w-4 h-4" />
+                <Linkedin className="w-3.5 h-3.5" />
               </a>
-              <a 
-                href="https://www.youtube.com/channel/UCX-CeG7lDg6WVnNYsc9nvaA" 
-                target="_blank" 
+              <a
+                href="https://www.youtube.com"
+                target="_blank"
                 rel="noopener noreferrer"
-                aria-label="MetalTek International on YouTube"
-                className="w-9 h-9 rounded-md bg-[#1C2541] border border-[#2B3E50] hover:bg-[#3B82F6] hover:border-[#3B82F6] flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300"
+                aria-label="YouTube"
+                className="w-8 h-8 rounded bg-slate-900 border border-slate-800 hover:border-red-500 hover:bg-red-500/10 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-200"
               >
-                <Youtube className="w-4 h-4" />
+                <Youtube className="w-3.5 h-3.5" />
               </a>
-              <a 
-                href="https://www.facebook.com/MetalTekInternational" 
-                target="_blank" 
+              <a
+                href="https://www.facebook.com"
+                target="_blank"
                 rel="noopener noreferrer"
-                aria-label="MetalTek International on Facebook"
-                className="w-9 h-9 rounded-md bg-[#1C2541] border border-[#2B3E50] hover:bg-[#3B82F6] hover:border-[#3B82F6] flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300"
+                aria-label="Facebook"
+                className="w-8 h-8 rounded bg-slate-900 border border-slate-800 hover:border-blue-500 hover:bg-blue-500/10 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-200"
               >
-                <Facebook className="w-4 h-4" />
+                <Facebook className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
 
-          {/* Column 2: Our Capabilities */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">
-              Our Capabilities
+          {/* Column 2: Casting Processes */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#F5B800] rounded-full inline-block"></span>
+              Casting Processes
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2.5 text-xs">
               {[
-                { label: 'Metal Casting', route: { view: 'metal-casting' as const } },
+                { label: 'Centrifugal Casting', route: { view: 'metal-casting' as const, subSlug: 'centrifugal-casting' } },
+                { label: 'Sand Casting', route: { view: 'metal-casting' as const, subSlug: 'sand-casting' } },
+                { label: 'Investment Casting', route: { view: 'metal-casting' as const, subSlug: 'investment-casting' } },
+                { label: 'Continuous & Ingot Casting', route: { view: 'metal-casting' as const, subSlug: 'ingot-casting' } },
+                { label: 'Alloy Finder & Materials', route: { view: 'alloys' as const } },
+                { label: 'Market Solutions', route: { view: 'market-solutions' as const } },
+              ].map((item, idx) => (
+                <li key={idx}>
+                  <button
+                    onClick={() => onNavigate(item.route)}
+                    className="hover:text-white hover:translate-x-0.5 text-slate-400 transition-all duration-150 text-left cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3: Capabilities & Engineering */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-sky-400 rounded-full inline-block"></span>
+              Engineering & Lab
+            </h4>
+            <ul className="space-y-2.5 text-xs">
+              {[
+                { label: 'Precision CNC Machining', route: { view: 'capabilities' as const, subSlug: 'metal-machining' } },
+                { label: 'Precision Heat Treatment', route: { view: 'capabilities' as const, subSlug: 'heat-treatment' } },
+                { label: 'Metallurgical Testing & NDT Lab', route: { view: 'capabilities' as const, subSlug: 'metal-testing-analysis' } },
+                { label: 'Fabrication & Welding', route: { view: 'capabilities' as const, subSlug: 'metal-fabrication' } },
                 { label: 'Additive Manufacturing', route: { view: 'capabilities' as const, subSlug: 'additive-manufacturing' } },
-                { label: 'Metallurgy & Engineering', route: { view: 'capabilities' as const, subSlug: 'metallurgy-engineering' } },
-                { label: 'Precision Metal Heat Treatment', route: { view: 'capabilities' as const, subSlug: 'heat-treatment' } },
-                { label: 'Metal Machining', route: { view: 'capabilities' as const, subSlug: 'metal-machining' } },
-                { label: 'Metal Fabrication', route: { view: 'capabilities' as const, subSlug: 'metal-fabrication' } },
-                { label: 'Metal Testing & Analysis', route: { view: 'capabilities' as const, subSlug: 'metal-testing-analysis' } },
-                { label: 'TekSession Training', route: { view: 'capabilities' as const, subSlug: 'training' } },
+                { label: 'Quality Standards & Testing', route: { view: 'about-us' as const, subSection: 'certifications' as const } },
               ].map((item, idx) => (
                 <li key={idx}>
-                  <button 
+                  <button
                     onClick={() => onNavigate(item.route)}
-                    className="hover:text-[#4CC9F0] text-[#8D99AE] transition-colors duration-200 text-left cursor-pointer"
+                    className="hover:text-white hover:translate-x-0.5 text-slate-400 transition-all duration-150 text-left cursor-pointer flex items-center gap-1.5"
                   >
-                    {item.label}
+                    <span>{item.label}</span>
                   </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 3: About Us */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">
-              About Us
+          {/* Column 4: Resources & Fast RFQ */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block"></span>
+              Resources & Support
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2.5 text-xs">
               {[
-                { label: 'Company Overview / Who We Are', route: { view: 'about-us' as const, subSection: 'overview' as const } },
-                { label: 'Our History / Legacy', route: { view: 'about-us' as const, subSection: 'history' as const } },
-                { label: 'Mission & Vision', route: { view: 'about-us' as const, subSection: 'mission-vision' as const } },
-                { label: 'Leadership & Team', route: { view: 'about-us' as const, subSection: 'leadership' as const } },
-                { label: 'Quality Standards & Certifications', route: { view: 'about-us' as const, subSection: 'certifications' as const } },
-                { label: 'Careers & Training', route: { view: 'careers' as const } },
+                { label: 'Company Overview', route: { view: 'about-us' as const, subSection: 'overview' as const } },
                 { label: 'Technical Case Studies', route: { view: 'resources' as const, subTab: 'case-studies' as const } },
+                { label: 'Technical Blog & Insights', route: { view: 'resources' as const, subTab: 'blog' as const } },
+                { label: 'Metallurgy Glossary', route: { view: 'resources' as const, subTab: 'glossary' as const } },
+                { label: 'Frequently Asked Questions', route: { view: 'resources' as const, subTab: 'faqs' as const } },
+                { label: 'Technical Downloads', route: { view: 'resources' as const, subTab: 'downloads' as const } },
               ].map((item, idx) => (
                 <li key={idx}>
-                  <button 
+                  <button
                     onClick={() => onNavigate(item.route)}
-                    className="hover:text-[#4CC9F0] text-[#8D99AE] transition-colors duration-200 text-left cursor-pointer"
+                    className="hover:text-white hover:translate-x-0.5 text-slate-400 transition-all duration-150 text-left cursor-pointer flex items-center gap-1.5"
                   >
-                    {item.label}
+                    <span>{item.label}</span>
                   </button>
                 </li>
               ))}
             </ul>
-          </div>
 
-          {/* Column 4: Ask The Metal Experts / Fast Action */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">
-              Ask The Metal Experts
-            </h4>
-            <p className="text-xs text-[#8D99AE] leading-relaxed">
-              Connect directly with our metallurgists and key account engineering team.
-            </p>
-            <button
-              onClick={() => onNavigate({ view: 'contact-us' })}
-              className="w-full py-2.5 px-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold rounded-md shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 cursor-pointer text-center"
-            >
-              Contact Us
-            </button>
-            <div className="pt-3 border-t border-[#1E293B] space-y-2">
-              <div className="flex items-center gap-2 text-xs text-slate-300">
-                <Shield className="w-3.5 h-3.5 text-[#4CC9F0]" />
-                <span>ISO 9001:2015 Registered</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-300">
-                <Shield className="w-3.5 h-3.5 text-[#4CC9F0]" />
-                <span>Nadcap & AS9100D</span>
-              </div>
+            {/* Quick RFQ CTA Button */}
+            <div className="pt-2">
+              <button
+                onClick={onOpenRfq}
+                className="w-full py-2.5 px-3 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white text-xs font-semibold rounded flex items-center justify-center gap-2 shadow-sm transition-all duration-200 cursor-pointer"
+              >
+                <span>Request a Quote (RFQ)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Legal Row & Compliance Links */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#8D99AE]">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2">
-            <button 
+        </div>
+      </div>
+
+      {/* Bottom Sub-Footer: Legal, Compliance, & Copyright */}
+      <div className="border-t border-slate-800/80 bg-[#050A17]/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          
+          {/* Legal Navigation Links */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-1.5">
+            <button
               onClick={() => onNavigate({ view: 'privacy-policy' })}
-              className="hover:text-[#4CC9F0] transition-colors cursor-pointer"
+              className="hover:text-slate-200 transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
-            <button 
-              onClick={onOpenCookies}
-              className="hover:text-[#4CC9F0] transition-colors cursor-pointer"
-            >
-              Cookie Policy
-            </button>
-            <button 
-              onClick={() => onNavigate({ view: 'accessibility-statement' })}
-              className="hover:text-[#4CC9F0] transition-colors cursor-pointer"
-            >
-              Accessibility Statement
-            </button>
-            <button 
+            <span className="text-slate-700 hidden sm:inline">•</span>
+            <button
               onClick={() => onNavigate({ view: 'terms-conditions' })}
-              className="hover:text-[#4CC9F0] transition-colors cursor-pointer"
+              className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Website Terms & Conditions
+              Terms & Conditions
             </button>
-            <span className="text-[#2B3E50] hidden sm:inline">•</span>
-            <span className="text-[#8D99AE]">EEO Posting</span>
-            <span className="text-[#8D99AE]">Pay Transparency</span>
-            <span className="text-[#8D99AE]">Do Not Sell or Share My Personal Information</span>
-            <button 
-              onClick={onOpenCookies}
-              className="hover:text-[#4CC9F0] transition-colors underline decoration-dotted cursor-pointer"
+            <span className="text-slate-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => onNavigate({ view: 'accessibility-statement' })}
+              className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Consent Preferences
+              Accessibility
+            </button>
+            <span className="text-slate-700 hidden sm:inline">•</span>
+            <button
+              onClick={onOpenCookies}
+              className="hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              Cookie Settings
             </button>
           </div>
 
-          <div className="text-center md:text-right text-[#8D99AE]">
-            {SITE_METADATA.copyright}
+          {/* Certifications & Copyright */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>ISO 9001:2015 Certified</span>
+            </div>
+            <span className="text-slate-700 hidden sm:inline">|</span>
+            <span className="text-[11px] text-slate-400">
+              {SITE_METADATA.copyright}
+            </span>
           </div>
+
         </div>
       </div>
     </footer>

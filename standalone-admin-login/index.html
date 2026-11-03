@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Admin Console | Metal Tek BD</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#070D1E',
+              card: '#0E1726',
+              border: '#1E293B',
+              primary: '#2563EB',
+              accent: '#38BDF8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Optional Supabase Client SDK (Uncomment when ready to connect Supabase) -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+
+  <style>
+    /* Isolated Scoped Keyframes and Animations */
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes cardZoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    @keyframes spinFast {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .admin-card-anim {
+      animation: cardZoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .admin-spinner {
+      animation: spinFast 0.7s linear infinite;
+    }
+
+    /* Prevent default browser eye in Edge/IE */
+    input::-ms-reveal,
+    input::-ms-clear {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[#070D1E] text-slate-100 font-sans min-h-screen flex items-center justify-center p-4 selection:bg-blue-600 selection:text-white antialiased relative overflow-hidden">
+
+  <!-- Subtle Radial Background Glow -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Main Card Container -->
+  <div class="relative w-full max-w-[390px] bg-[#0E1726] border border-blue-500/25 rounded-xl shadow-2xl shadow-black/80 overflow-hidden admin-card-anim">
+    
+    <!-- Top Tricolor Accent Line -->
+    <div class="h-[3px] w-full bg-gradient-to-r from-blue-600 via-sky-400 to-amber-500"></div>
+
+    <!-- Header Section -->
+    <div class="px-6 pt-6 pb-4 flex items-center justify-between border-b border-slate-800/60">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-950/70 border border-sky-400/30 flex items-center justify-center text-sky-400 shadow-inner">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-white tracking-tight leading-none">Admin Login</h1>
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Metal Tek BD Management</p>
+        </div>
+      </div>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800/90 text-slate-400 border border-slate-700/60">
+        v1.0
+      </span>
+    </div>
+
+    <!-- Authentication Form -->
+    <form
+      id="adminLoginForm"
+      class="p-6 space-y-4"
+      onsubmit="onFormSubmit(event)"
+      autocomplete="off"
+      data-lpignore="true"
+      data-form-type="other"
+      novalidate
+    >
+      <!-- Anti-Autofill Decoy Inputs (Absorbs Chrome/Firefox password manager heuristics) -->
+      <div style="position: absolute; opacity: 0; pointer-events: none; height: 0; width: 0; overflow: hidden; clip: rect(0, 0, 0, 0);" aria-hidden="true">
+        <input type="text" name="fake_user_guard" tabindex="-1" autocomplete="off" />
+        <input type="password" name="fake_pass_guard" tabindex="-1" autocomplete="new-password" />
+      </div>
+
+      <!-- Clean Dynamic Alert Message -->
+      <div
+        id="alertBox"
+        class="hidden p-3 rounded-md bg-rose-950/50 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2.5 transition-all"
+        role="alert"
+      >
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+        <span id="alertMessage" class="leading-snug"></span>
+      </div>
+
+      <!-- Success Notification Box -->
+      <div
+        id="successBox"
+        class="hidden p-3 rounded-md bg-emerald-950/50 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2.5 transition-all"
+        role="alert"
+      >
+        <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-emerald-400"></i>
+        <span id="successMessage" class="leading-snug">Authentication successful. Redirecting...</span>
+      </div>
+
+      <!-- Username or Email Field -->
+      <div class="space-y-1.5">
+        <label for="adminEmail" class="block text-xs font-semibold text-slate-300 tracking-wide select-none">
+          Username or Email
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <i data-lucide="user" class="w-4 h-4"></i>
+          </div>
+          <input
+            id="adminEmail"
+            name="mtk_adm_usr"
+            type="text"
+            placeholder="admin@metaltekbd.com"
+            class="w-full pl-9 pr-3 py-2 bg-[#070D18] border border-slate-700/80 rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all font-sans"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-lpignore="true"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Password Field with Visibility Toggle -->
+      <div class="space-y-1.5">
+        <label for="adminPassword" class="block text-xs font-semibold text-slate-300 tracking-wide select-none">
+          Password
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <i data-lucide="key" class="w-4 h-4"></i>
+          </div>
+          <input
+            id="adminPassword"
+            name="mtk_adm_pwd"
+            type="password"
+            placeholder="••••••••••••"
+            class="w-full pl-9 pr-10 py-2 bg-[#070D18] border border-slate-700/80 rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all font-mono"
+            autocomplete="new-password"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-form-type="other"
+            required
+          />
+          <button
+            type="button"
+            id="togglePasswordBtn"
+            onclick="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Toggle password visibility"
+            tabindex="-1"
+          >
+            <i id="eyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-2">
+        <button
+          type="submit"
+          id="submitBtn"
+          class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-sky-600 active:from-blue-800 active:to-blue-700 text-white font-semibold rounded-md text-sm shadow-md shadow-blue-900/30 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <span id="btnText">Sign In</span>
+          <i id="btnIcon" data-lucide="arrow-right" class="w-4 h-4"></i>
+          <i id="btnSpinner" data-lucide="loader-2" class="w-4 h-4 admin-spinner hidden"></i>
+        </button>
+      </div>
+    </form>
+
+    <!-- Footer Security Indicator -->
+    <div class="px-6 py-3 bg-[#080E1C] border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500">
+      <span class="flex items-center gap-1.5">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span>Encrypted Access</span>
+      </span>
+      <span>Metal Tek BD &copy; 2026</span>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+
+    // Password visibility toggle handler
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('adminPassword');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
+    // Alert display helper
+    function showAlert(message) {
+      const alertBox = document.getElementById('alertBox');
+      const alertMessage = document.getElementById('alertMessage');
+      const successBox = document.getElementById('successBox');
+
+      successBox.classList.add('hidden');
+      alertMessage.textContent = message;
+      alertBox.classList.remove('hidden');
+    }
+
+    function showSuccess(message) {
+      const alertBox = document.getElementById('alertBox');
+      const successBox = document.getElementById('successBox');
+      const successMessage = document.getElementById('successMessage');
+
+      alertBox.classList.add('hidden');
+      successMessage.textContent = message;
+      successBox.classList.remove('hidden');
+    }
+
+    function hideAlerts() {
+      document.getElementById('alertBox').classList.add('hidden');
+      document.getElementById('successBox').classList.add('hidden');
+    }
+
+    function setSubmitting(isSubmitting) {
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnIcon = document.getElementById('btnIcon');
+      const btnSpinner = document.getElementById('btnSpinner');
+
+      submitBtn.disabled = isSubmitting;
+      if (isSubmitting) {
+        btnText.textContent = 'Verifying...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Sign In';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    /**
+     * ==============================================================
+     * SUPABASE AUTHENTICATION HOOK (Future Integration Slot)
+     * ==============================================================
+     *
+     * Once ready to connect Supabase:
+     * 1. Include the Supabase CDN script in <head>:
+     *    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
+     *
+     * 2. Initialize your Supabase client:
+     *    const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+     *    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+     *    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+     *
+     * 3. Swap the mock verification below with:
+     *    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+     *    if (error) throw error;
+     *    return { success: true, user: data.user, session: data.session };
+     */
+    async function handleAdminLogin(email, password) {
+      // MOCK AUTHENTICATION (Default sandbox credentials for immediate Vercel preview):
+      // Allowed Usernames: admin@metaltekbd.com | admin
+      // Allowed Passwords: MetalTek@2026 | admin123
+      const cleanUser = email.trim().toLowerCase();
+      const cleanPass = password.trim();
+
+      const isValidUser = cleanUser === 'admin@metaltekbd.com' || cleanUser === 'admin';
+      const isValidPass = cleanPass === 'MetalTek@2026' || cleanPass === 'admin123';
+
+      // Simulate a realistic network/cryptographic round-trip delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      if (isValidUser && isValidPass) {
+        // Return simulated user session
+        return {
+          success: true,
+          user: {
+            email: cleanUser.includes('@') ? cleanUser : 'admin@metaltekbd.com',
+            role: 'superadmin',
+            name: 'Master Admin'
+          }
+        };
+      } else {
+        throw new Error('Invalid credentials. Please verify username and password.');
+      }
+    }
+
+    // Form submission controller
+    async function onFormSubmit(event) {
+      event.preventDefault();
+      hideAlerts();
+
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      if (!email) {
+        showAlert('Please enter your admin username or email.');
+        return;
+      }
+      if (!password) {
+        showAlert('Please enter your password.');
+        return;
+      }
+
+      setSubmitting(true);
+
+      try {
+        const result = await handleAdminLogin(email, password);
+        if (result && result.success) {
+          showSuccess('Authenticated successfully. Redirecting to workspace...');
+          // Save session token / state if desired
+          sessionStorage.setItem('metaltek_admin_auth', JSON.stringify(result.user));
+
+          setTimeout(() => {
+            // Future dashboard redirect target (e.g. /dashboard or /admin)
+            // window.location.href = '/dashboard';
+            showSuccess('Welcome! Session authenticated.');
+            setSubmitting(false);
+          }, 1000);
+        }
+      } catch (err) {
+        showAlert(err.message || 'Authentication failed. Please try again.');
+        setSubmitting(false);
+      }
+    }
+  </script>
+</body>
+</html>

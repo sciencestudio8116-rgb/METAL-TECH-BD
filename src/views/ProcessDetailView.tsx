@@ -16,7 +16,9 @@ interface ProcessDetailViewProps {
 
 export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNavigate, onOpenRfq }) => {
   // If no slug, show the Metal Casting Overview Hub
-  const currentProcess: ProcessItem | undefined = CASTING_PROCESSES.find(p => p.slug === slug);
+  const currentProcess: ProcessItem | undefined = CASTING_PROCESSES.find(
+    p => p.slug === slug || (slug === 'continuous-casting' && p.slug === 'ingot')
+  );
 
   if (!slug || !currentProcess) {
     return (

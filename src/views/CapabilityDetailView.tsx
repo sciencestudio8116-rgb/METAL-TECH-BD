@@ -18,7 +18,16 @@ interface CapabilityDetailViewProps {
 }
 
 export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug, onNavigate, onOpenRfq }) => {
-  const currentCap: CapabilityItem | undefined = CAPABILITIES.find(c => c.slug === slug);
+  const currentCap: CapabilityItem | undefined = CAPABILITIES.find(
+    c =>
+      c.slug === slug ||
+      (slug === 'large-scale-machining' && c.slug === 'metal-machining') ||
+      (slug === 'precision-cnc-machining' && c.slug === 'metal-machining') ||
+      (slug === 'cad-solidification-modeling' && c.slug === 'metallurgy-engineering') ||
+      (slug === 'metallurgical-testing-lab' && c.slug === 'metal-testing-analysis') ||
+      (slug === 'thermal-heat-treatment' && c.slug === 'heat-treatment') ||
+      (slug === '3d-sand-printing' && c.slug === 'additive-manufacturing')
+  );
 
   // If no slug, show Capabilities Overview Hub
   if (!slug || !currentCap) {

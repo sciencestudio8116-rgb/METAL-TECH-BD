@@ -22,16 +22,41 @@ import { CompanyProfileView } from './views/CompanyProfileView';
 import { CareersView } from './views/CareersView';
 import { ContactUsView } from './views/ContactUsView';
 import { LegalView } from './views/LegalView';
+import { AdminDashboardView } from './views/admin/AdminDashboardView';
+import { AdminProvider, useAdmin } from './context/AdminContext';
+import { AdminLoginModal } from './components/admin/AdminLoginModal';
+import { AdminFloatingTrigger } from './components/admin/AdminFloatingTrigger';
+import { ShieldCheck, Lock, ArrowLeft } from 'lucide-react';
 
-export default function App() {
+function AppContent() {
+  const { isAuthenticated } = useAdmin();
   const [currentRoute, setCurrentRoute] = useState<PageRoute>({ view: 'home' });
   const [language, setLanguage] = useState<Language>('en');
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
 
   // Modals
   const [rfqOpen, setRfqOpen] = useState(false);
   const [rfqPrefill, setRfqPrefill] = useState<{ alloy?: string; process?: string } | undefined>(undefined);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cookieSettingsOpen, setCookieSettingsOpen] = useState(false);
+
+  // Check for /admin URL route or hash on mount/popstate
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/admin' || hash === '#admin') {
+        setCurrentRoute({ view: 'admin' });
+      }
+    };
+    checkAdminRoute();
+    window.addEventListener('popstate', checkAdminRoute);
+    window.addEventListener('hashchange', checkAdminRoute);
+    return () => {
+      window.removeEventListener('popstate', checkAdminRoute);
+      window.removeEventListener('hashchange', checkAdminRoute);
+    };
+  }, []);
 
   // Scroll to top on navigation change
   useEffect(() => {
@@ -50,6 +75,52 @@ export default function App() {
   const handleToggleLanguage = () => {
     setLanguage(prev => (prev === 'en' ? 'bn' : 'en'));
   };
+
+  // Dedicated full-screen Admin View when view is 'admin'
+  if (currentRoute.view === 'admin') {
+    if (isAuthenticated) {
+      return <AdminDashboardView onNavigate={handleNavigate} />;
+    }
+
+    return (
+      <div className="min-h-screen bg-[#070D1E] text-slate-100 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#0C1527] border border-cyan-500/30 rounded-lg p-8 shadow-2xl text-center space-y-5 animate-in fade-in duration-200">
+          <div className="w-16 h-16 mx-auto rounded-full bg-cyan-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-inner">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-wide">Administrator Portal</h1>
+            <p className="text-xs text-slate-400 mt-1">Metal Tek BD Master Content Management System</p>
+          </div>
+          <div className="p-3 rounded bg-slate-900 border border-slate-800 text-xs text-slate-300">
+            Authentication required to access website management, alloy specs, and customer inquiries.
+          </div>
+          <div className="space-y-2.5">
+            <button
+              onClick={() => setAdminLoginOpen(true)}
+              className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold rounded text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Unlock Admin Console</span>
+            </button>
+            <button
+              onClick={() => handleNavigate({ view: 'home' })}
+              className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Return to Public Website</span>
+            </button>
+          </div>
+        </div>
+
+        <AdminLoginModal
+          isOpen={adminLoginOpen}
+          onClose={() => setAdminLoginOpen(false)}
+          onSuccessRedirect={() => handleNavigate({ view: 'admin' })}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#1F2933] font-sans antialiased">
@@ -252,6 +323,27 @@ export default function App() {
         forceOpen={cookieSettingsOpen}
         onCloseForce={() => setCookieSettingsOpen(false)}
       />
+
+      {/* Temporary Testing Feature: Discreet Floating Admin Access Button */}
+      <AdminFloatingTrigger
+        onOpenLogin={() => setAdminLoginOpen(true)}
+        onNavigateToAdmin={() => handleNavigate({ view: 'admin' })}
+      />
+
+      {/* Admin Login Security Dialog */}
+      <AdminLoginModal
+        isOpen={adminLoginOpen}
+        onClose={() => setAdminLoginOpen(false)}
+        onSuccessRedirect={() => handleNavigate({ view: 'admin' })}
+      />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AdminProvider>
+      <AppContent />
+    </AdminProvider>
   );
 }
