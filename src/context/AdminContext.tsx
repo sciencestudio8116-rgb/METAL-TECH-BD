@@ -6,12 +6,109 @@ import {
   BLOG_POSTS,
   FAQ_ITEMS,
   GLOSSARY_TERMS,
+  CASTING_PROCESSES,
+  CAPABILITIES,
+  MARKET_SOLUTIONS,
   Alloy,
   CaseStudy,
   BlogPost,
   FAQItem,
   GlossaryTerm,
+  ProcessItem,
+  CapabilityItem,
+  MarketItem,
 } from '../data/siteData';
+import {
+  autoTranslateContentItemFields,
+  autoTranslateBlogPostFields,
+  autoTranslateVideoFields,
+  autoTranslateProcessFields,
+  autoTranslateCapabilityFields,
+  autoTranslateMarketFields,
+} from '../lib/translator';
+import { supabase } from '../lib/supabase';
+import {
+  toProcessCardRow, fromProcessCardRow,
+  toCapabilityCardRow, fromCapabilityCardRow,
+  toMarketCardRow, fromMarketCardRow,
+  toVideoRow, fromVideoRow,
+  toLeadRow, fromLeadRow,
+  toSiteMetadataRow, fromSiteMetadataRow
+} from '../lib/supabaseTransformers';
+
+export interface VideoItem {
+  id: string;
+  title: string;
+  titleBn?: string;
+  description: string;
+  descriptionBn?: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  category: string;
+  categoryBn?: string;
+  tags?: string[];
+  duration?: string;
+  isPublished?: boolean;
+}
+
+export const INITIAL_VIDEOS: VideoItem[] = [
+  {
+    id: 'vid-1',
+    title: 'Centrifugal Rotational Casting Pouring Process',
+    titleBn: 'সেন্ট্রিফিউগাল রোটেশনাল কাস্টিং ঢালাই প্রক্রিয়া',
+    description: 'Watch 80 G-force rotational mold filling and directional cooling in our Gazipur heavy casting plant.',
+    descriptionBn: 'গাজীপুর ভারী কাস্টিং প্ল্যান্টে ৮০ জি-ফোর্স ঘূর্ণমান ছাঁচ ভরাট এবং দিকনির্দেশক শীতলীকরণ পর্যবেক্ষণ করুন।',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80',
+    category: 'Foundry Process',
+    categoryBn: 'ফাউন্ড্রি প্রক্রিয়া',
+    duration: '03:45',
+    tags: ['Centrifugal', 'Pouring', 'Foundry', 'Heavy Industry'],
+    isPublished: true,
+  },
+  {
+    id: 'vid-2',
+    title: '10-Ton AOD Vessel Secondary Refining Cycle',
+    titleBn: '১০-টন এওডি ভেসেল সেকেন্ডারি রিফাইনিং চক্র',
+    description: 'Argon-oxygen bubbling sequence for ultra-low carbon stainless steel decarburization.',
+    descriptionBn: 'আল্ট্রা-লো কার্বন স্টেইনলেস স্টিলের জন্য আর্গন-অক্সিজেন বাবলিং ও সেকেন্ডারি রিফাইনিং সিকোয়েন্স।',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+    category: 'Metallurgy & Refining',
+    categoryBn: 'ধাতুবিদ্যা ও পরিশোধন',
+    duration: '04:15',
+    tags: ['AOD', 'Refining', 'Stainless Steel', 'Decarburization'],
+    isPublished: true,
+  },
+  {
+    id: 'vid-3',
+    title: '5-Axis CNC Machining of Severe Service Valve Bodies',
+    titleBn: 'সিভিয়ার সার্ভিস ভালভ বডির ৫-অ্যাক্সিস সিএনসি মেশিনিং',
+    description: 'Toshiba horizontal boring mill executing high-precision assembly tolerances on duplex stainless components.',
+    descriptionBn: 'তোশিবা হরাইজন্টাল বোরিং মিলের মাধ্যমে ডুপ্লেক্স স্টেইনলেস স্টিলে উচ্চ নির্ভুলতা সম্পন্ন সিএনসি মেশিনিং।',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80',
+    category: 'Precision Machining',
+    categoryBn: 'প্রিসিশন মেশিনিং',
+    duration: '02:50',
+    tags: ['CNC', '5-Axis', 'Machining', 'Tolerances'],
+    isPublished: true,
+  },
+  {
+    id: 'vid-4',
+    title: 'Cryogenic Charpy Impact Testing at -196°C',
+    titleBn: 'মাইনাস ১৯৬° সে. তাপমাত্রায় ক্রায়োজেনিক চার্পি ইমপ্যাক্ট টেস্ট',
+    description: 'Quality assurance protocol demonstrating high fracture toughness for LNG service.',
+    descriptionBn: 'এলএনজি সার্ভিসের জন্য উচ্চ ফ্র্যাকচার বলিষ্ঠতা প্রমাণকারী কোয়ালিটি অ্যাসিউরেন্স প্রোটোকল।',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80',
+    category: 'Quality & Testing',
+    categoryBn: 'মান নিয়ন্ত্রণ ও পরীক্ষা',
+    duration: '02:10',
+    tags: ['Cryogenic', 'Testing', 'NDT', 'Charpy Impact'],
+    isPublished: true,
+  },
+];
 
 export interface DownloadItem {
   title: string;
@@ -74,8 +171,10 @@ export interface NavigationSubItem {
 export interface NavigationMenuItem {
   id: string;
   label: string;
+  labelBn?: string;
   iconName: string;
   routeView: 'metal-casting' | 'capabilities' | 'alloys' | 'market-solutions' | 'resources' | 'about-us' | 'contact-us';
+  description?: string;
   subItems: NavigationSubItem[];
 }
 
@@ -84,9 +183,13 @@ export interface ContentItem {
   menuId: string;
   subItemId: string;
   title: string;
+  titleBn?: string;
   subtitle?: string;
+  subtitleBn?: string;
   eyebrow?: string;
+  eyebrowBn?: string;
   bodyMdx: string;
+  bodyMdxBn?: string;
   imageUrl?: string;
   pdfUrl?: string;
   pdfSize?: string;
@@ -127,11 +230,36 @@ interface AdminContextType {
   login: (usernameOrEmail: string, password: string) => { success: boolean; error?: string };
   logout: () => void;
 
-  // Dynamic Navigation & Sub-menus Mirror
+  // Dynamic Navigation & Main/Sub-menus Mirror
   navigationMenu: NavigationMenuItem[];
+  addMainMenu: (menu: NavigationMenuItem) => void;
+  updateMainMenu: (menuId: string, updated: Partial<NavigationMenuItem>) => void;
+  deleteMainMenu: (menuId: string) => void;
   addSubMenu: (menuId: string, subItem: NavigationSubItem) => void;
   updateSubMenu: (menuId: string, subItemId: string, updated: Partial<NavigationSubItem>) => void;
   deleteSubMenu: (menuId: string, subItemId: string) => void;
+
+  // Process, Capability & Market Sector Cards (Universal Editable State)
+  processCards: ProcessItem[];
+  addProcessCard: (card: ProcessItem) => void;
+  updateProcessCard: (slug: string, card: Partial<ProcessItem>) => void;
+  deleteProcessCard: (slug: string) => void;
+
+  capabilityCards: CapabilityItem[];
+  addCapabilityCard: (card: CapabilityItem) => void;
+  updateCapabilityCard: (slug: string, card: Partial<CapabilityItem>) => void;
+  deleteCapabilityCard: (slug: string) => void;
+
+  marketCards: MarketItem[];
+  addMarketCard: (card: MarketItem) => void;
+  updateMarketCard: (slug: string, card: Partial<MarketItem>) => void;
+  deleteMarketCard: (slug: string) => void;
+
+  // Videos
+  videos: VideoItem[];
+  addVideo: (video: VideoItem) => void;
+  updateVideo: (id: string, updated: Partial<VideoItem>) => void;
+  deleteVideo: (id: string) => void;
 
   // Content, Article & Media Workspace Items
   contentItems: ContentItem[];
@@ -187,11 +315,16 @@ interface AdminContextType {
   resetToDefaults: () => void;
   exportDataJson: () => string;
   importDataJson: (jsonString: string) => { success: boolean; error?: string };
+
+  // Supabase Real-time Cloud Sync
+  supabaseConnected: boolean;
+  supabaseSyncing: boolean;
+  syncWithSupabase: () => Promise<void>;
 }
 
 const STORAGE_KEYS = {
   SESSION: 'metaltek_admin_session_v1',
-  NAVIGATION_MENU: 'metaltek_navigation_menu_v2',
+  NAVIGATION_MENU: 'metaltek_navigation_menu_v3',
   CONTENT_ITEMS: 'metaltek_content_items_v2',
   SITE_METADATA: 'metaltek_site_metadata_v1',
   HERO_CONTENTS: 'metaltek_hero_contents_v1',
@@ -202,6 +335,10 @@ const STORAGE_KEYS = {
   DOWNLOADS: 'metaltek_downloads_v1',
   GLOSSARY: 'metaltek_glossary_v1',
   LEADS: 'metaltek_leads_v1',
+  PROCESS_CARDS: 'metaltek_process_cards_v1',
+  CAPABILITY_CARDS: 'metaltek_capability_cards_v1',
+  MARKET_CARDS: 'metaltek_market_cards_v1',
+  VIDEOS: 'metaltek_videos_v1',
 };
 
 export const INITIAL_NAVIGATION_MENU: NavigationMenuItem[] = [
@@ -266,6 +403,7 @@ export const INITIAL_NAVIGATION_MENU: NavigationMenuItem[] = [
     subItems: [
       { id: 'technical-blog', label: 'Technical Blog', slug: 'blog', description: 'Foundry design papers, casting guides, and metallurgical failure analyses.', routeView: 'resources', subTab: 'blog' },
       { id: 'case-studies', label: 'Case Studies', slug: 'case-studies', description: 'Engineering problem solving, scrap reduction, and component life extensions.', routeView: 'resources', subTab: 'case-studies' },
+      { id: 'videos', label: 'Technical Videos', slug: 'videos', description: 'Foundry pouring, AOD vessel refining, and CNC machining process videos.', routeView: 'resources', subTab: 'videos' },
       { id: 'faqs', label: 'Technical FAQs', slug: 'faqs', description: 'Common engineering queries on casting processes, alloys, and lead times.', routeView: 'resources', subTab: 'faqs' },
       { id: 'glossary', label: 'Metallurgy Glossary', slug: 'glossary', description: 'Comprehensive A-Z dictionary of casting, metallurgy, and heat treat terminology.', routeView: 'resources', subTab: 'glossary' },
       { id: 'downloads', label: 'Downloads', slug: 'downloads', description: 'Official alloy specification datasheets, ISO certificates, and company brochures.', routeView: 'resources', subTab: 'downloads' },
@@ -579,6 +717,43 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   });
 
+  // Dynamic Universal Cards State (Universal Editable State)
+  const [processCards, setProcessCards] = useState<ProcessItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PROCESS_CARDS);
+      return saved ? JSON.parse(saved) : CASTING_PROCESSES;
+    } catch {
+      return CASTING_PROCESSES;
+    }
+  });
+
+  const [capabilityCards, setCapabilityCards] = useState<CapabilityItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.CAPABILITY_CARDS);
+      return saved ? JSON.parse(saved) : CAPABILITIES;
+    } catch {
+      return CAPABILITIES;
+    }
+  });
+
+  const [marketCards, setMarketCards] = useState<MarketItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.MARKET_CARDS);
+      return saved ? JSON.parse(saved) : MARKET_SOLUTIONS;
+    } catch {
+      return MARKET_SOLUTIONS;
+    }
+  });
+
+  const [videos, setVideos] = useState<VideoItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VIDEOS);
+      return saved ? JSON.parse(saved) : INITIAL_VIDEOS;
+    } catch {
+      return INITIAL_VIDEOS;
+    }
+  });
+
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
   // Toast Handler
@@ -675,6 +850,279 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(leads));
   }, [leads]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PROCESS_CARDS, JSON.stringify(processCards));
+  }, [processCards]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CAPABILITY_CARDS, JSON.stringify(capabilityCards));
+  }, [capabilityCards]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MARKET_CARDS, JSON.stringify(marketCards));
+  }, [marketCards]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.VIDEOS, JSON.stringify(videos));
+  }, [videos]);
+
+  // Supabase Real-time Cloud Sync State & Listeners
+  const [supabaseConnected, setSupabaseConnected] = useState<boolean>(false);
+  const [supabaseSyncing, setSupabaseSyncing] = useState<boolean>(false);
+
+  const syncWithSupabase = async () => {
+    setSupabaseSyncing(true);
+    try {
+      // 1. Site Metadata
+      const { data: metaData, error: metaErr } = await supabase.from('site_metadata').select('*').limit(1).maybeSingle();
+      if (!metaErr && metaData) {
+        setSiteMetadata(prev => ({ ...prev, ...fromSiteMetadataRow(metaData) }));
+        setSupabaseConnected(true);
+      } else if (!metaErr) {
+        setSupabaseConnected(true);
+      }
+
+      // 2. Process Cards
+      const { data: procData, error: procErr } = await supabase.from('process_cards').select('*');
+      if (!procErr && procData && procData.length > 0) {
+        setProcessCards(procData.map(fromProcessCardRow));
+        setSupabaseConnected(true);
+      }
+
+      // 3. Capability Cards
+      const { data: capData, error: capErr } = await supabase.from('capability_cards').select('*');
+      if (!capErr && capData && capData.length > 0) {
+        setCapabilityCards(capData.map(fromCapabilityCardRow));
+        setSupabaseConnected(true);
+      }
+
+      // 4. Market Cards
+      const { data: mktData, error: mktErr } = await supabase.from('market_cards').select('*');
+      if (!mktErr && mktData && mktData.length > 0) {
+        setMarketCards(mktData.map(fromMarketCardRow));
+        setSupabaseConnected(true);
+      }
+
+      // 5. Videos
+      const { data: vidData, error: vidErr } = await supabase.from('videos').select('*');
+      if (!vidErr && vidData && vidData.length > 0) {
+        setVideos(vidData.map(fromVideoRow));
+        setSupabaseConnected(true);
+      }
+
+      // 6. RFQ Leads
+      const { data: leadData, error: leadErr } = await supabase.from('rfq_leads').select('*').order('created_at', { ascending: false });
+      if (!leadErr && leadData && leadData.length > 0) {
+        setLeads(leadData.map(fromLeadRow));
+        setSupabaseConnected(true);
+      }
+    } catch (e) {
+      console.warn('Supabase sync notice:', e);
+    } finally {
+      setSupabaseSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    syncWithSupabase();
+
+    // Setup Supabase Realtime Listener across all tables
+    const channel = supabase
+      .channel('metaltek_db_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
+        if (payload.table === 'process_cards') {
+          supabase.from('process_cards').select('*').then(({ data }) => {
+            if (data && data.length > 0) setProcessCards(data.map(fromProcessCardRow));
+          });
+        } else if (payload.table === 'capability_cards') {
+          supabase.from('capability_cards').select('*').then(({ data }) => {
+            if (data && data.length > 0) setCapabilityCards(data.map(fromCapabilityCardRow));
+          });
+        } else if (payload.table === 'market_cards') {
+          supabase.from('market_cards').select('*').then(({ data }) => {
+            if (data && data.length > 0) setMarketCards(data.map(fromMarketCardRow));
+          });
+        } else if (payload.table === 'videos') {
+          supabase.from('videos').select('*').then(({ data }) => {
+            if (data && data.length > 0) setVideos(data.map(fromVideoRow));
+          });
+        } else if (payload.table === 'rfq_leads') {
+          supabase.from('rfq_leads').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+            if (data && data.length > 0) setLeads(data.map(fromLeadRow));
+          });
+        } else if (payload.table === 'site_metadata') {
+          supabase.from('site_metadata').select('*').limit(1).maybeSingle().then(({ data }) => {
+            if (data) setSiteMetadata(prev => ({ ...prev, ...fromSiteMetadataRow(data) }));
+          });
+        }
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setSupabaseConnected(true);
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Main Menu Handlers
+  const addMainMenu = (menu: NavigationMenuItem) => {
+    setNavigationMenu(prev => [...prev, menu]);
+    showToast(`Main menu "${menu.label}" created!`);
+  };
+
+  const updateMainMenu = (menuId: string, updated: Partial<NavigationMenuItem>) => {
+    setNavigationMenu(prev => prev.map(m => m.id === menuId ? { ...m, ...updated } : m));
+    showToast('Main menu updated!');
+  };
+
+  const deleteMainMenu = (menuId: string) => {
+    setNavigationMenu(prev => prev.filter(m => m.id !== menuId));
+    showToast('Main menu removed from navigation.', 'info');
+  };
+
+  // Process Cards CRUD (with Bi-directional Auto-Translation & Supabase Sync)
+  const addProcessCard = (card: ProcessItem) => {
+    const bilingual = autoTranslateProcessFields(card);
+    setProcessCards(prev => [...prev, bilingual]);
+    supabase.from('process_cards').upsert(toProcessCardRow(bilingual)).then(({ error }) => {
+      if (error) console.warn('Supabase sync process card:', error.message);
+    });
+    showToast(`Process card "${bilingual.title}" added!`);
+  };
+
+  const updateProcessCard = (slug: string, updated: Partial<ProcessItem>) => {
+    let targetCard: ProcessItem | undefined;
+    setProcessCards(prev => prev.map(p => {
+      if (p.slug === slug) {
+        targetCard = autoTranslateProcessFields({ ...p, ...updated });
+        return targetCard;
+      }
+      return p;
+    }));
+    if (targetCard) {
+      supabase.from('process_cards').upsert(toProcessCardRow(targetCard)).then(({ error }) => {
+        if (error) console.warn('Supabase sync process card update:', error.message);
+      });
+    }
+    showToast('Process card updated with bilingual sync!');
+  };
+
+  const deleteProcessCard = (slug: string) => {
+    setProcessCards(prev => prev.filter(p => p.slug !== slug));
+    supabase.from('process_cards').delete().eq('slug', slug).then(({ error }) => {
+      if (error) console.warn('Supabase delete process card:', error.message);
+    });
+    showToast('Process card removed.', 'info');
+  };
+
+  // Capability Cards CRUD (with Bi-directional Auto-Translation & Supabase Sync)
+  const addCapabilityCard = (card: CapabilityItem) => {
+    const bilingual = autoTranslateCapabilityFields(card);
+    setCapabilityCards(prev => [...prev, bilingual]);
+    supabase.from('capability_cards').upsert(toCapabilityCardRow(bilingual)).then(({ error }) => {
+      if (error) console.warn('Supabase sync capability card:', error.message);
+    });
+    showToast(`Capability "${bilingual.title}" added!`);
+  };
+
+  const updateCapabilityCard = (slug: string, updated: Partial<CapabilityItem>) => {
+    let targetCard: CapabilityItem | undefined;
+    setCapabilityCards(prev => prev.map(c => {
+      if (c.slug === slug) {
+        targetCard = autoTranslateCapabilityFields({ ...c, ...updated });
+        return targetCard;
+      }
+      return c;
+    }));
+    if (targetCard) {
+      supabase.from('capability_cards').upsert(toCapabilityCardRow(targetCard)).then(({ error }) => {
+        if (error) console.warn('Supabase sync capability card update:', error.message);
+      });
+    }
+    showToast('Capability card updated!');
+  };
+
+  const deleteCapabilityCard = (slug: string) => {
+    setCapabilityCards(prev => prev.filter(c => c.slug !== slug));
+    supabase.from('capability_cards').delete().eq('slug', slug).then(({ error }) => {
+      if (error) console.warn('Supabase delete capability card:', error.message);
+    });
+    showToast('Capability card removed.', 'info');
+  };
+
+  // Market Cards CRUD (with Bi-directional Auto-Translation & Supabase Sync)
+  const addMarketCard = (card: MarketItem) => {
+    const bilingual = autoTranslateMarketFields(card);
+    setMarketCards(prev => [...prev, bilingual]);
+    supabase.from('market_cards').upsert(toMarketCardRow(bilingual)).then(({ error }) => {
+      if (error) console.warn('Supabase sync market card:', error.message);
+    });
+    showToast(`Market solution "${bilingual.title}" added!`);
+  };
+
+  const updateMarketCard = (slug: string, updated: Partial<MarketItem>) => {
+    let targetCard: MarketItem | undefined;
+    setMarketCards(prev => prev.map(m => {
+      if (m.slug === slug) {
+        targetCard = autoTranslateMarketFields({ ...m, ...updated });
+        return targetCard;
+      }
+      return m;
+    }));
+    if (targetCard) {
+      supabase.from('market_cards').upsert(toMarketCardRow(targetCard)).then(({ error }) => {
+        if (error) console.warn('Supabase sync market card update:', error.message);
+      });
+    }
+    showToast('Market solution updated!');
+  };
+
+  const deleteMarketCard = (slug: string) => {
+    setMarketCards(prev => prev.filter(m => m.slug !== slug));
+    supabase.from('market_cards').delete().eq('slug', slug).then(({ error }) => {
+      if (error) console.warn('Supabase delete market card:', error.message);
+    });
+    showToast('Market solution removed.', 'info');
+  };
+
+  // Technical Videos CRUD (with Bi-directional Auto-Translation & Supabase Sync)
+  const addVideo = (video: VideoItem) => {
+    const bilingual = autoTranslateVideoFields(video);
+    setVideos(prev => [bilingual, ...prev]);
+    supabase.from('videos').upsert(toVideoRow(bilingual)).then(({ error }) => {
+      if (error) console.warn('Supabase sync video:', error.message);
+    });
+    showToast(`Technical video "${bilingual.title}" added!`);
+  };
+
+  const updateVideo = (id: string, updated: Partial<VideoItem>) => {
+    let targetVideo: VideoItem | undefined;
+    setVideos(prev => prev.map(v => {
+      if (v.id === id) {
+        targetVideo = autoTranslateVideoFields({ ...v, ...updated });
+        return targetVideo;
+      }
+      return v;
+    }));
+    if (targetVideo) {
+      supabase.from('videos').upsert(toVideoRow(targetVideo)).then(({ error }) => {
+        if (error) console.warn('Supabase sync video update:', error.message);
+      });
+    }
+    showToast('Technical video updated!');
+  };
+
+  const deleteVideo = (id: string) => {
+    setVideos(prev => prev.filter(v => v.id !== id));
+    supabase.from('videos').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn('Supabase delete video:', error.message);
+    });
+    showToast('Technical video removed.', 'info');
+  };
+
   // Navigation Sub-menu Handlers (Syncs directly with header dropdowns)
   const addSubMenu = (menuId: string, subItem: NavigationSubItem) => {
     setNavigationMenu(prev => prev.map(m => {
@@ -712,15 +1160,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Sub-menu removed from navigation.', 'info');
   };
 
-  // Content, Article & Media Workspace Handlers
+  // Content, Article & Media Workspace Handlers (with Bi-directional Auto-Translation)
   const addContentItem = (item: ContentItem) => {
-    setContentItems(prev => [item, ...prev]);
-    showToast(`Content item "${item.title}" created!`);
+    const bilingualItem = autoTranslateContentItemFields(item);
+    setContentItems(prev => [bilingualItem, ...prev]);
+    showToast(`Content item "${bilingualItem.title}" saved with English & Bengali versions!`);
   };
 
   const updateContentItem = (id: string, updated: Partial<ContentItem>) => {
-    setContentItems(prev => prev.map(c => c.id === id ? { ...c, ...updated, updatedAt: new Date().toISOString().substring(0, 10) } : c));
-    showToast('Content item updated!');
+    setContentItems(prev => prev.map(c => {
+      if (c.id === id) {
+        const merged = { ...c, ...updated, updatedAt: new Date().toISOString().substring(0, 10) };
+        return autoTranslateContentItemFields(merged);
+      }
+      return c;
+    }));
+    showToast('Content item updated with bi-lingual sync!');
   };
 
   const deleteContentItem = (id: string) => {
@@ -730,7 +1185,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Content Handlers
   const updateSiteMetadata = (data: Partial<SiteMetadata>) => {
-    setSiteMetadata(prev => ({ ...prev, ...data }));
+    setSiteMetadata(prev => {
+      const merged = { ...prev, ...data };
+      supabase.from('site_metadata').upsert(toSiteMetadataRow(merged)).then(({ error }) => {
+        if (error) console.warn('Supabase sync site metadata:', error.message);
+      });
+      return merged;
+    });
     showToast('General Settings Updated Successfully!');
   };
 
@@ -777,14 +1238,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Case study deleted.', 'info');
   };
 
-  // Blog Posts CRUD
+  // Blog Posts & Technical Papers CRUD (with Bi-directional Auto-Translation)
   const addBlogPost = (post: BlogPost) => {
-    setBlogPosts(prev => [post, ...prev]);
-    showToast(`Article "${post.title}" published!`);
+    const bilingualPost = autoTranslateBlogPostFields(post);
+    setBlogPosts(prev => [bilingualPost, ...prev]);
+    showToast(`Article "${bilingualPost.title}" published with bi-lingual translations!`);
   };
 
   const updateBlogPost = (slug: string, updated: Partial<BlogPost>) => {
-    setBlogPosts(prev => prev.map(b => (b.slug === slug ? { ...b, ...updated } : b)));
+    setBlogPosts(prev => prev.map(b => {
+      if (b.slug === slug) {
+        const merged = { ...b, ...updated };
+        return autoTranslateBlogPostFields(merged);
+      }
+      return b;
+    }));
     showToast('Technical paper updated!');
   };
 
@@ -845,14 +1313,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const recordLead = (lead: Omit<RfqLead, 'id' | 'createdAt'>) => {
     const newLead: RfqLead = {
       ...lead,
-      id: `lead-${Date.now()}`,
+      id: `lead-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
     };
     setLeads(prev => [newLead, ...prev]);
+    supabase.from('rfq_leads').insert(toLeadRow(newLead)).then(({ error }) => {
+      if (error) console.warn('Supabase insert rfq lead:', error.message);
+    });
   };
 
   const deleteLead = (id: string) => {
     setLeads(prev => prev.filter(l => l.id !== id));
+    supabase.from('rfq_leads').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn('Supabase delete lead:', error.message);
+    });
     showToast('Lead entry removed.', 'info');
   };
 
@@ -869,6 +1343,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setDownloads(INITIAL_DOWNLOADS);
     setGlossary(GLOSSARY_TERMS);
     setLeads(INITIAL_MOCK_LEADS);
+    setProcessCards(CASTING_PROCESSES);
+    setCapabilityCards(CAPABILITIES);
+    setMarketCards(MARKET_SOLUTIONS);
+    setVideos(INITIAL_VIDEOS);
 
     Object.values(STORAGE_KEYS).forEach(key => {
       if (key !== STORAGE_KEYS.SESSION) {
@@ -882,7 +1360,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Export JSON Backup
   const exportDataJson = () => {
     const payload = {
-      version: '1.0',
+      version: '1.1',
       exportedAt: new Date().toISOString(),
       siteMetadata,
       heroContents,
@@ -895,6 +1373,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       downloads,
       glossary,
       leads,
+      processCards,
+      capabilityCards,
+      marketCards,
+      videos,
     };
     return JSON.stringify(payload, null, 2);
   };
@@ -914,6 +1396,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (data.downloads) setDownloads(data.downloads);
       if (data.glossary) setGlossary(data.glossary);
       if (data.leads) setLeads(data.leads);
+      if (data.processCards) setProcessCards(data.processCards);
+      if (data.capabilityCards) setCapabilityCards(data.capabilityCards);
+      if (data.marketCards) setMarketCards(data.marketCards);
+      if (data.videos) setVideos(data.videos);
       showToast('Backup data imported successfully!', 'success');
       return { success: true };
     } catch {
@@ -930,9 +1416,28 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         login,
         logout,
         navigationMenu,
+        addMainMenu,
+        updateMainMenu,
+        deleteMainMenu,
         addSubMenu,
         updateSubMenu,
         deleteSubMenu,
+        processCards,
+        addProcessCard,
+        updateProcessCard,
+        deleteProcessCard,
+        capabilityCards,
+        addCapabilityCard,
+        updateCapabilityCard,
+        deleteCapabilityCard,
+        marketCards,
+        addMarketCard,
+        updateMarketCard,
+        deleteMarketCard,
+        videos,
+        addVideo,
+        updateVideo,
+        deleteVideo,
         contentItems,
         addContentItem,
         updateContentItem,
@@ -974,6 +1479,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         resetToDefaults,
         exportDataJson,
         importDataJson,
+        supabaseConnected,
+        supabaseSyncing,
+        syncWithSupabase,
       }}
     >
       {children}

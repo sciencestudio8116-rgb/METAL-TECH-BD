@@ -7,8 +7,10 @@ import {
 import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   ChevronRight, ArrowRight, BookOpen, FileText, Video, 
-  HelpCircle, Download, Check, Search, ShieldCheck, ChevronDown, Play
+  HelpCircle, Download, Check, Search, ShieldCheck, ChevronDown, Play, X
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { useAdmin, VideoItem } from '../context/AdminContext';
 
 import { IMAGES } from '../assets/images';
 import { PageHero } from '../components/PageHero';
@@ -25,10 +27,13 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
   onNavigate, 
   onOpenRfq 
 }) => {
+  const { isBn } = useLanguage();
+  const { blogPosts, caseStudies, videos } = useAdmin();
   const [activeTab, setActiveTab] = useState<'blog' | 'case-studies' | 'videos' | 'faqs' | 'glossary' | 'downloads'>(initialTab);
   const [glossarySearch, setGlossarySearch] = useState('');
   const [selectedFaqCat, setSelectedFaqCat] = useState('All');
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
 
   // Sync tab if initialTab changes from navbar
   React.useEffect(() => {
@@ -117,35 +122,41 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
         {activeTab === 'blog' && (
           <div className="space-y-6 animate-in fade-in duration-150">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {BLOG_POSTS.map(post => (
-                <div
-                  key={post.slug}
-                  onClick={() => onNavigate({ view: 'blog-post', slug: post.slug })}
-                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
-                >
-                  <div className="flex flex-col items-center text-center w-full space-y-3">
-                    <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
-                      <IndustrialIcon name="traceability" className="w-14 h-14" />
+              {(blogPosts && blogPosts.length > 0 ? blogPosts : BLOG_POSTS).map(post => {
+                const postTitle = isBn ? (post.titleBn || post.title) : post.title;
+                const postCategory = isBn ? (post.categoryBn || post.category) : post.category;
+                const postExcerpt = isBn ? (post.excerptBn || post.excerpt) : post.excerpt;
+
+                return (
+                  <div
+                    key={post.slug}
+                    onClick={() => onNavigate({ view: 'blog-post', slug: post.slug })}
+                    className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                  >
+                    <div className="flex flex-col items-center text-center w-full space-y-3">
+                      <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
+                        <IndustrialIcon name="traceability" className="w-14 h-14" />
+                      </div>
+                      <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                        <span className="text-[#1D4ED8] font-bold">{postCategory}</span>
+                        <span>·</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
+                        {postTitle}
+                      </h3>
+                      <div className="w-16 h-[2px] bg-[#004B87] my-2 mx-auto rounded-full group-hover:w-20 transition-all duration-300" />
+                      <p className="text-xs text-[#5B6470] leading-relaxed m-0 text-center">
+                        {postExcerpt}
+                      </p>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-                      <span className="text-[#1D4ED8] font-bold">{post.category}</span>
-                      <span>·</span>
-                      <span>{post.readTime}</span>
+                    <div className="pt-4 mt-4 flex items-center justify-center gap-1.5 text-xs text-[#1D4ED8] font-bold group-hover:text-[#004B87]">
+                      <span>{isBn ? 'নিবন্ধটি পড়ুন >>' : 'Read Article >>'}</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
-                    <h3 className="text-lg font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
-                      {post.title}
-                    </h3>
-                    <div className="w-16 h-[2px] bg-[#004B87] my-2 mx-auto rounded-full group-hover:w-20 transition-all duration-300" />
-                    <p className="text-xs text-[#5B6470] leading-relaxed m-0 text-center">
-                      {post.excerpt}
-                    </p>
                   </div>
-                  <div className="pt-4 mt-4 flex items-center justify-center gap-1.5 text-xs text-[#1D4ED8] font-bold group-hover:text-[#004B87]">
-                    <span>Read Article &gt;&gt;</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -288,44 +299,85 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
         {/* TAB 5: PROCESS VIDEOS */}
         {activeTab === 'videos' && (
           <div className="space-y-6 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <span className="text-xs text-slate-500">
+                {isBn
+                  ? `মোট ${videos.length}টি কারিগরি ও ফাউন্ড্রি প্রসেস ভিডিও প্রদর্শিত হচ্ছে`
+                  : `Showing ${videos.length} technical foundry & machining process videos`}
+              </span>
+              <button
+                onClick={() => onOpenRfq()}
+                className="text-xs font-bold text-[#1D4ED8] hover:underline"
+              >
+                {isBn ? 'প্রস্তাবনার জন্য যোগাযোগ করুন →' : 'Request Custom Video Demonstration →'}
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: 'Centrifugal Rotational Casting Pouring Process',
-                  duration: '3:45',
-                  description: 'Watch 80 G-force rotational mold filling and directional cooling in our Gazipur heavy casting plant.',
-                },
-                {
-                  title: '10-Ton AOD Vessel Secondary Refining Cycle',
-                  duration: '4:15',
-                  description: 'Argon-oxygen bubbling sequence for ultra-low carbon stainless steel decarburization.',
-                },
-                {
-                  title: '5-Axis CNC Machining of Severe Service Valve Bodies',
-                  duration: '2:50',
-                  description: 'Toshiba horizontal boring mill executing high-precision assembly tolerances.',
-                },
-                {
-                  title: 'Cryogenic Charpy Impact Testing at -196°C',
-                  duration: '2:10',
-                  description: 'Quality assurance protocol demonstrating high fracture toughness for LNG service.',
-                },
-              ].map((vid, idx) => (
-                <div key={idx} className="bg-white border border-[#D9DCE1] rounded-sm overflow-hidden shadow-xs group">
-                  <div className="h-44 bg-[#0F1B2D] flex items-center justify-center text-white relative">
-                    <div className="w-12 h-12 rounded-full bg-[#1D4ED8] group-hover:scale-110 flex items-center justify-center transition-transform cursor-pointer shadow-lg">
-                      <Play className="w-5 h-5 ml-1 text-white" />
+              {videos.map((vid) => {
+                const title = isBn && vid.titleBn ? vid.titleBn : vid.title;
+                const desc = isBn && vid.descriptionBn ? vid.descriptionBn : vid.description;
+                const category = isBn && vid.categoryBn ? vid.categoryBn : vid.category;
+
+                return (
+                  <div
+                    key={vid.id}
+                    onClick={() => setSelectedVideo(vid)}
+                    className="bg-white border border-[#D9DCE1] rounded-sm overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 group cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="h-48 bg-[#0F1B2D] flex items-center justify-center text-white relative overflow-hidden">
+                      {vid.thumbnailUrl ? (
+                        <img
+                          src={vid.thumbnailUrl}
+                          alt={title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-75 group-hover:opacity-90"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-linear-to-br from-[#0F1B2D] to-[#162744]" />
+                      )}
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
+
+                      <div className="w-13 h-13 rounded-full bg-[#1D4ED8] group-hover:scale-110 flex items-center justify-center transition-transform shadow-xl relative z-10">
+                        <Play className="w-6 h-6 ml-0.5 text-white" />
+                      </div>
+
+                      {category && (
+                        <span className="absolute top-3 left-3 px-2 py-0.5 bg-[#0F1B2D]/85 backdrop-blur-xs text-[10px] font-bold uppercase tracking-wider text-[#F5B800] rounded-xs border border-white/10">
+                          {category}
+                        </span>
+                      )}
+
+                      {vid.duration && (
+                        <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/80 text-[10px] font-mono text-slate-200 rounded-xs">
+                          {vid.duration}
+                        </span>
+                      )}
                     </div>
-                    <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/70 text-[10px] font-mono rounded">
-                      {vid.duration}
-                    </span>
+
+                    <div className="p-4 space-y-2">
+                      <h4 className="text-sm sm:text-base font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
+                        {title}
+                      </h4>
+                      <p className="text-xs text-slate-600 line-clamp-2 m-0 leading-relaxed">
+                        {desc}
+                      </p>
+
+                      {vid.tags && vid.tags.length > 0 && (
+                        <div className="pt-2 flex flex-wrap gap-1">
+                          {vid.tags.map((tag, tIdx) => (
+                            <span
+                              key={tIdx}
+                              className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-xs"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="p-4 space-y-1">
-                    <h4 className="text-sm font-bold text-[#0F1B2D] m-0">{vid.title}</h4>
-                    <p className="text-xs text-slate-500 m-0">{vid.description}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -364,6 +416,102 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <div
+            className="w-full max-w-3xl bg-[#0F1B2D] border border-slate-700 rounded-sm overflow-hidden shadow-2xl space-y-0 text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 flex items-center justify-between border-b border-slate-800 bg-[#0C1525]">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#F5B800]">
+                  {isBn && selectedVideo.categoryBn ? selectedVideo.categoryBn : selectedVideo.category || 'Foundry Video'}
+                </span>
+                <h3 className="text-base font-bold text-white m-0 truncate max-w-xl">
+                  {isBn && selectedVideo.titleBn ? selectedVideo.titleBn : selectedVideo.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Video Player Frame */}
+            <div className="relative aspect-video w-full bg-black flex items-center justify-center">
+              {selectedVideo.videoUrl && selectedVideo.videoUrl.includes('youtube') ? (
+                <iframe
+                  src={`${selectedVideo.videoUrl}?autoplay=1`}
+                  title={selectedVideo.title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : selectedVideo.videoUrl && selectedVideo.videoUrl.endsWith('.mp4') ? (
+                <video
+                  src={selectedVideo.videoUrl}
+                  controls
+                  autoPlay
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="text-center p-8 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-blue-600/20 text-[#1D4ED8] flex items-center justify-center mx-auto border border-blue-500/40">
+                    <Play className="w-8 h-8 ml-1" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      {isBn ? 'হাই-ডেফিনিশন প্রক্রিয়া স্ট্রিমিং' : 'High-Definition Process Stream'}
+                    </h4>
+                    <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
+                      {isBn
+                        ? 'ভিডিও লিঙ্ক সক্রিয়। প্রোডাকশন লাইভ ফিড বা ইউটিউব/ভিমিও এম্বেড ইউআরএল সাপোর্ট করে।'
+                        : 'Active streaming link configured. Supports embedded YouTube, Vimeo, or direct MP4 streams.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onOpenRfq()}
+                    className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-xs cursor-pointer"
+                  >
+                    {isBn ? 'কাস্টিং স্পেক্স আলোচনা করুন' : 'Schedule Foundry Inspection'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Info Footer */}
+            <div className="p-4 bg-[#0C1525] border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <p className="text-slate-300 m-0 leading-relaxed max-w-xl">
+                {isBn && selectedVideo.descriptionBn ? selectedVideo.descriptionBn : selectedVideo.description}
+              </p>
+              <div className="flex items-center gap-2 shrink-0">
+                {selectedVideo.duration && (
+                  <span className="font-mono text-slate-400 bg-slate-800 px-2 py-1 rounded-xs">
+                    {selectedVideo.duration}
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedVideo(null);
+                    onOpenRfq();
+                  }}
+                  className="px-3 py-1.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white font-semibold rounded-xs cursor-pointer"
+                >
+                  {isBn ? 'আরএফকিউ পাঠান' : 'Request RFQ'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AskTheExpertsBand
         onContactClick={() => onNavigate({ view: 'contact-us' })}

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PageRoute, Language } from '../types/navigation';
 import { CASTING_PROCESSES, CAPABILITIES, MARKET_SOLUTIONS, DIVISIONS, SITE_METADATA } from '../data/siteData';
 import { useAdmin, NavigationSubItem } from '../context/AdminContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Phone, Mail, Search, Menu, X, ChevronDown, 
   ArrowRight, Globe
@@ -25,10 +26,18 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleLanguage,
 }) => {
   const { navigationMenu } = useAdmin();
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<{ [key: string]: boolean }>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const getSubLabel = (sub: NavigationSubItem) => {
+    if (language === 'bn' && t.header.subMenus[sub.id]) {
+      return t.header.subMenus[sub.id];
+    }
+    return sub.label;
+  };
 
   const castingSubItems = navigationMenu.find(m => m.id === 'casting')?.subItems || [];
   const capabilitiesSubItems = navigationMenu.find(m => m.id === 'capabilities')?.subItems || [];
@@ -193,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -231,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -269,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -307,7 +316,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -345,7 +354,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -383,7 +392,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleSubItemClick(sub)}
                     className="w-full text-left px-3 py-2 rounded-sm hover:bg-[#F3F4F6] text-sm font-semibold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors cursor-pointer"
                   >
-                    {sub.label}
+                    {getSubLabel(sub)}
                   </button>
                 ))}
               </div>
@@ -468,7 +477,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -498,7 +507,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -528,7 +537,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -558,7 +567,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -582,7 +591,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -606,7 +615,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSubItemClick(sub)}
                       className="block w-full text-left py-1 text-sm text-[#5B6470] hover:text-[#1D4ED8] cursor-pointer"
                     >
-                      {sub.label}
+                      {getSubLabel(sub)}
                     </button>
                   ))}
                 </div>
@@ -628,13 +637,13 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => { setMobileMenuOpen(false); onOpenRfq(); }}
               className="w-full py-3 bg-[#1D4ED8] text-white font-bold text-center rounded-sm shadow-sm cursor-pointer"
             >
-              Request a Quote
+              {isBn ? 'কোটেশন অনুরোধ করুন' : 'Request a Quote'}
             </button>
             <a
               href={`tel:${SITE_METADATA.phone.replace(/\s+/g, '')}`}
               className="w-full py-2.5 bg-slate-100 text-[#0F1B2D] font-semibold text-center rounded-sm flex items-center justify-center gap-2"
             >
-              <Phone className="w-4 h-4 text-[#1D4ED8]" /> Call Engineering Desk
+              <Phone className="w-4 h-4 text-[#1D4ED8]" /> {isBn ? 'ইঞ্জিনিয়ারিং ডেস্কে কল করুন' : 'Call Engineering Desk'}
             </a>
           </div>
         </div>

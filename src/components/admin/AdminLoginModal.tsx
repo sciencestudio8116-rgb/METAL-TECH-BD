@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Lock, User, Eye, EyeOff, X, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   onSuccessRedirect,
 }) => {
   const { login } = useAdmin();
+  const { adminIsBn: isBn, adminT: t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,11 +58,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
     const trimmedUser = username.trim();
     if (!trimmedUser) {
-      setError('Username or email is required.');
+      setError(isBn ? 'ইউজারনেম অথবা ইমেইল লিখুন।' : 'Username or email is required.');
       return;
     }
     if (!password) {
-      setError('Password is required.');
+      setError(isBn ? 'পাসওয়ার্ড লিখুন।' : 'Password is required.');
       return;
     }
 
@@ -79,7 +81,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           onSuccessRedirect();
         }
       } else {
-        setError(res.error || 'Invalid credentials. Access denied.');
+        setError(res.error || (isBn ? t.admin.loginModal.errorMessage : 'Invalid credentials. Access denied.'));
       }
     }, 350);
   };
@@ -354,7 +356,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               <Lock className="w-4 h-4" />
             </div>
             <h2 id="admin-modal-title" className="admin-modal-title">
-              Admin Login
+              {isBn ? t.admin.loginModal.title : 'Admin Login'}
             </h2>
           </div>
           <button
@@ -418,7 +420,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           {/* Username / Email Field */}
           <div className="admin-modal-field">
             <label htmlFor="admin-modal-username" className="admin-modal-label">
-              Username or Email
+              {isBn ? t.admin.loginModal.usernameLabel : 'Username or Email'}
             </label>
             <div className="admin-modal-input-wrap">
               <User className="w-4 h-4 admin-modal-input-icon" />
@@ -429,7 +431,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username or email"
+                placeholder={isBn ? 'ইউজারনেম অথবা ইমেইল লিখুন' : 'Username or email'}
                 className="admin-modal-input"
                 autoComplete="off"
                 autoCorrect="off"
@@ -446,7 +448,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           {/* Password Field */}
           <div className="admin-modal-field">
             <label htmlFor="admin-modal-password" className="admin-modal-label">
-              Password
+              {isBn ? t.admin.loginModal.passwordLabel : 'Password'}
             </label>
             <div className="admin-modal-input-wrap">
               <Lock className="w-4 h-4 admin-modal-input-icon" />
@@ -456,7 +458,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={isBn ? 'পাসওয়ার্ড লিখুন' : 'Password'}
                 className="admin-modal-input"
                 style={{ paddingRight: '34px' }}
                 autoComplete="new-password"
@@ -491,11 +493,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 admin-modal-spinner" />
-                <span>Signing In...</span>
+                <span>{isBn ? t.admin.loginModal.signingInBtn : 'Signing In...'}</span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
+                <span>{isBn ? t.admin.loginModal.signInBtn : 'Sign In'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </>
             )}

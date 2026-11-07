@@ -13,6 +13,8 @@ import {
 
 import { PageHero } from '../components/PageHero';
 import { IndustrialIcon } from '../components/IndustrialIcon';
+import { useLanguage } from '../context/LanguageContext';
+import { useAdmin } from '../context/AdminContext';
 
 interface HomeViewProps {
   onNavigate: (route: PageRoute) => void;
@@ -20,6 +22,9 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => {
+  const { isBn, t } = useLanguage();
+  const { blogPosts } = useAdmin();
+  const activePosts = (blogPosts && blogPosts.length > 0 ? blogPosts : BLOG_POSTS).slice(0, 2);
   return (
     <div className="space-y-0">
       {/* 1. HERO SECTION - Clean Responsive Banner Display */}
@@ -36,19 +41,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="space-y-1">
               <span className="text-2xl sm:text-3xl font-extrabold text-[#0F1B2D] tabular-nums block">
-                22,000 kg
+                {isBn ? '২২,০০০ কেজি' : '22,000 kg'}
               </span>
               <span className="text-xs text-[#5B6470] font-medium block">
-                Single Pour Pouring Capacity
+                {isBn ? 'সর্বোচ্চ একক ঢালাই ক্ষমতা' : 'Single Pour Pouring Capacity'}
               </span>
             </div>
 
             <div className="space-y-1">
               <span className="text-2xl sm:text-3xl font-extrabold text-[#0F1B2D] tabular-nums block">
-                10-Ton AOD
+                {isBn ? '১০-টন এওডি' : '10-Ton AOD'}
               </span>
               <span className="text-xs text-[#5B6470] font-medium block">
-                Argon Oxygen Decarburization
+                {isBn ? 'আর্গন অক্সিজেন ডিকার্বুরাইজেশন' : 'Argon Oxygen Decarburization'}
               </span>
             </div>
 
@@ -57,7 +62,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
                 ISO 9001:2015
               </span>
               <span className="text-xs text-[#5B6470] font-medium block">
-                Bureau Veritas & ASME Certified
+                {isBn ? 'ব্যুরো ভেরিটাস ও এএসএমই প্রত্যায়িত' : 'Bureau Veritas & ASME Certified'}
               </span>
             </div>
 
@@ -66,7 +71,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
                 100% MTC
               </span>
               <span className="text-xs text-[#5B6470] font-medium block">
-                EN 10204 Type 3.1 Traceability
+                {isBn ? 'ইএন ১০২০৪ টাইপ ৩.১ ট্রেসেবিলিটি' : 'EN 10204 Type 3.1 Traceability'}
               </span>
             </div>
           </div>
@@ -79,10 +84,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="space-y-3">
             <div className="w-16 h-1 bg-[#F5B800] mb-3"></div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F1B2D] tracking-tight m-0">
-              What We Do
+              {isBn ? 'আমাদের কার্যক্রম ও সক্ষমতা' : 'What We Do'}
             </h2>
             <p className="text-slate-600 text-sm sm:text-base max-w-2xl m-0 leading-relaxed">
-              Metal Tech BD manufactures critical metal components for the most demanding applications that power, protect, and connect our world. With unmatched capabilities and depth of experience, we work relentlessly with our customers throughout their entire journey – from design collaboration through delivery.
+              {isBn
+                ? 'মেটাল টেক বিডি অত্যাধুনিক শিল্প প্রযুক্তির জন্য গুরুত্বপূর্ণ মেটাল কম্পোনেন্ট উৎপাদন করে। ডিজাইন সহযোগিতা থেকে শুরু করে ডেলিভারি পর্যন্ত গ্রাহকদের সাথে নিবিড়ভাবে কাজ করাই আমাদের অঙ্গীকার।'
+                : 'Metal Tech BD manufactures critical metal components for the most demanding applications that power, protect, and connect our world. With unmatched capabilities and depth of experience, we work relentlessly with our customers throughout their entire journey – from design collaboration through delivery.'}
             </p>
           </div>
 
@@ -235,10 +242,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="space-y-3">
             <div className="w-16 h-1 bg-[#F5B800] mb-3"></div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F1B2D] tracking-tight m-0">
-              Sectors We Serve
+              {isBn ? 'যেসব শিল্পে আমরা সেবা দিই' : 'Sectors We Serve'}
             </h2>
             <p className="text-slate-600 text-sm sm:text-base max-w-2xl m-0 leading-relaxed">
-              Supplying high-integrity castings and engineered components across critical rail, naval, commercial vehicle, and heavy industrial operations.
+              {isBn
+                ? 'রেলওয়ে, নৌ ও সামুদ্রিক জাহাজ, বাণিজ্যিক পরিবহন এবং ভারী শিল্প কারখানার জন্য আন্তর্জাতিক মানের হাই-ইনটিগ্রিটি কাস্টিং ও প্রকৌশল যন্ত্রাংশ সরবরাহ।'
+                : 'Supplying high-integrity castings and engineered components across critical rail, naval, commercial vehicle, and heavy industrial operations.'}
             </p>
           </div>
 
@@ -250,6 +259,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
                 market.slug === 'navy-marine' ? 'navy-marine' :
                 market.slug === 'heavy-vehicles' ? 'heavy-vehicles' :
                 market.slug === 'industry' ? 'industry' : 'default';
+
+              const localizedTitle = isBn && t.header.subMenus[market.slug] ? t.header.subMenus[market.slug] : market.title;
 
               return (
                 <div
@@ -270,7 +281,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
 
                     {/* Card Title */}
                     <h3 className="text-lg sm:text-xl font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 tracking-tight leading-snug min-h-[48px] flex items-center justify-center">
-                      {market.title}
+                      {localizedTitle}
                     </h3>
 
                     {/* Accent Divider Bar */}
@@ -284,7 +295,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
 
                   {/* Explore Link */}
                   <div className="pt-6 mt-4 flex items-center justify-center gap-1.5 text-xs font-bold text-[#1D4ED8] group-hover:text-[#004B87]">
-                    <span>Explore Sector Specs</span>
+                    <span>{isBn ? 'স্পেসিফিকেশন দেখুন' : 'Explore Sector Specs'}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -296,17 +307,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="p-6 bg-white border border-[#D9DCE1] rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h4 className="text-base font-bold text-[#0F1B2D] m-0">
-                Don't see your specific market or equipment application?
+                {isBn ? 'আপনার নির্দিষ্ট শিল্প বা মেশিনারির উল্লেখ পাচ্ছেন না?' : "Don't see your specific market or equipment application?"}
               </h4>
               <p className="text-xs text-slate-500 m-0 mt-0.5">
-                We engineer custom castings for pulp & paper, mining slurry pumps, nuclear research, and defense ordnance.
+                {isBn
+                  ? 'আমরা কাস্টম রিকয়ারমেন্ট অনুযায়ী বিশেষায়িত কাস্টিং ও অ্যালয় সরবরাহ করে থাকি।'
+                  : 'We engineer custom castings for pulp & paper, mining slurry pumps, nuclear research, and defense ordnance.'}
               </p>
             </div>
             <button
               onClick={() => onNavigate({ view: 'sales-contacts' })}
               className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-sm transition-colors whitespace-nowrap cursor-pointer"
             >
-              Take Me To More Markets
+              {isBn ? 'সব শিল্প সমাধান দেখুন' : 'Take Me To More Markets'}
             </button>
           </div>
         </div>
@@ -318,17 +331,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-[#1D4ED8]">
-                Advanced Manufacturing Floor
+                {isBn ? 'উন্নত উৎপাদন ক্ষেত্র' : 'Advanced Manufacturing Floor'}
               </span>
               <h2 className="text-3xl font-extrabold text-[#0F1B2D] m-0">
-                Precision Equipment & Plant Assets
+                {isBn ? 'প্রিসিশন সরঞ্জাম ও প্ল্যান্ট পরিকাঠামো' : 'Precision Equipment & Plant Assets'}
               </h2>
             </div>
             <button
               onClick={() => onNavigate({ view: 'divisions' })}
               className="text-xs font-bold text-[#1D4ED8] hover:underline flex items-center gap-1"
             >
-              <span>Tour All Facilities</span>
+              <span>{isBn ? 'সব কারখানা ঘুরে দেখুন' : 'Tour All Facilities'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -348,11 +361,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
               </div>
               <div className="p-6 flex flex-col items-center text-center w-full">
                 <h4 className="text-base font-bold text-[#0F1B2D] m-0">
-                  Centrifugal Casting Line
+                  {isBn ? 'সেন্ট্রিফিউগাল কাস্টিং লাইন' : 'Centrifugal Casting Line'}
                 </h4>
                 <div className="w-12 h-[2px] bg-[#004B87] my-2.5 mx-auto rounded-full group-hover:w-16 transition-all duration-300" />
                 <p className="text-xs text-slate-500 m-0 leading-relaxed text-center">
-                  Horizontal and vertical spinners up to 3.0 m outer diameter for defect-free alloy tubes.
+                  {isBn
+                    ? '৩.০ মিটার পর্যন্ত ত্রুটিহীন অ্যালয় টিউব উৎপাদনের জন্য অনুভূমিক ও উল্লম্ব স্পিনার।'
+                    : 'Horizontal and vertical spinners up to 3.0 m outer diameter for defect-free alloy tubes.'}
                 </p>
               </div>
             </div>
@@ -370,11 +385,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
               </div>
               <div className="p-6 flex flex-col items-center text-center w-full">
                 <h4 className="text-base font-bold text-[#0F1B2D] m-0">
-                  5-Axis CNC Machining
+                  {isBn ? '৫-অক্ষ সিএনসি মেশিনিং' : '5-Axis CNC Machining'}
                 </h4>
                 <div className="w-12 h-[2px] bg-[#004B87] my-2.5 mx-auto rounded-full group-hover:w-16 transition-all duration-300" />
                 <p className="text-xs text-slate-500 m-0 leading-relaxed text-center">
-                  Toshiba horizontal boring and Hankook vertical turning lathes for tight assembly tolerances.
+                  {isBn
+                    ? 'কঠোর সহনশীলতার সাথে যন্ত্রাংশ তৈরিতে তোশিবা অনুভূমিক বোরিং এবং হানকুক ভার্টিকাল টার্নিং লেদ।'
+                    : 'Toshiba horizontal boring and Hankook vertical turning lathes for tight assembly tolerances.'}
                 </p>
               </div>
             </div>
@@ -392,11 +409,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
               </div>
               <div className="p-6 flex flex-col items-center text-center w-full">
                 <h4 className="text-base font-bold text-[#0F1B2D] m-0">
-                  Metallurgical Testing Lab
+                  {isBn ? 'মেটালার্জিক্যাল টেস্টিং ল্যাব' : 'Metallurgical Testing Lab'}
                 </h4>
                 <div className="w-12 h-[2px] bg-[#004B87] my-2.5 mx-auto rounded-full group-hover:w-16 transition-all duration-300" />
                 <p className="text-xs text-slate-500 m-0 leading-relaxed text-center">
-                  In-house optical emission spectrometry, LECO carbon/sulfur, and cryogenic impact rigs.
+                  {isBn
+                    ? 'ইন-হাউস অপটিক্যাল এমিশন স্পেকট্রোমেট্রি, লিকো কার্বন/সালফার এবং ক্রায়োজেনিক ইমপ্যাক্ট টেস্ট রিগ।'
+                    : 'In-house optical emission spectrometry, LECO carbon/sulfur, and cryogenic impact rigs.'}
                 </p>
               </div>
             </div>
@@ -410,51 +429,57 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-[#1D4ED8]">
-                Technical Knowledge
+                {isBn ? 'কারিগরি জ্ঞান ও অন্তর্দৃষ্টি' : 'Technical Knowledge'}
               </span>
               <h2 className="text-3xl font-extrabold text-[#0F1B2D] m-0">
-                Latest Metallurgical Insights
+                {isBn ? 'সর্বশেষ ধাতুবিদ্যা সংক্রান্ত গবেষণা ও নিবন্ধ' : 'Latest Metallurgical Insights'}
               </h2>
             </div>
             <button
               onClick={() => onNavigate({ view: 'resources', subTab: 'blog' })}
               className="text-xs font-bold text-[#1D4ED8] hover:underline flex items-center gap-1 cursor-pointer"
             >
-              <span>View All Blogs</span>
+              <span>{isBn ? 'সব নিবন্ধ দেখুন' : 'View All Blogs'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {BLOG_POSTS.slice(0, 2).map((post) => (
-              <div
-                key={post.slug}
-                onClick={() => onNavigate({ view: 'blog-post', slug: post.slug })}
-                className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
-              >
-                <div className="flex flex-col items-center text-center w-full space-y-3">
-                  <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-                    <span className="text-[#1D4ED8] font-bold">{post.category}</span>
-                    <span>·</span>
-                    <span>{post.date}</span>
-                    <span>·</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
-                    {post.title}
-                  </h3>
-                  <div className="w-16 h-[2px] bg-[#004B87] my-2 mx-auto rounded-full group-hover:w-20 transition-all duration-300" />
-                  <p className="text-xs sm:text-sm text-[#5B6470] leading-relaxed m-0 text-center max-w-md">
-                    {post.excerpt}
-                  </p>
-                </div>
+            {activePosts.map((post) => {
+              const pTitle = isBn ? (post.titleBn || post.title) : post.title;
+              const pCategory = isBn ? (post.categoryBn || post.category) : post.category;
+              const pExcerpt = isBn ? (post.excerptBn || post.excerpt) : post.excerpt;
 
-                <div className="pt-4 mt-4 flex items-center justify-center gap-1.5 text-xs text-[#1D4ED8] font-bold group-hover:text-[#004B87]">
-                  <span>Read Article &gt;&gt;</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              return (
+                <div
+                  key={post.slug}
+                  onClick={() => onNavigate({ view: 'blog-post', slug: post.slug })}
+                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                >
+                  <div className="flex flex-col items-center text-center w-full space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                      <span className="text-[#1D4ED8] font-bold">{pCategory}</span>
+                      <span>·</span>
+                      <span>{post.date}</span>
+                      <span>·</span>
+                      <span>{post.readTime}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
+                      {pTitle}
+                    </h3>
+                    <div className="w-16 h-[2px] bg-[#004B87] my-2 mx-auto rounded-full group-hover:w-20 transition-all duration-300" />
+                    <p className="text-xs sm:text-sm text-[#5B6470] leading-relaxed m-0 text-center max-w-md">
+                      {pExcerpt}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 mt-4 flex items-center justify-center gap-1.5 text-xs text-[#1D4ED8] font-bold group-hover:text-[#004B87]">
+                    <span>{isBn ? 'নিবন্ধটি পড়ুন >>' : 'Read Article >>'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -465,20 +490,22 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenRfq }) => 
           <div className="bg-[#0F1B2D] text-white rounded-sm p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="space-y-3 max-w-xl text-center lg:text-left">
               <span className="text-xs font-bold uppercase tracking-widest text-[#F5B800]">
-                Engineering Culture
+                {isBn ? 'ইঞ্জিনিয়ারিং সংস্কৃতি' : 'Engineering Culture'}
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-white m-0">
-                Join South Asia's Premier Foundry Engineering Team
+                {isBn ? 'দক্ষিণ এশিয়ার শীর্ষস্থানীয় ফাউন্ড্রি টিমে যোগ দিন' : "Join South Asia's Premier Foundry Engineering Team"}
               </h2>
               <p className="text-sm text-slate-300 leading-relaxed m-0">
-                We are continually recruiting metallurgists, CNC machinists, quality inspectors, and CAD tooling specialists for our expanding Gazipur and Dhaka operations.
+                {isBn
+                  ? 'গাজীপুর ও ঢাকা অপারেশনের জন্য আমরা ধাতুবিদ, সিএনসি মেশিনিস্ট, কোয়ালিটি ইন্সপেক্টর এবং ক্যাড টুলিং বিশেষজ্ঞদের নিয়মিত নিয়োগ দিচ্ছি।'
+                  : 'We are continually recruiting metallurgists, CNC machinists, quality inspectors, and CAD tooling specialists for our expanding Gazipur and Dhaka operations.'}
               </p>
             </div>
             <button
               onClick={() => onNavigate({ view: 'careers' })}
               className="px-6 py-3 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-sm transition-colors whitespace-nowrap cursor-pointer shrink-0"
             >
-              Explore Open Careers
+              {isBn ? 'চলতি নিয়োগ বিজ্ঞপ্তি দেখুন' : 'Explore Open Careers'}
             </button>
           </div>
         </div>

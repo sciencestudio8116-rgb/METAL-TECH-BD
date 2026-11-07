@@ -31,6 +31,13 @@
     color: #FFFFFF;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  html.lang-bn,
+  body.lang-bn,
+  [lang="bn"],
+  .lang-bn {
+    font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'SolaimanLipi', Arial, sans-serif !important;
+  }
 }
 
 .tabular-nums {

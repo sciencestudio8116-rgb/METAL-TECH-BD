@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { SITE_METADATA } from '../data/siteData';
+import { useLanguage } from '../context/LanguageContext';
 import { MapPin, Phone, Mail, ShieldCheck, ArrowRight, Linkedin, Youtube, Facebook } from 'lucide-react';
 
 interface FooterProps {
@@ -10,6 +11,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpenRfq }) => {
+  const { isBn, t } = useLanguage();
+
   return (
     <footer className="bg-[#070D1E] text-slate-400 border-t border-slate-800/80">
       {/* Upper Footer: 4-Column Structured Grid */}
@@ -27,13 +30,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
                   METAL TEK BD
                 </span>
                 <span className="text-[10px] uppercase font-semibold tracking-wider text-[#F5B800] block">
-                  Foundry & Heavy Engineering
+                  {isBn ? 'ফাউন্ড্রি ও হেভি ইঞ্জিনিয়ারিং' : 'Foundry & Heavy Engineering'}
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              High-integrity centrifugal, sand, and investment castings engineered for mission-critical industrial applications across South Asia and global markets.
+              {isBn ? t.footer.brandTagline : 'High-integrity centrifugal, sand, and investment castings engineered for mission-critical industrial applications across South Asia and global markets.'}
             </p>
 
             {/* Direct Contact Details */}
@@ -102,16 +105,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-[#F5B800] rounded-full inline-block"></span>
-              Casting Processes
+              {isBn ? 'কাস্টিং প্রক্রিয়া' : 'Casting Processes'}
             </h4>
             <ul className="space-y-2.5 text-xs">
               {[
-                { label: 'Centrifugal Casting', route: { view: 'metal-casting' as const, subSlug: 'centrifugal-casting' } },
-                { label: 'Sand Casting', route: { view: 'metal-casting' as const, subSlug: 'sand-casting' } },
-                { label: 'Investment Casting', route: { view: 'metal-casting' as const, subSlug: 'investment-casting' } },
-                { label: 'Continuous & Ingot Casting', route: { view: 'metal-casting' as const, subSlug: 'ingot-casting' } },
-                { label: 'Alloy Finder & Materials', route: { view: 'alloys' as const } },
-                { label: 'Market Solutions', route: { view: 'market-solutions' as const } },
+                { label: isBn ? 'সেন্ট্রিফিউগাল কাস্টিং' : 'Centrifugal Casting', route: { view: 'metal-casting' as const, subSlug: 'centrifugal-casting' } },
+                { label: isBn ? 'স্যান্ড কাস্টিং' : 'Sand Casting', route: { view: 'metal-casting' as const, subSlug: 'sand-casting' } },
+                { label: isBn ? 'ইনভেস্টমেন্ট কাস্টিং' : 'Investment Casting', route: { view: 'metal-casting' as const, subSlug: 'investment-casting' } },
+                { label: isBn ? 'হাই-ইনটিগ্রিটি ইনগট' : 'Continuous & Ingot Casting', route: { view: 'metal-casting' as const, subSlug: 'ingot-casting' } },
+                { label: isBn ? 'অ্যালয় ফাইন্ডার' : 'Alloy Finder & Materials', route: { view: 'alloys' as const } },
+                { label: isBn ? 'শিল্প সমাধান' : 'Market Solutions', route: { view: 'market-solutions' as const } },
               ].map((item, idx) => (
                 <li key={idx}>
                   <button
@@ -129,16 +132,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-sky-400 rounded-full inline-block"></span>
-              Engineering & Lab
+              {isBn ? 'ইঞ্জিনিয়ারিং ও ল্যাব' : 'Engineering & Lab'}
             </h4>
             <ul className="space-y-2.5 text-xs">
               {[
-                { label: 'Precision CNC Machining', route: { view: 'capabilities' as const, subSlug: 'metal-machining' } },
-                { label: 'Precision Heat Treatment', route: { view: 'capabilities' as const, subSlug: 'heat-treatment' } },
-                { label: 'Metallurgical Testing & NDT Lab', route: { view: 'capabilities' as const, subSlug: 'metal-testing-analysis' } },
-                { label: 'Fabrication & Welding', route: { view: 'capabilities' as const, subSlug: 'metal-fabrication' } },
-                { label: 'Additive Manufacturing', route: { view: 'capabilities' as const, subSlug: 'additive-manufacturing' } },
-                { label: 'Quality Standards & Testing', route: { view: 'about-us' as const, subSection: 'certifications' as const } },
+                { label: isBn ? 'প্রিসিশন সিএনসি মেশিনিং' : 'Precision CNC Machining', route: { view: 'capabilities' as const, subSlug: 'metal-machining' } },
+                { label: isBn ? 'প্রিসিশন হিট ট্রিটমেন্ট' : 'Precision Heat Treatment', route: { view: 'capabilities' as const, subSlug: 'heat-treatment' } },
+                { label: isBn ? 'মেটালার্জিক্যাল টেস্টিং ও এনডিটি' : 'Metallurgical Testing & NDT Lab', route: { view: 'capabilities' as const, subSlug: 'metal-testing-analysis' } },
+                { label: isBn ? 'ফেব্রিকেশন ও ওয়েল্ডিং' : 'Fabrication & Welding', route: { view: 'capabilities' as const, subSlug: 'metal-fabrication' } },
+                { label: isBn ? 'অ্যাডিটিভ ম্যানুফ্যাকচারিং (৩ডি)' : 'Additive Manufacturing', route: { view: 'capabilities' as const, subSlug: 'additive-manufacturing' } },
+                { label: isBn ? 'গুণমান নিয়ন্ত্রণ ও সনদ' : 'Quality Standards & Testing', route: { view: 'about-us' as const, subSection: 'certifications' as const } },
               ].map((item, idx) => (
                 <li key={idx}>
                   <button
@@ -156,16 +159,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block"></span>
-              Resources & Support
+              {isBn ? 'রিসোর্স ও সহায়তা' : 'Resources & Support'}
             </h4>
             <ul className="space-y-2.5 text-xs">
               {[
-                { label: 'Company Overview', route: { view: 'about-us' as const, subSection: 'overview' as const } },
-                { label: 'Technical Case Studies', route: { view: 'resources' as const, subTab: 'case-studies' as const } },
-                { label: 'Technical Blog & Insights', route: { view: 'resources' as const, subTab: 'blog' as const } },
-                { label: 'Metallurgy Glossary', route: { view: 'resources' as const, subTab: 'glossary' as const } },
-                { label: 'Frequently Asked Questions', route: { view: 'resources' as const, subTab: 'faqs' as const } },
-                { label: 'Technical Downloads', route: { view: 'resources' as const, subTab: 'downloads' as const } },
+                { label: isBn ? 'কোম্পানি পরিচিতি' : 'Company Overview', route: { view: 'about-us' as const, subSection: 'overview' as const } },
+                { label: isBn ? 'টেকনিক্যাল কেস স্টাডিজ' : 'Technical Case Studies', route: { view: 'resources' as const, subTab: 'case-studies' as const } },
+                { label: isBn ? 'টেকনিক্যাল ব্লগ ও ইনসাইটস' : 'Technical Blog & Insights', route: { view: 'resources' as const, subTab: 'blog' as const } },
+                { label: isBn ? 'মেটালার্জি শব্দকোষ' : 'Metallurgy Glossary', route: { view: 'resources' as const, subTab: 'glossary' as const } },
+                { label: isBn ? 'সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQs)' : 'Frequently Asked Questions', route: { view: 'resources' as const, subTab: 'faqs' as const } },
+                { label: isBn ? 'টেকনিক্যাল ডাউনলোড' : 'Technical Downloads', route: { view: 'resources' as const, subTab: 'downloads' as const } },
               ].map((item, idx) => (
                 <li key={idx}>
                   <button
@@ -184,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
                 onClick={onOpenRfq}
                 className="w-full py-2.5 px-3 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white text-xs font-semibold rounded flex items-center justify-center gap-2 shadow-sm transition-all duration-200 cursor-pointer"
               >
-                <span>Request a Quote (RFQ)</span>
+                <span>{isBn ? 'কোটেশন অনুরোধ করুন (RFQ)' : 'Request a Quote (RFQ)'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -203,28 +206,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
               onClick={() => onNavigate({ view: 'privacy-policy' })}
               className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Privacy Policy
+              {isBn ? 'গোপনীয়তা নীতি' : 'Privacy Policy'}
             </button>
             <span className="text-slate-700 hidden sm:inline">•</span>
             <button
               onClick={() => onNavigate({ view: 'terms-conditions' })}
               className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Terms & Conditions
+              {isBn ? 'ব্যবহারের শর্তাবলী' : 'Terms & Conditions'}
             </button>
             <span className="text-slate-700 hidden sm:inline">•</span>
             <button
               onClick={() => onNavigate({ view: 'accessibility-statement' })}
               className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Accessibility
+              {isBn ? 'অ্যাক্সেসিবিলিটি' : 'Accessibility'}
             </button>
             <span className="text-slate-700 hidden sm:inline">•</span>
             <button
               onClick={onOpenCookies}
               className="hover:text-slate-200 transition-colors cursor-pointer"
             >
-              Cookie Settings
+              {isBn ? 'কুকি সেটিংস' : 'Cookie Settings'}
             </button>
           </div>
 
@@ -232,11 +235,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>ISO 9001:2015 Certified</span>
+              <span>{isBn ? 'আইএসও ৯০০১:২০১৫ সনদপ্রাপ্ত' : 'ISO 9001:2015 Certified'}</span>
             </div>
             <span className="text-slate-700 hidden sm:inline">|</span>
             <span className="text-[11px] text-slate-400">
-              {SITE_METADATA.copyright}
+              {isBn ? 'মেটাল টেক বিডি। সর্বস্বত্ব সংরক্ষিত।' : SITE_METADATA.copyright}
             </span>
           </div>
 

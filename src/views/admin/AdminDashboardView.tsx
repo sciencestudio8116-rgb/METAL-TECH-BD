@@ -27,15 +27,33 @@ import {
   Mail,
   Phone,
   MapPin,
-  X
+  X,
+  Globe,
+  Wand2,
+  Sparkles,
+  Languages,
+  Video,
+  Play,
+  Film,
+  Eye,
+  Flame
 } from 'lucide-react';
-import { useAdmin, DownloadItem, FaqItem, NavigationSubItem, ContentItem } from '../../context/AdminContext';
+import { useAdmin, DownloadItem, FaqItem, NavigationSubItem, NavigationMenuItem, ContentItem, VideoItem } from '../../context/AdminContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
 import { ContentWorkspace } from '../../components/admin/ContentWorkspace';
 import { SubMenuModal } from '../../components/admin/SubMenuModal';
 import { ContentEditorModal } from '../../components/admin/ContentEditorModal';
 import { PageRoute } from '../../types/navigation';
-import { Alloy, CaseStudy, BlogPost, GlossaryTerm } from '../../data/siteData';
+import { Alloy, CaseStudy, BlogPost, GlossaryTerm, ProcessItem, CapabilityItem, MarketItem } from '../../data/siteData';
+import {
+  translateBiDirectional,
+  detectLanguage,
+  autoTranslateVideoFields,
+  autoTranslateProcessFields,
+  autoTranslateCapabilityFields,
+  autoTranslateMarketFields
+} from '../../lib/translator';
 
 interface AdminDashboardViewProps {
   onNavigate: (route: PageRoute) => void;
@@ -53,13 +71,19 @@ type AdminTab =
   | 'downloads' 
   | 'glossary' 
   | 'leads' 
-  | 'backup';
+  | 'backup'
+  | 'videos'
+  | 'cards';
 
 export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNavigate }) => {
+  const { adminIsBn: isBn, toggleAdminLanguage: toggleLanguage, adminT: t } = useLanguage();
   const {
     adminUser,
     logout,
     navigationMenu,
+    addMainMenu,
+    updateMainMenu,
+    deleteMainMenu,
     addSubMenu,
     updateSubMenu,
     deleteSubMenu,
@@ -67,6 +91,22 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
     addContentItem,
     updateContentItem,
     deleteContentItem,
+    processCards,
+    addProcessCard,
+    updateProcessCard,
+    deleteProcessCard,
+    capabilityCards,
+    addCapabilityCard,
+    updateCapabilityCard,
+    deleteCapabilityCard,
+    marketCards,
+    addMarketCard,
+    updateMarketCard,
+    deleteMarketCard,
+    videos,
+    addVideo,
+    updateVideo,
+    deleteVideo,
     siteMetadata,
     updateSiteMetadata,
     heroContents,
@@ -100,6 +140,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
     resetToDefaults,
     exportDataJson,
     importDataJson,
+    supabaseConnected,
+    supabaseSyncing,
+    syncWithSupabase,
   } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<AdminTab>('hierarchy');
@@ -208,24 +251,238 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
     process: 'Centrifugal Casting',
   });
 
+  // Main Menu Modal State
+  const [mainMenuModalOpen, setMainMenuModalOpen] = useState(false);
+  const [editingMainMenu, setEditingMainMenu] = useState<NavigationMenuItem | null>(null);
+  const [mainMenuForm, setMainMenuForm] = useState({
+    id: '',
+    label: '',
+    labelBn: '',
+    slug: '',
+    iconName: 'Layers',
+    routeView: 'resources' as NavigationMenuItem['routeView'],
+    description: '',
+  });
+
+  // Video Management State
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null);
+  const [videoLangTab, setVideoLangTab] = useState<'en' | 'bn'>('en');
+  const [videoPreviewItem, setVideoPreviewItem] = useState<VideoItem | null>(null);
+  const [videoForm, setVideoForm] = useState<VideoItem>({
+    id: '',
+    title: '',
+    titleBn: '',
+    category: 'Foundry & Metallurgy',
+    categoryBn: 'ফাউন্ড্রি ও ধাতুবিদ্যা',
+    description: '',
+    descriptionBn: '',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80',
+    duration: '04:15',
+    tags: ['Centrifugal', 'Foundry', 'MetalTek BD'],
+  });
+
+  // Submenu & Overview Cards Management State
+  const [cardsSubTab, setCardsSubTab] = useState<'process' | 'capability' | 'market'>('process');
+
+  // Process Card Modal State
+  const [processModalOpen, setProcessModalOpen] = useState(false);
+  const [editingProcessCard, setEditingProcessCard] = useState<ProcessItem | null>(null);
+  const [processLangTab, setProcessLangTab] = useState<'en' | 'bn'>('en');
+  const [processForm, setProcessForm] = useState<ProcessItem>({
+    slug: '',
+    title: '',
+    titleBn: '',
+    summary: '',
+    summaryBn: '',
+    description: '',
+    descriptionBn: '',
+    heroHeadline: '',
+    heroHeadlineBn: '',
+    sizeLimits: '',
+    sizeLimitsBn: '',
+    weightRange: '',
+    weightRangeBn: '',
+    tolerances: '',
+    tolerancesBn: '',
+    typicalComponents: [],
+    typicalComponentsBn: [],
+    suitableAlloys: [],
+    industriesServed: [],
+  });
+
+  // Capability Card Modal State
+  const [capabilityModalOpen, setCapabilityModalOpen] = useState(false);
+  const [editingCapabilityCard, setEditingCapabilityCard] = useState<CapabilityItem | null>(null);
+  const [capabilityLangTab, setCapabilityLangTab] = useState<'en' | 'bn'>('en');
+  const [capabilityForm, setCapabilityForm] = useState<CapabilityItem>({
+    slug: '',
+    title: '',
+    titleBn: '',
+    iconName: 'Flame',
+    summary: '',
+    summaryBn: '',
+    description: '',
+    descriptionBn: '',
+    equipmentHighlights: [],
+    equipmentHighlightsBn: [],
+    specifications: [],
+    specificationsBn: [],
+    standards: [],
+  });
+
+  // Market Card Modal State
+  const [marketModalOpen, setMarketModalOpen] = useState(false);
+  const [editingMarketCard, setEditingMarketCard] = useState<MarketItem | null>(null);
+  const [marketLangTab, setMarketLangTab] = useState<'en' | 'bn'>('en');
+  const [marketForm, setMarketForm] = useState<MarketItem>({
+    slug: '',
+    title: '',
+    titleBn: '',
+    categoryTag: '',
+    categoryTagBn: '',
+    summary: '',
+    summaryBn: '',
+    challenges: '',
+    challengesBn: '',
+    solutions: '',
+    solutionsBn: '',
+    componentsSupplied: [],
+    componentsSuppliedBn: [],
+    recommendedAlloys: [],
+    salesContactMarketSlug: '',
+  });
+
   // Handle Logout
   const handleLogout = () => {
     logout();
     onNavigate({ view: 'home' });
   };
 
-  // Export Leads to CSV
+  // Technical Paper Bi-Lingual Modal State
+  const [paperModalOpen, setPaperModalOpen] = useState(false);
+  const [editingPaperSlug, setEditingPaperSlug] = useState<string | null>(null);
+  const [paperLangTab, setPaperLangTab] = useState<'en' | 'bn'>('en');
+  const [paperTitleEn, setPaperTitleEn] = useState('');
+  const [paperTitleBn, setPaperTitleBn] = useState('');
+  const [paperExcerptEn, setPaperExcerptEn] = useState('');
+  const [paperExcerptBn, setPaperExcerptBn] = useState('');
+  const [paperCategoryEn, setPaperCategoryEn] = useState('Technical Metallurgy');
+  const [paperCategoryBn, setPaperCategoryBn] = useState('প্রকৌশল ও ধাতুবিদ্যা');
+  const [paperContentEn, setPaperContentEn] = useState('');
+  const [paperContentBn, setPaperContentBn] = useState('');
+  const [paperAuthor, setPaperAuthor] = useState('MetalTek Engineering Team');
+  const [paperReadTime, setPaperReadTime] = useState('5 min read');
+
+  const handleOpenAddPaper = () => {
+    setEditingPaperSlug(null);
+    setPaperTitleEn('');
+    setPaperTitleBn('');
+    setPaperExcerptEn('');
+    setPaperExcerptBn('');
+    setPaperCategoryEn('Technical Metallurgy');
+    setPaperCategoryBn('প্রকৌশল ও ধাতুবিদ্যা');
+    setPaperContentEn('');
+    setPaperContentBn('');
+    setPaperAuthor('MetalTek Engineering Team');
+    setPaperReadTime('5 min read');
+    setPaperLangTab('en');
+    setPaperModalOpen(true);
+  };
+
+  const handleOpenEditPaper = (post: BlogPost) => {
+    setEditingPaperSlug(post.slug);
+    setPaperTitleEn(post.title || '');
+    setPaperTitleBn(post.titleBn || translateBiDirectional(post.title || '', 'bn'));
+    setPaperExcerptEn(post.excerpt || '');
+    setPaperExcerptBn(post.excerptBn || translateBiDirectional(post.excerpt || '', 'bn'));
+    setPaperCategoryEn(post.category || 'Technical Metallurgy');
+    setPaperCategoryBn(post.categoryBn || translateBiDirectional(post.category || '', 'bn'));
+    setPaperContentEn(post.content?.join('\n\n') || '');
+    setPaperContentBn(post.contentBn?.join('\n\n') || (post.content ? post.content.map(p => translateBiDirectional(p, 'bn')).join('\n\n') : ''));
+    setPaperAuthor(post.author || 'MetalTek Engineering Team');
+    setPaperReadTime(post.readTime || '5 min read');
+    setPaperLangTab('en');
+    setPaperModalOpen(true);
+  };
+
+  const handleAutoTranslatePaper = () => {
+    if (paperLangTab === 'en') {
+      if (!paperTitleEn && !paperContentEn) return;
+      setPaperTitleBn(translateBiDirectional(paperTitleEn, 'bn'));
+      setPaperExcerptBn(translateBiDirectional(paperExcerptEn, 'bn'));
+      setPaperCategoryBn(translateBiDirectional(paperCategoryEn, 'bn'));
+      setPaperContentBn(translateBiDirectional(paperContentEn, 'bn'));
+      setPaperLangTab('bn');
+    } else {
+      if (!paperTitleBn && !paperContentBn) return;
+      setPaperTitleEn(translateBiDirectional(paperTitleBn, 'en'));
+      setPaperExcerptEn(translateBiDirectional(paperExcerptBn, 'en'));
+      setPaperCategoryEn(translateBiDirectional(paperCategoryBn, 'en'));
+      setPaperContentEn(translateBiDirectional(paperContentBn, 'en'));
+      setPaperLangTab('en');
+    }
+  };
+
+  const handleSavePaper = (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalTitleEn = paperTitleEn.trim() || (paperTitleBn.trim() ? translateBiDirectional(paperTitleBn, 'en') : '');
+    const finalTitleBn = paperTitleBn.trim() || (paperTitleEn.trim() ? translateBiDirectional(paperTitleEn, 'bn') : '');
+
+    if (!finalTitleEn && !finalTitleBn) {
+      alert('Article title is required in either English or Bengali.');
+      return;
+    }
+
+    const finalExcerptEn = paperExcerptEn.trim() || (paperExcerptBn.trim() ? translateBiDirectional(paperExcerptBn, 'en') : '');
+    const finalExcerptBn = paperExcerptBn.trim() || (paperExcerptEn.trim() ? translateBiDirectional(paperExcerptEn, 'bn') : '');
+
+    const finalContentEn = paperContentEn.trim()
+      ? paperContentEn.split('\n\n').filter(p => p.trim())
+      : (paperContentBn.trim() ? paperContentBn.split('\n\n').map(p => translateBiDirectional(p, 'en')) : ['']);
+
+    const finalContentBn = paperContentBn.trim()
+      ? paperContentBn.split('\n\n').filter(p => p.trim())
+      : (paperContentEn.trim() ? paperContentEn.split('\n\n').map(p => translateBiDirectional(p, 'bn')) : ['']);
+
+    const slug = editingPaperSlug || finalTitleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const post: BlogPost = {
+      slug,
+      title: finalTitleEn,
+      titleBn: finalTitleBn,
+      excerpt: finalExcerptEn,
+      excerptBn: finalExcerptBn,
+      content: finalContentEn,
+      contentBn: finalContentBn,
+      category: paperCategoryEn,
+      categoryBn: paperCategoryBn,
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      author: paperAuthor,
+      readTime: paperReadTime,
+    };
+
+    if (editingPaperSlug) {
+      updateBlogPost(editingPaperSlug, post);
+    } else {
+      addBlogPost(post);
+    }
+    setPaperModalOpen(false);
+  };
+
+  // Export Leads & Inquiries to CSV for Offline Reporting
   const handleExportLeadsCsv = () => {
     if (leads.length === 0) return;
-    const headers = 'ID,Full Name,Email,Phone,Company,Source,Alloy/Process,Quantity,Date\n';
+    const headers = 'ID,Full Name,Email,Phone,Company,Source,Alloy/Process,Quantity,Message,Date\n';
     const rows = leads.map(l => 
-      `"${l.id}","${l.fullName}","${l.email}","${l.phone || ''}","${l.company || ''}","${l.source}","${l.alloyOrProcess || ''}","${l.estimatedQuantity || ''}","${l.createdAt}"`
+      `"${l.id}","${l.fullName}","${l.email}","${l.phone || ''}","${l.company || ''}","${l.source}","${l.alloyOrProcess || ''}","${l.estimatedQuantity || ''}","${(l.message || '').replace(/"/g, '""')}","${l.createdAt}"`
     ).join('\n');
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `metaltek_leads_${new Date().toISOString().substring(0, 10)}.csv`);
+    link.setAttribute('download', `metaltek_rfq_inquiries_${new Date().toISOString().substring(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -250,22 +507,49 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white text-sm sm:text-base tracking-tight">Metal Tek BD</span>
                 <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-[10px] font-mono font-bold uppercase tracking-wider">
-                  Admin Console
+                  {isBn ? 'অ্যাডমিন কনসোল' : 'Admin Console'}
                 </span>
+                <button
+                  onClick={() => syncWithSupabase()}
+                  disabled={supabaseSyncing}
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                    supabaseConnected
+                      ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/80'
+                      : 'bg-amber-950/80 border-amber-500/40 text-amber-400 hover:bg-amber-900/80'
+                  }`}
+                  title="Click to manually refresh data from Supabase PostgreSQL"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${supabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                  <span className="hidden sm:inline">
+                    {supabaseSyncing ? 'Syncing...' : supabaseConnected ? 'Supabase Live' : 'Supabase Ready'}
+                  </span>
+                </button>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">Real-time CMS & Foundry Portal</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">
+                {isBn ? 'রিয়েল-টাইম সিএমএস ও ফাউন্ড্রি পোর্টাল' : 'Real-time CMS & Foundry Portal'}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Toggle in Admin Navbar */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm bg-slate-800 hover:bg-slate-700 text-[#F5B800] border border-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+            title="Toggle English / বাংলা"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>{isBn ? 'English' : 'বাংলা'}</span>
+          </button>
+
           {/* Live Website Preview Link */}
           <button
             onClick={() => onNavigate({ view: 'home' })}
             className="px-3 py-1.5 rounded-sm bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">View Live Website</span>
+            <span className="hidden sm:inline">{isBn ? 'ওয়েবসাইট দেখুন' : 'View Live Website'}</span>
           </button>
 
           {/* User Profile */}
@@ -274,10 +558,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
               A
             </div>
             <div className="leading-tight">
-              <p className="font-semibold text-white">{adminUser?.name || 'Administrator'}</p>
+              <p className="font-semibold text-white">{adminUser?.name || (isBn ? 'অ্যাডমিনিস্ট্রেটর' : 'Administrator')}</p>
               <p className="text-[10px] text-emerald-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Super Admin
+                {isBn ? 'সুপার অ্যাডমিন' : 'Super Admin'}
               </p>
             </div>
           </div>
@@ -289,7 +573,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
             title="Log out of Admin Console"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Logout</span>
+            <span className="hidden sm:inline">{isBn ? 'লগ আউট' : 'Logout'}</span>
           </button>
         </div>
       </header>
@@ -310,6 +594,19 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
           }}
           onSelectSystemTab={(tab) => {
             setActiveTab(tab as any);
+          }}
+          onOpenAddMainMenu={() => {
+            setEditingMainMenu(null);
+            setMainMenuForm({
+              id: '',
+              label: '',
+              labelBn: '',
+              slug: '',
+              iconName: 'Layers',
+              routeView: 'resources' as NavigationMenuItem['routeView'],
+              description: '',
+            });
+            setMainMenuModalOpen(true);
           }}
           onOpenAddSubMenu={handleOpenAddSubMenu}
           onOpenEditSubMenu={handleOpenEditSubMenu}
@@ -988,31 +1285,60 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                 <div>
                   <h1 className="text-xl font-bold text-white">Technical Papers & Whitepapers</h1>
-                  <p className="text-xs text-slate-400">Total {blogPosts.length} published engineering articles and casting whitepapers.</p>
+                  <p className="text-xs text-slate-400">Total {blogPosts.length} published engineering articles and casting whitepapers with bi-directional English & Bengali translation.</p>
                 </div>
+                <button
+                  onClick={handleOpenAddPaper}
+                  className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold rounded shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Create Technical Paper</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {blogPosts.map(post => (
-                  <div key={post.slug} className="p-4 rounded-md bg-[#0C1527] border border-slate-800 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono">
-                        {post.date} · {post.readTime}
-                      </span>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Delete paper "${post.title}"?`)) {
-                            deleteBlogPost(post.slug);
-                          }
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                  <div key={post.slug} className="p-4 rounded-md bg-[#0C1527] border border-slate-800 space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono">
+                          {post.date} · {post.readTime}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleOpenEditPaper(post)}
+                            className="text-cyan-400 hover:text-cyan-300 p-1 rounded hover:bg-slate-800 cursor-pointer"
+                            title="Edit Paper"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Delete paper "${post.title}"?`)) {
+                                deleteBlogPost(post.slug);
+                              }
+                            }}
+                            className="text-rose-400 hover:text-rose-300 p-1 rounded hover:bg-slate-800 cursor-pointer"
+                            title="Delete Paper"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-white text-sm line-clamp-2">
+                        {post.title}
+                      </h3>
+                      {post.titleBn && (
+                        <p className="text-xs text-cyan-300 line-clamp-1">
+                          🇧🇩 {post.titleBn}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-400 line-clamp-2">{post.excerpt}</p>
                     </div>
-                    <h3 className="font-bold text-white text-sm line-clamp-1">{post.title}</h3>
-                    <p className="text-xs text-slate-400 line-clamp-2">{post.excerpt}</p>
-                    <div className="text-[11px] text-slate-500 font-mono">Author: {post.author}</div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-2 border-t border-slate-800/80">
+                      <span>Author: {post.author}</span>
+                      <span className="text-slate-400">{post.category}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1134,6 +1460,523 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* TAB 12: TECHNICAL VIDEOS MANAGEMENT */}
+          {activeTab === 'videos' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                <div>
+                  <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Video className="w-5 h-5 text-cyan-400" />
+                    <span>{isBn ? 'কারিগরি ভিডিও ও প্রসেস মিডিয়া' : 'Technical Videos & Process Media'}</span>
+                  </h1>
+                  <p className="text-xs text-slate-400">
+                    {isBn 
+                      ? 'রিসোর্সেস সেকশনে প্রদর্শিত ফাউন্ড্রি ও মেশিনিং ভিডিও পরিচালনা করুন' 
+                      : 'Manage technical process videos displayed under Resources > Technical Videos.'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingVideo(null);
+                      setVideoForm({
+                        id: `vid-${Date.now().toString(36)}`,
+                        title: '',
+                        titleBn: '',
+                        category: 'Foundry & Metallurgy',
+                        categoryBn: 'ফাউন্ড্রি ও ধাতুবিদ্যা',
+                        description: '',
+                        descriptionBn: '',
+                        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                        thumbnailUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80',
+                        duration: '04:15',
+                        tags: ['Centrifugal', 'Foundry', 'MetalTek BD'],
+                      });
+                      setVideoLangTab('en');
+                      setVideoModalOpen(true);
+                    }}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold rounded-sm shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{isBn ? 'নতুন ভিডিও যুক্ত করুন' : 'Add Technical Video'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Videos Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                {videos.map((vid) => (
+                  <div
+                    key={vid.id}
+                    className="bg-[#0C1527] border border-slate-800 rounded-lg overflow-hidden flex flex-col hover:border-cyan-500/40 transition-colors group"
+                  >
+                    <div className="relative aspect-video bg-slate-900 overflow-hidden">
+                      <img
+                        src={vid.thumbnailUrl}
+                        alt={vid.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-950/90 text-cyan-300 border border-cyan-500/40">
+                          {isBn && vid.categoryBn ? vid.categoryBn : vid.category}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-white font-mono text-[11px] font-semibold border border-white/10">
+                        {vid.duration}
+                      </div>
+                      <button
+                        onClick={() => setVideoPreviewItem(vid)}
+                        className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-cyan-500/80 hover:bg-cyan-400 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 cursor-pointer"
+                        title="Preview Video"
+                      >
+                        <Play className="w-5 h-5 ml-0.5 fill-current" />
+                      </button>
+                    </div>
+
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-bold text-white text-sm group-hover:text-cyan-300 transition-colors">
+                            {isBn && vid.titleBn ? vid.titleBn : vid.title}
+                          </h3>
+                        </div>
+                        {isBn && vid.title && vid.titleBn && (
+                          <p className="text-[11px] text-slate-500 font-medium">EN: {vid.title}</p>
+                        )}
+                        {!isBn && vid.titleBn && (
+                          <p className="text-[11px] text-slate-500 font-medium font-bengali">বাংলা: {vid.titleBn}</p>
+                        )}
+                        <p className="text-xs text-slate-300 mt-1.5 line-clamp-2 leading-relaxed">
+                          {isBn && vid.descriptionBn ? vid.descriptionBn : vid.description}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t border-slate-800/80">
+                        <div className="flex flex-wrap gap-1">
+                          {(vid.tags || []).map((t, i) => (
+                            <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[10px] font-mono text-slate-500 truncate max-w-[180px]">
+                            {vid.videoUrl}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                setEditingVideo(vid);
+                                setVideoForm({ ...vid });
+                                setVideoLangTab('en');
+                                setVideoModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Edit className="w-3 h-3" />
+                              <span>{isBn ? 'সম্পাদনা' : 'Edit'}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(isBn ? `ভিডিও "${vid.title}" মুছে ফেলতে চান?` : `Delete video "${vid.title}"?`)) {
+                                  deleteVideo(vid.id);
+                                }
+                              }}
+                              className="px-2.5 py-1 rounded bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 13: SUBMENU & OVERVIEW CARDS (PROCESS, CAPABILITY, MARKET) */}
+          {activeTab === 'cards' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                <div>
+                  <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-amber-400" />
+                    <span>{isBn ? 'সাবমেনু ও ওভারভিউ কার্ড ম্যানেজমেন্ট' : 'Submenu & Overview Cards Management'}</span>
+                  </h1>
+                  <p className="text-xs text-slate-400">
+                    {isBn
+                      ? 'কাস্টিং প্রসেস, ক্যাপাবিলিটি ও মার্কেট সেক্টর কার্ডের দ্বৈতভাষিক কন্টেন্ট সরাসরি সম্পাদনা করুন'
+                      : 'Live editing of dual-language cards for casting processes, foundry capabilities, and market sectors.'}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {cardsSubTab === 'process' && (
+                    <button
+                      onClick={() => {
+                        setEditingProcessCard(null);
+                        setProcessForm({
+                          slug: `process-${Date.now().toString(36)}`,
+                          title: '',
+                          titleBn: '',
+                          summary: '',
+                          summaryBn: '',
+                          description: '',
+                          descriptionBn: '',
+                          heroHeadline: '',
+                          heroHeadlineBn: '',
+                          sizeLimits: '',
+                          sizeLimitsBn: '',
+                          weightRange: '',
+                          weightRangeBn: '',
+                          tolerances: '',
+                          tolerancesBn: '',
+                          typicalComponents: [],
+                          typicalComponentsBn: [],
+                          suitableAlloys: ['Stainless Steel', 'Nickel Superalloy'],
+                          industriesServed: ['Energy', 'Aerospace'],
+                        });
+                        setProcessLangTab('en');
+                        setProcessModalOpen(true);
+                      }}
+                      className="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-sm shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{isBn ? 'নতুন প্রসেস কার্ড' : 'Add Process Card'}</span>
+                    </button>
+                  )}
+                  {cardsSubTab === 'capability' && (
+                    <button
+                      onClick={() => {
+                        setEditingCapabilityCard(null);
+                        setCapabilityForm({
+                          slug: `capability-${Date.now().toString(36)}`,
+                          title: '',
+                          titleBn: '',
+                          iconName: 'Flame',
+                          summary: '',
+                          summaryBn: '',
+                          description: '',
+                          descriptionBn: '',
+                          equipmentHighlights: [],
+                          equipmentHighlightsBn: [],
+                          specifications: [],
+                          specificationsBn: [],
+                          standards: ['ASTM', 'ASME Section IX'],
+                        });
+                        setCapabilityLangTab('en');
+                        setCapabilityModalOpen(true);
+                      }}
+                      className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-sm shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{isBn ? 'নতুন ক্যাপাবিলিটি কার্ড' : 'Add Capability Card'}</span>
+                    </button>
+                  )}
+                  {cardsSubTab === 'market' && (
+                    <button
+                      onClick={() => {
+                        setEditingMarketCard(null);
+                        setMarketForm({
+                          slug: `market-${Date.now().toString(36)}`,
+                          title: '',
+                          titleBn: '',
+                          categoryTag: '',
+                          categoryTagBn: '',
+                          summary: '',
+                          summaryBn: '',
+                          challenges: '',
+                          challengesBn: '',
+                          solutions: '',
+                          solutionsBn: '',
+                          componentsSupplied: [],
+                          componentsSuppliedBn: [],
+                          recommendedAlloys: ['CF8M', 'Inconel 625'],
+                          salesContactMarketSlug: 'general',
+                        });
+                        setMarketLangTab('en');
+                        setMarketModalOpen(true);
+                      }}
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-sm shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{isBn ? 'নতুন মার্কেট কার্ড' : 'Add Market Solution Card'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Category Sub-Tabs Navigation */}
+              <div className="flex border-b border-slate-800 gap-2">
+                <button
+                  onClick={() => setCardsSubTab('process')}
+                  className={`px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                    cardsSubTab === 'process'
+                      ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>{isBn ? 'কাস্টিং প্রসেস কার্ডস' : 'Casting Process Cards'} ({processCards.length})</span>
+                </button>
+                <button
+                  onClick={() => setCardsSubTab('capability')}
+                  className={`px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                    cardsSubTab === 'capability'
+                      ? 'border-blue-400 text-blue-300 bg-blue-950/20'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Flame className="w-4 h-4" />
+                  <span>{isBn ? 'ফাউন্ড্রি ক্যাপাবিলিটি কার্ডস' : 'Foundry Capabilities'} ({capabilityCards.length})</span>
+                </button>
+                <button
+                  onClick={() => setCardsSubTab('market')}
+                  className={`px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                    cardsSubTab === 'market'
+                      ? 'border-emerald-400 text-emerald-300 bg-emerald-950/20'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Building className="w-4 h-4" />
+                  <span>{isBn ? 'মার্কেট সেক্টর সল্যুশন' : 'Market Sectors'} ({marketCards.length})</span>
+                </button>
+              </div>
+
+              {/* 1. PROCESS CARDS */}
+              {cardsSubTab === 'process' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {processCards.map((pc) => (
+                    <div
+                      key={pc.slug}
+                      className="p-4 rounded-lg bg-[#0C1527] border border-slate-800 hover:border-cyan-500/40 transition-colors flex flex-col justify-between space-y-3"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-500/30">
+                            /{pc.slug}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => onNavigate({ view: 'metal-casting', subSlug: pc.slug })}
+                              className="text-slate-400 hover:text-cyan-300 p-1 cursor-pointer"
+                              title="View on Live Website"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingProcessCard(pc);
+                                setProcessForm({ ...pc });
+                                setProcessLangTab('en');
+                                setProcessModalOpen(true);
+                              }}
+                              className="text-cyan-400 hover:text-cyan-300 p-1 cursor-pointer"
+                              title="Edit Card"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete process card "${pc.title}"?`)) {
+                                  deleteProcessCard(pc.slug);
+                                }
+                              }}
+                              className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                              title="Delete Card"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <h3 className="font-bold text-white text-base mt-2">
+                          {isBn && pc.titleBn ? pc.titleBn : pc.title}
+                        </h3>
+                        <p className="text-[11px] text-slate-500 font-mono">
+                          {isBn ? `EN: ${pc.title}` : (pc.titleBn ? `বাংলা: ${pc.titleBn}` : '')}
+                        </p>
+                        <p className="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">
+                          {isBn && pc.summaryBn ? pc.summaryBn : pc.summary}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800/80 space-y-1.5 text-[11px]">
+                        <div className="flex justify-between text-slate-400">
+                          <span>{isBn ? 'সাইজ লিমিট:' : 'Size Limits:'}</span>
+                          <span className="text-slate-200 font-medium">{isBn && pc.sizeLimitsBn ? pc.sizeLimitsBn : pc.sizeLimits}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>{isBn ? 'ওজন সীমা:' : 'Weight Range:'}</span>
+                          <span className="text-slate-200 font-medium">{isBn && pc.weightRangeBn ? pc.weightRangeBn : pc.weightRange}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>{isBn ? 'টলারেন্স:' : 'Tolerances:'}</span>
+                          <span className="text-slate-200 font-medium">{isBn && pc.tolerancesBn ? pc.tolerancesBn : pc.tolerances}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 2. CAPABILITY CARDS */}
+              {cardsSubTab === 'capability' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {capabilityCards.map((cap) => (
+                    <div
+                      key={cap.slug}
+                      className="p-4 rounded-lg bg-[#0C1527] border border-slate-800 hover:border-blue-500/40 transition-colors flex flex-col justify-between space-y-3"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-500/30">
+                            /{cap.slug}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => onNavigate({ view: 'capabilities', subSlug: cap.slug })}
+                              className="text-slate-400 hover:text-blue-300 p-1 cursor-pointer"
+                              title="View on Live Website"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingCapabilityCard(cap);
+                                setCapabilityForm({ ...cap });
+                                setCapabilityLangTab('en');
+                                setCapabilityModalOpen(true);
+                              }}
+                              className="text-blue-400 hover:text-blue-300 p-1 cursor-pointer"
+                              title="Edit Card"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete capability "${cap.title}"?`)) {
+                                  deleteCapabilityCard(cap.slug);
+                                }
+                              }}
+                              className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                              title="Delete Card"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <h3 className="font-bold text-white text-base mt-2">
+                          {isBn && cap.titleBn ? cap.titleBn : cap.title}
+                        </h3>
+                        <p className="text-[11px] text-slate-500 font-mono">
+                          {isBn ? `EN: ${cap.title}` : (cap.titleBn ? `বাংলা: ${cap.titleBn}` : '')}
+                        </p>
+                        <p className="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">
+                          {isBn && cap.summaryBn ? cap.summaryBn : cap.summary}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800/80 space-y-1 text-[11px]">
+                        <span className="text-slate-400 block font-semibold">{isBn ? 'যন্ত্রপাতি ও ইকুইপমেন্ট:' : 'Equipment Highlights:'}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(isBn && cap.equipmentHighlightsBn && cap.equipmentHighlightsBn.length > 0 ? cap.equipmentHighlightsBn : cap.equipmentHighlights).slice(0, 3).map((eq, i) => (
+                            <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                              {eq}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 3. MARKET CARDS */}
+              {cardsSubTab === 'market' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {marketCards.map((m) => (
+                    <div
+                      key={m.slug}
+                      className="p-4 rounded-lg bg-[#0C1527] border border-slate-800 hover:border-emerald-500/40 transition-colors flex flex-col justify-between space-y-3"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                            /{m.slug}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => onNavigate({ view: 'market-solutions', subSlug: m.slug })}
+                              className="text-slate-400 hover:text-emerald-300 p-1 cursor-pointer"
+                              title="View on Live Website"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingMarketCard(m);
+                                setMarketForm({ ...m });
+                                setMarketLangTab('en');
+                                setMarketModalOpen(true);
+                              }}
+                              className="text-emerald-400 hover:text-emerald-300 p-1 cursor-pointer"
+                              title="Edit Card"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete market solution "${m.title}"?`)) {
+                                  deleteMarketCard(m.slug);
+                                }
+                              }}
+                              className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                              title="Delete Card"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded">
+                            {isBn && m.categoryTagBn ? m.categoryTagBn : m.categoryTag || 'Industrial Sector'}
+                          </span>
+                          <h3 className="font-bold text-white text-base mt-1.5">
+                            {isBn && m.titleBn ? m.titleBn : m.title}
+                          </h3>
+                          <p className="text-[11px] text-slate-500 font-mono">
+                            {isBn ? `EN: ${m.title}` : (m.titleBn ? `বাংলা: ${m.titleBn}` : '')}
+                          </p>
+                        </div>
+
+                        <p className="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">
+                          {isBn && m.summaryBn ? m.summaryBn : m.summary}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800/80 space-y-1 text-[11px]">
+                        <span className="text-slate-400 block font-semibold">{isBn ? 'মূল সমাধান:' : 'Key Solution:'}</span>
+                        <p className="text-slate-300 line-clamp-2">
+                          {isBn && m.solutionsBn ? m.solutionsBn : m.solutions}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </main>
@@ -1416,6 +2259,1145 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
           defaultMenuId={currentMenu?.id}
           defaultSubItemId={currentSub?.id}
         />
+      )}
+
+      {/* 5. Technical Paper & Article Bi-Lingual Modal */}
+      {paperModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[#0F1B2D]/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl bg-[#0C1527] border border-slate-700 rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="bg-[#091122] px-6 py-4 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-white tracking-wide">
+                    {editingPaperSlug ? 'Edit Technical Paper / Article' : 'Create New Technical Paper / Article'}
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Dual-Language Input with Bi-Directional Auto-Translation & Formatting Preservation
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPaperModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePaper} className="flex-1 overflow-y-auto p-6 space-y-5">
+              {/* Language Toolbar */}
+              <div className="bg-slate-900/90 p-3 rounded border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                    <Languages className="w-4 h-4 text-cyan-400" />
+                    Input Language:
+                  </span>
+                  <div className="inline-flex rounded p-1 bg-slate-800 border border-slate-700">
+                    <button
+                      type="button"
+                      onClick={() => setPaperLangTab('en')}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
+                        paperLangTab === 'en'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      English (EN)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaperLangTab('bn')}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
+                        paperLangTab === 'bn'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      বাংলা (BN)
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAutoTranslatePaper}
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-extrabold rounded shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  title="Auto-translate entire article into the other language"
+                >
+                  <Wand2 className="w-3.5 h-3.5" />
+                  <span>
+                    {paperLangTab === 'en' ? '✨ Auto-Translate to বাংলা' : '✨ Auto-Translate to English'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Title & Category */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center justify-between">
+                    <span>
+                      {paperLangTab === 'en' ? 'Article Title (English)' : 'নিবন্ধের শিরোনাম (বাংলা)'} *
+                    </span>
+                    <span className="text-[10px] text-cyan-400 font-mono">
+                      {paperLangTab === 'en' ? 'EN' : 'BN'}
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={paperLangTab === 'en' ? paperTitleEn : paperTitleBn}
+                    onChange={(e) => {
+                      if (paperLangTab === 'en') setPaperTitleEn(e.target.value);
+                      else setPaperTitleBn(e.target.value);
+                    }}
+                    placeholder={
+                      paperLangTab === 'en'
+                        ? 'e.g. Centrifugal Casting Solidification Principles for Severe Duty Cylinders'
+                        : 'যেমন: কঠিন ব্যবহারের জন্য সেন্ট্রিফিউগাল কাস্টিং ঘনীভবন নীতি'
+                    }
+                    className="w-full px-3.5 py-2.5 bg-[#091122] border border-slate-700 rounded text-sm text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                      {paperLangTab === 'en' ? 'Category Tag (English)' : 'বিভাগীয় ট্যাগ (বাংলা)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={paperLangTab === 'en' ? paperCategoryEn : paperCategoryBn}
+                      onChange={(e) => {
+                        if (paperLangTab === 'en') setPaperCategoryEn(e.target.value);
+                        else setPaperCategoryBn(e.target.value);
+                      }}
+                      placeholder="e.g. Technical Metallurgy"
+                      className="w-full px-3 py-2 bg-[#091122] border border-slate-700 rounded text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                      Author / Organization
+                    </label>
+                    <input
+                      type="text"
+                      value={paperAuthor}
+                      onChange={(e) => setPaperAuthor(e.target.value)}
+                      placeholder="e.g. Lead Foundry Metallurgist"
+                      className="w-full px-3 py-2 bg-[#091122] border border-slate-700 rounded text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                    {paperLangTab === 'en' ? 'Short Excerpt / Abstract (English)' : 'সংক্ষিপ্ত সারাংশ (বাংলা)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={paperLangTab === 'en' ? paperExcerptEn : paperExcerptBn}
+                    onChange={(e) => {
+                      if (paperLangTab === 'en') setPaperExcerptEn(e.target.value);
+                      else setPaperExcerptBn(e.target.value);
+                    }}
+                    placeholder={
+                      paperLangTab === 'en'
+                        ? 'Key technical takeaway for engineering clients...'
+                        : 'ইঞ্জিনিয়ারিং ক্লায়েন্টদের জন্য মূল কারিগরি তথ্য...'
+                    }
+                    className="w-full px-3.5 py-2 bg-[#091122] border border-slate-700 rounded text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Content Paragraphs */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                  <span>
+                    {paperLangTab === 'en' ? 'Full Article Content (English)' : 'সম্পূর্ণ নিবন্ধের বিস্তারিত বিবরণ (বাংলা)'}
+                  </span>
+                  <span className="text-[10px] text-slate-400">Separate paragraphs with blank lines</span>
+                </label>
+                <textarea
+                  rows={8}
+                  value={paperLangTab === 'en' ? paperContentEn : paperContentBn}
+                  onChange={(e) => {
+                    if (paperLangTab === 'en') setPaperContentEn(e.target.value);
+                    else setPaperContentBn(e.target.value);
+                  }}
+                  placeholder={
+                    paperLangTab === 'en'
+                      ? 'Write paragraph 1 here...\n\nWrite paragraph 2 here with metallurgical details and casting parameters...'
+                      : 'এখানে প্রথম অনুচ্ছেদ লিখুন...\n\nএখানে ধাতুবিদ্যা সংক্রান্ত বিস্তারিত ও কাস্টিং প্যারামিটারসহ দ্বিতীয় অনুচ্ছেদ লিখুন...'
+                  }
+                  className="w-full px-3.5 py-2.5 bg-[#091122] border border-slate-700 rounded text-xs text-white font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-xs text-slate-400">
+                  Dual-language versions will automatically sync with the user panel
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPaperModalOpen(false)}
+                    className="px-4 py-2 border border-slate-700 rounded text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold rounded shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Publish Dual-Language Paper</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT MAIN MENU */}
+      {mainMenuModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-[#0C1527] border border-cyan-500/40 rounded-lg p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <Layers className="w-4 h-4 text-cyan-400" />
+                <span>{editingMainMenu ? (isBn ? 'মেনু সম্পাদনা' : 'Edit Main Menu') : (isBn ? 'নতুন মেইন মেনু যুক্ত করুন' : 'Add New Main Navigation Menu')}</span>
+              </h3>
+              <button onClick={() => setMainMenuModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!mainMenuForm.label.trim()) {
+                  alert('Menu English label is required');
+                  return;
+                }
+                const menuId = editingMainMenu
+                  ? editingMainMenu.id
+                  : (mainMenuForm.id.trim() || mainMenuForm.label.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+                
+                const labelBn = mainMenuForm.labelBn.trim() || translateBiDirectional(mainMenuForm.label, 'bn');
+
+                if (editingMainMenu) {
+                  updateMainMenu(editingMainMenu.id, {
+                    label: mainMenuForm.label,
+                    labelBn,
+                    iconName: mainMenuForm.iconName,
+                    routeView: mainMenuForm.routeView,
+                    description: mainMenuForm.description,
+                  });
+                } else {
+                  addMainMenu({
+                    id: menuId,
+                    label: mainMenuForm.label,
+                    labelBn,
+                    iconName: mainMenuForm.iconName,
+                    routeView: mainMenuForm.routeView,
+                    description: mainMenuForm.description,
+                    subItems: [],
+                  });
+                }
+                setMainMenuModalOpen(false);
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Menu Label (English)</label>
+                <input
+                  type="text"
+                  required
+                  value={mainMenuForm.label}
+                  onChange={(e) => setMainMenuForm({ ...mainMenuForm, label: e.target.value })}
+                  placeholder="e.g. Innovations"
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Menu Label (বাংলা - Bengali)</label>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    type="text"
+                    value={mainMenuForm.labelBn}
+                    onChange={(e) => setMainMenuForm({ ...mainMenuForm, labelBn: e.target.value })}
+                    placeholder="e.g. উদ্ভাবন ও প্রযুক্তি"
+                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-bengali"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (mainMenuForm.label) {
+                        setMainMenuForm({ ...mainMenuForm, labelBn: translateBiDirectional(mainMenuForm.label, 'bn') });
+                      }
+                    }}
+                    className="px-2.5 py-2 bg-cyan-950 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    title="Auto-translate"
+                  >
+                    <Wand2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Target Route View</label>
+                <select
+                  value={mainMenuForm.routeView}
+                  onChange={(e) => setMainMenuForm({ ...mainMenuForm, routeView: e.target.value as NavigationMenuItem['routeView'] })}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                >
+                  <option value="metal-casting">Metal Casting Processes (/metal-casting)</option>
+                  <option value="capabilities">Foundry Capabilities (/capabilities)</option>
+                  <option value="alloys">Materials & Alloys (/alloys)</option>
+                  <option value="market-solutions">Market & Sector Solutions (/market-solutions)</option>
+                  <option value="resources">Resources & Technical Media (/resources)</option>
+                  <option value="about-us">About Us & Overview (/about-us)</option>
+                  <option value="contact-us">Contact & Inquiries (/contact-us)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Icon</label>
+                <select
+                  value={mainMenuForm.iconName}
+                  onChange={(e) => setMainMenuForm({ ...mainMenuForm, iconName: e.target.value })}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                >
+                  <option value="Layers">Layers (Stack)</option>
+                  <option value="Flame">Flame (Fire / Foundry)</option>
+                  <option value="Wrench">Wrench (Engineering / CNC)</option>
+                  <option value="Building">Building (Industrial Facilities)</option>
+                  <option value="FolderOpen">FolderOpen (Resources)</option>
+                  <option value="FileText">FileText (Reports & Specs)</option>
+                  <option value="Sparkles">Sparkles (Quality & Innovation)</option>
+                  <option value="Video">Video (Media Hub)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Brief Description</label>
+                <input
+                  type="text"
+                  value={mainMenuForm.description}
+                  onChange={(e) => setMainMenuForm({ ...mainMenuForm, description: e.target.value })}
+                  placeholder="e.g. Next-generation metallurgical solutions"
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMainMenuModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 rounded text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isBn ? 'সংরক্ষণ করুন' : 'Save Main Menu'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT VIDEO */}
+      {videoModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0C1527] border border-cyan-500/40 rounded-lg p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Video className="w-5 h-5 text-cyan-400" />
+                <h3 className="font-bold text-white text-base">
+                  {editingVideo ? (isBn ? 'ভিডিও বিবরণ সম্পাদনা' : 'Edit Technical Video') : (isBn ? 'নতুন টেকনিক্যাল ভিডিও যুক্ত করুন' : 'Add Technical Video')}
+                </h3>
+              </div>
+              <button onClick={() => setVideoModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Language Tabs & Auto-Translate */}
+            <div className="flex items-center justify-between bg-slate-900/60 p-2 rounded border border-slate-800">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVideoLangTab('en')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer transition-all ${
+                    videoLangTab === 'en' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  English Fields
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVideoLangTab('bn')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer transition-all ${
+                    videoLangTab === 'bn' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  বাংলা বিবরণ (Bengali)
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const translated = autoTranslateVideoFields(videoForm);
+                  setVideoForm(translated);
+                  setVideoLangTab(videoLangTab === 'en' ? 'bn' : 'en');
+                }}
+                className="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 shadow-sm cursor-pointer"
+                title="Automatically translate missing fields using metallurgy dictionary"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'স্বয়ংক্রিয় অনুবাদ (AI)' : 'Auto-Translate (AI)'}</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const ready = autoTranslateVideoFields(videoForm);
+                if (editingVideo) {
+                  updateVideo(editingVideo.id, ready);
+                } else {
+                  addVideo(ready);
+                }
+                setVideoModalOpen(false);
+              }}
+              className="space-y-3.5"
+            >
+              {videoLangTab === 'en' ? (
+                <>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">Video Title (English)</label>
+                    <input
+                      type="text"
+                      required
+                      value={videoForm.title}
+                      onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
+                      placeholder="e.g. Centrifugal Casting: Molten Metal Pouring at 1,600°C"
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">Category (English)</label>
+                    <input
+                      type="text"
+                      value={videoForm.category}
+                      onChange={(e) => setVideoForm({ ...videoForm, category: e.target.value })}
+                      placeholder="e.g. Foundry & Pouring Processes"
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">Description (English)</label>
+                    <textarea
+                      rows={3}
+                      value={videoForm.description}
+                      onChange={(e) => setVideoForm({ ...videoForm, description: e.target.value })}
+                      placeholder="Describe the technical process, metallurgy highlights, temperature, or equipment..."
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">ভিডিও শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={videoForm.titleBn || ''}
+                      onChange={(e) => setVideoForm({ ...videoForm, titleBn: e.target.value })}
+                      placeholder="যেমন: সেন্ট্রিফিউগাল কাস্টিং: ১৬০০ ডিগ্রি সেলসিয়াসে তরল ধাতু ঢালাই প্রক্রিয়া"
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-bengali"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">ক্যাটাগরি (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={videoForm.categoryBn || ''}
+                      onChange={(e) => setVideoForm({ ...videoForm, categoryBn: e.target.value })}
+                      placeholder="যেমন: ফাউন্ড্রি ও ঢালাই প্রক্রিয়া"
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-bengali"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">বিস্তারিত বিবরণ (বাংলা)</label>
+                    <textarea
+                      rows={3}
+                      value={videoForm.descriptionBn || ''}
+                      onChange={(e) => setVideoForm({ ...videoForm, descriptionBn: e.target.value })}
+                      placeholder="প্রক্রিয়াটির কারিগরি বিবরণ, তাপমাত্রা এবং রাসায়নিক বৈশিষ্ট্যাবলী লিখুন..."
+                      className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-bengali"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">Video URL (YouTube or Direct MP4)</label>
+                  <input
+                    type="url"
+                    required
+                    value={videoForm.videoUrl}
+                    onChange={(e) => setVideoForm({ ...videoForm, videoUrl: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">Duration (e.g. 03:45)</label>
+                  <input
+                    type="text"
+                    value={videoForm.duration}
+                    onChange={(e) => setVideoForm({ ...videoForm, duration: e.target.value })}
+                    placeholder="03:45"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Thumbnail Image URL</label>
+                <input
+                  type="url"
+                  value={videoForm.thumbnailUrl}
+                  onChange={(e) => setVideoForm({ ...videoForm, thumbnailUrl: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={(videoForm.tags || []).join(', ')}
+                  onChange={(e) => setVideoForm({
+                    ...videoForm,
+                    tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                  })}
+                  placeholder="Centrifugal, Foundry, Quality Testing"
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVideoModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 rounded text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isBn ? 'ভিডিও সংরক্ষণ করুন' : 'Save Technical Video'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: VIDEO PREVIEW PLAYER */}
+      {videoPreviewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+          <div className="w-full max-w-3xl bg-[#0B1528] border border-cyan-500/40 rounded-xl overflow-hidden shadow-2xl space-y-4 p-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                <Video className="w-4 h-4 text-cyan-400" />
+                <span>{isBn && videoPreviewItem.titleBn ? videoPreviewItem.titleBn : videoPreviewItem.title}</span>
+              </h3>
+              <button onClick={() => setVideoPreviewItem(null)} className="text-slate-400 hover:text-white p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center">
+              {videoPreviewItem.videoUrl.includes('youtube.com') || videoPreviewItem.videoUrl.includes('youtu.be') ? (
+                <iframe
+                  src={
+                    videoPreviewItem.videoUrl.includes('watch?v=')
+                      ? videoPreviewItem.videoUrl.replace('watch?v=', 'embed/').split('&')[0]
+                      : videoPreviewItem.videoUrl
+                  }
+                  title={videoPreviewItem.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              ) : (
+                <video
+                  src={videoPreviewItem.videoUrl}
+                  controls
+                  autoPlay
+                  poster={videoPreviewItem.thumbnailUrl}
+                  className="w-full h-full object-contain"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              {isBn && videoPreviewItem.descriptionBn ? videoPreviewItem.descriptionBn : videoPreviewItem.description}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT / ADD PROCESS CARD */}
+      {processModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0C1527] border border-cyan-500/40 rounded-lg p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <Layers className="w-4 h-4 text-cyan-400" />
+                <span>{editingProcessCard ? (isBn ? 'প্রসেস কার্ড সম্পাদনা' : 'Edit Process Card') : (isBn ? 'নতুন প্রসেস কার্ড' : 'Add Casting Process Card')}</span>
+              </h3>
+              <button onClick={() => setProcessModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between bg-slate-900/60 p-2 rounded border border-slate-800">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setProcessLangTab('en')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    processLangTab === 'en' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  English Content
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProcessLangTab('bn')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    processLangTab === 'bn' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  বাংলা কন্টেন্ট (Bengali)
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const translated = autoTranslateProcessFields(processForm);
+                  setProcessForm(translated);
+                  setProcessLangTab(processLangTab === 'en' ? 'bn' : 'en');
+                }}
+                className="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'অনুবাদ সমন্বয় (AI)' : 'Auto-Translate (AI)'}</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const ready = autoTranslateProcessFields(processForm);
+                if (editingProcessCard) {
+                  updateProcessCard(editingProcessCard.slug, ready);
+                } else {
+                  addProcessCard(ready);
+                }
+                setProcessModalOpen(false);
+              }}
+              className="space-y-3"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">Slug Identifier</label>
+                  <input
+                    type="text"
+                    required
+                    value={processForm.slug}
+                    onChange={(e) => setProcessForm({ ...processForm, slug: e.target.value })}
+                    placeholder="e.g. centrifugal-casting"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {processLangTab === 'en' ? 'Process Title (English)' : 'প্রসেস শিরোনাম (বাংলা)'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={processLangTab === 'en' ? processForm.title : (processForm.titleBn || '')}
+                    onChange={(e) => {
+                      if (processLangTab === 'en') setProcessForm({ ...processForm, title: e.target.value });
+                      else setProcessForm({ ...processForm, titleBn: e.target.value });
+                    }}
+                    placeholder={processLangTab === 'en' ? 'e.g. Centrifugal Casting' : 'যেমন: সেন্ট্রিফিউগাল কাস্টিং'}
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {processLangTab === 'en' ? 'Summary (Overview Card Text)' : 'সারসংক্ষেপ (কার্ডের বিবরণ)'}
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={processLangTab === 'en' ? processForm.summary : (processForm.summaryBn || '')}
+                  onChange={(e) => {
+                    if (processLangTab === 'en') setProcessForm({ ...processForm, summary: e.target.value });
+                    else setProcessForm({ ...processForm, summaryBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {processLangTab === 'en' ? 'Hero Headline' : 'হিরো হেডলাইন'}
+                </label>
+                <input
+                  type="text"
+                  value={processLangTab === 'en' ? processForm.heroHeadline : (processForm.heroHeadlineBn || '')}
+                  onChange={(e) => {
+                    if (processLangTab === 'en') setProcessForm({ ...processForm, heroHeadline: e.target.value });
+                    else setProcessForm({ ...processForm, heroHeadlineBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {processLangTab === 'en' ? 'Size Limits' : 'সাইজ লিমিট'}
+                  </label>
+                  <input
+                    type="text"
+                    value={processLangTab === 'en' ? processForm.sizeLimits : (processForm.sizeLimitsBn || '')}
+                    onChange={(e) => {
+                      if (processLangTab === 'en') setProcessForm({ ...processForm, sizeLimits: e.target.value });
+                      else setProcessForm({ ...processForm, sizeLimitsBn: e.target.value });
+                    }}
+                    placeholder="OD up to 130 in (3,300 mm)"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {processLangTab === 'en' ? 'Weight Range' : 'ওজন সীমা'}
+                  </label>
+                  <input
+                    type="text"
+                    value={processLangTab === 'en' ? processForm.weightRange : (processForm.weightRangeBn || '')}
+                    onChange={(e) => {
+                      if (processLangTab === 'en') setProcessForm({ ...processForm, weightRange: e.target.value });
+                      else setProcessForm({ ...processForm, weightRangeBn: e.target.value });
+                    }}
+                    placeholder="10 lbs to 80,000 lbs"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {processLangTab === 'en' ? 'Tolerances' : 'টলারেন্স'}
+                  </label>
+                  <input
+                    type="text"
+                    value={processLangTab === 'en' ? processForm.tolerances : (processForm.tolerancesBn || '')}
+                    onChange={(e) => {
+                      if (processLangTab === 'en') setProcessForm({ ...processForm, tolerances: e.target.value });
+                      else setProcessForm({ ...processForm, tolerancesBn: e.target.value });
+                    }}
+                    placeholder="±0.005 in (0.127 mm)"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {processLangTab === 'en' ? 'Full Description' : 'সম্পূর্ণ কারিগরি বিবরণ'}
+                </label>
+                <textarea
+                  rows={4}
+                  value={processLangTab === 'en' ? processForm.description : (processForm.descriptionBn || '')}
+                  onChange={(e) => {
+                    if (processLangTab === 'en') setProcessForm({ ...processForm, description: e.target.value });
+                    else setProcessForm({ ...processForm, descriptionBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setProcessModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 rounded text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Process Card</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT / ADD CAPABILITY CARD */}
+      {capabilityModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0C1527] border border-blue-500/40 rounded-lg p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <Flame className="w-4 h-4 text-blue-400" />
+                <span>{editingCapabilityCard ? (isBn ? 'ক্যাপাবিলিটি কার্ড সম্পাদনা' : 'Edit Capability Card') : (isBn ? 'নতুন ক্যাপাবিলিটি কার্ড' : 'Add Capability Card')}</span>
+              </h3>
+              <button onClick={() => setCapabilityModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between bg-slate-900/60 p-2 rounded border border-slate-800">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCapabilityLangTab('en')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    capabilityLangTab === 'en' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  English Content
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCapabilityLangTab('bn')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    capabilityLangTab === 'bn' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  বাংলা কন্টেন্ট (Bengali)
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const translated = autoTranslateCapabilityFields(capabilityForm);
+                  setCapabilityForm(translated);
+                  setCapabilityLangTab(capabilityLangTab === 'en' ? 'bn' : 'en');
+                }}
+                className="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'অনুবাদ সমন্বয় (AI)' : 'Auto-Translate (AI)'}</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const ready = autoTranslateCapabilityFields(capabilityForm);
+                if (editingCapabilityCard) {
+                  updateCapabilityCard(editingCapabilityCard.slug, ready);
+                } else {
+                  addCapabilityCard(ready);
+                }
+                setCapabilityModalOpen(false);
+              }}
+              className="space-y-3"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">Slug Identifier</label>
+                  <input
+                    type="text"
+                    required
+                    value={capabilityForm.slug}
+                    onChange={(e) => setCapabilityForm({ ...capabilityForm, slug: e.target.value })}
+                    placeholder="e.g. 10-ton-aod-refining"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {capabilityLangTab === 'en' ? 'Capability Title (English)' : 'ক্যাপাবিলিটি শিরোনাম (বাংলা)'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={capabilityLangTab === 'en' ? capabilityForm.title : (capabilityForm.titleBn || '')}
+                    onChange={(e) => {
+                      if (capabilityLangTab === 'en') setCapabilityForm({ ...capabilityForm, title: e.target.value });
+                      else setCapabilityForm({ ...capabilityForm, titleBn: e.target.value });
+                    }}
+                    placeholder={capabilityLangTab === 'en' ? 'e.g. 10-Ton AOD Vessel Refining' : 'যেমন: ১০-টন এওডি ভেসেল পরিশোধন'}
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {capabilityLangTab === 'en' ? 'Summary' : 'সারসংক্ষেপ'}
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={capabilityLangTab === 'en' ? capabilityForm.summary : (capabilityForm.summaryBn || '')}
+                  onChange={(e) => {
+                    if (capabilityLangTab === 'en') setCapabilityForm({ ...capabilityForm, summary: e.target.value });
+                    else setCapabilityForm({ ...capabilityForm, summaryBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {capabilityLangTab === 'en' ? 'Description' : 'বিস্তারিত বিবরণ'}
+                </label>
+                <textarea
+                  rows={4}
+                  value={capabilityLangTab === 'en' ? capabilityForm.description : (capabilityForm.descriptionBn || '')}
+                  onChange={(e) => {
+                    if (capabilityLangTab === 'en') setCapabilityForm({ ...capabilityForm, description: e.target.value });
+                    else setCapabilityForm({ ...capabilityForm, descriptionBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCapabilityModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 rounded text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Capability Card</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT / ADD MARKET SOLUTION CARD */}
+      {marketModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0C1527] border border-emerald-500/40 rounded-lg p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <Building className="w-4 h-4 text-emerald-400" />
+                <span>{editingMarketCard ? (isBn ? 'মার্কেট সল্যুশন সম্পাদনা' : 'Edit Market Solution Card') : (isBn ? 'নতুন মার্কেট সল্যুশন' : 'Add Market Solution Card')}</span>
+              </h3>
+              <button onClick={() => setMarketModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between bg-slate-900/60 p-2 rounded border border-slate-800">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMarketLangTab('en')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    marketLangTab === 'en' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  English Content
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMarketLangTab('bn')}
+                  className={`px-3 py-1 rounded text-xs font-bold cursor-pointer ${
+                    marketLangTab === 'bn' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  বাংলা কন্টেন্ট (Bengali)
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const translated = autoTranslateMarketFields(marketForm);
+                  setMarketForm(translated);
+                  setMarketLangTab(marketLangTab === 'en' ? 'bn' : 'en');
+                }}
+                className="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold rounded flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'অনুবাদ সমন্বয় (AI)' : 'Auto-Translate (AI)'}</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const ready = autoTranslateMarketFields(marketForm);
+                if (editingMarketCard) {
+                  updateMarketCard(editingMarketCard.slug, ready);
+                } else {
+                  addMarketCard(ready);
+                }
+                setMarketModalOpen(false);
+              }}
+              className="space-y-3"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">Slug Identifier</label>
+                  <input
+                    type="text"
+                    required
+                    value={marketForm.slug}
+                    onChange={(e) => setMarketForm({ ...marketForm, slug: e.target.value })}
+                    placeholder="e.g. petrochemical-energy"
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300">
+                    {marketLangTab === 'en' ? 'Sector Title (English)' : 'সেক্টর শিরোনাম (বাংলা)'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={marketLangTab === 'en' ? marketForm.title : (marketForm.titleBn || '')}
+                    onChange={(e) => {
+                      if (marketLangTab === 'en') setMarketForm({ ...marketForm, title: e.target.value });
+                      else setMarketForm({ ...marketForm, titleBn: e.target.value });
+                    }}
+                    placeholder={marketLangTab === 'en' ? 'e.g. Petrochemical & Energy' : 'যেমন: পেট্রোকেমিক্যাল ও এনার্জি'}
+                    className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {marketLangTab === 'en' ? 'Category Tag' : 'ক্যাটাগরি ট্যাগ'}
+                </label>
+                <input
+                  type="text"
+                  value={marketLangTab === 'en' ? (marketForm.categoryTag || '') : (marketForm.categoryTagBn || '')}
+                  onChange={(e) => {
+                    if (marketLangTab === 'en') setMarketForm({ ...marketForm, categoryTag: e.target.value });
+                    else setMarketForm({ ...marketForm, categoryTagBn: e.target.value });
+                  }}
+                  placeholder="Oil, Gas & Power Generation"
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {marketLangTab === 'en' ? 'Summary' : 'সারসংক্ষেপ'}
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={marketLangTab === 'en' ? marketForm.summary : (marketForm.summaryBn || '')}
+                  onChange={(e) => {
+                    if (marketLangTab === 'en') setMarketForm({ ...marketForm, summary: e.target.value });
+                    else setMarketForm({ ...marketForm, summaryBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {marketLangTab === 'en' ? 'Engineering Challenges' : 'ইঞ্জিনিয়ারিং চ্যালেঞ্জসমূহ'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={marketLangTab === 'en' ? marketForm.challenges : (marketForm.challengesBn || '')}
+                  onChange={(e) => {
+                    if (marketLangTab === 'en') setMarketForm({ ...marketForm, challenges: e.target.value });
+                    else setMarketForm({ ...marketForm, challengesBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300">
+                  {marketLangTab === 'en' ? 'Metallurgical Solutions' : 'ধাতুবিদ্যা সংক্রান্ত সমাধান'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={marketLangTab === 'en' ? marketForm.solutions : (marketForm.solutionsBn || '')}
+                  onChange={(e) => {
+                    if (marketLangTab === 'en') setMarketForm({ ...marketForm, solutions: e.target.value });
+                    else setMarketForm({ ...marketForm, solutionsBn: e.target.value });
+                  }}
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMarketModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 rounded text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Market Card</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

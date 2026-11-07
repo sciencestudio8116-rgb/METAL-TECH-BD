@@ -12,9 +12,13 @@ import {
   AlertCircle,
   Eye,
   Edit3,
-  ListPlus
+  ListPlus,
+  Globe,
+  Languages,
+  Wand2
 } from 'lucide-react';
 import { ContentItem, NavigationMenuItem } from '../../context/AdminContext';
+import { detectLanguage, translateBiDirectional } from '../../lib/translator';
 
 interface ContentEditorModalProps {
   isOpen: boolean;
@@ -56,10 +60,19 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
 }) => {
   const [menuId, setMenuId] = useState<string>(defaultMenuId || 'casting');
   const [subItemId, setSubItemId] = useState<string>(defaultSubItemId || 'centrifugal-casting');
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [eyebrow, setEyebrow] = useState('');
-  const [bodyMdx, setBodyMdx] = useState('');
+  
+  // Dual-Language Content Fields
+  const [activeLangTab, setActiveLangTab] = useState<'en' | 'bn'>('en');
+  const [titleEn, setTitleEn] = useState('');
+  const [titleBn, setTitleBn] = useState('');
+  const [subtitleEn, setSubtitleEn] = useState('');
+  const [subtitleBn, setSubtitleBn] = useState('');
+  const [eyebrowEn, setEyebrowEn] = useState('');
+  const [eyebrowBn, setEyebrowBn] = useState('');
+  const [bodyMdxEn, setBodyMdxEn] = useState('');
+  const [bodyMdxBn, setBodyMdxBn] = useState('');
+
+  // Media & Metadata
   const [imageUrl, setImageUrl] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
   const [pdfSize, setPdfSize] = useState('1.5 MB');
@@ -71,19 +84,29 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
   const [isPublished, setIsPublished] = useState(true);
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [error, setError] = useState<string | null>(null);
+  const [translationSuccess, setTranslationSuccess] = useState<string | null>(null);
 
   // Available sub-items based on selected menu
   const activeParentMenu = menus.find((m) => m.id === menuId) || menus[0];
   const availableSubItems = activeParentMenu?.subItems || [];
 
+  // Detect dominant input language of active tab
+  const currentTitle = activeLangTab === 'en' ? titleEn : titleBn;
+  const currentBody = activeLangTab === 'en' ? bodyMdxEn : bodyMdxBn;
+  const detectedInputLanguage = detectLanguage(currentTitle || currentBody);
+
   useEffect(() => {
     if (initialItem) {
       setMenuId(initialItem.menuId);
       setSubItemId(initialItem.subItemId);
-      setTitle(initialItem.title);
-      setSubtitle(initialItem.subtitle || '');
-      setEyebrow(initialItem.eyebrow || '');
-      setBodyMdx(initialItem.bodyMdx);
+      setTitleEn(initialItem.title || '');
+      setTitleBn(initialItem.titleBn || translateBiDirectional(initialItem.title || '', 'bn'));
+      setSubtitleEn(initialItem.subtitle || '');
+      setSubtitleBn(initialItem.subtitleBn || (initialItem.subtitle ? translateBiDirectional(initialItem.subtitle, 'bn') : ''));
+      setEyebrowEn(initialItem.eyebrow || '');
+      setEyebrowBn(initialItem.eyebrowBn || (initialItem.eyebrow ? translateBiDirectional(initialItem.eyebrow, 'bn') : ''));
+      setBodyMdxEn(initialItem.bodyMdx || '');
+      setBodyMdxBn(initialItem.bodyMdxBn || translateBiDirectional(initialItem.bodyMdx || '', 'bn'));
       setImageUrl(initialItem.imageUrl || '');
       setPdfUrl(initialItem.pdfUrl || '');
       setPdfSize(initialItem.pdfSize || '1.5 MB');
@@ -97,10 +120,13 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
       const parent = menus.find((m) => m.id === initMenu) || menus[0];
       setMenuId(initMenu);
       setSubItemId(defaultSubItemId || parent?.subItems[0]?.id || 'centrifugal-casting');
-      setTitle('');
-      setSubtitle('');
-      setEyebrow('ENGINEERED FOUNDRY SPECIFICATION');
-      setBodyMdx(
+      setTitleEn('');
+      setTitleBn('');
+      setSubtitleEn('');
+      setSubtitleBn('');
+      setEyebrowEn('ENGINEERED FOUNDRY SPECIFICATION');
+      setEyebrowBn('ইঞ্জিনিয়ার্ড ফাউন্ড্রি স্পেসিফিকেশন');
+      setBodyMdxEn(
         '### Engineering Overview\n\n' +
         'Precision engineered in our Dhaka foundry facilities using specialized metallurgical control. ' +
         'This component delivers exceptional directional solidification, dense micro-structure, and severe-service longevity.\n\n' +
@@ -108,6 +134,15 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
         '- In-house optical emission spectrometry\n' +
         '- Complete solution annealing and water quenching\n' +
         '- Certified to EN 10204 3.1 inspection'
+      );
+      setBodyMdxBn(
+        '### ইঞ্জিনিয়ারিং সারসংক্ষেপ\n\n' +
+        'বিশেষায়িত ধাতুবিদ্যা নিয়ন্ত্রণের মাধ্যমে আমাদের ঢাকা ফাউন্ড্রি কারখানায় নির্ভুলভাবে প্রকৌশলকৃত। ' +
+        'এই যন্ত্রাংশটি চমৎকার দিকনির্দেশিত ঘনীভবন, ঘন অণুকাঠামো এবং দীর্ঘস্থায়ী স্থায়িত্ব প্রদান করে।\n\n' +
+        '#### মূল ধাতুবিদ্যা বৈশিষ্ট্য\n' +
+        '- ইন-হাউস অপটিক্যাল এমিশন স্পেকট্রোমেট্রি\n' +
+        '- সম্পূর্ণ সলিউশন অ্যানিলিং এবং পানি শীতলীকরণ\n' +
+        '- ইএন ১০২০৪ ৩.১ পরিদর্শন মানদণ্ডে প্রত্যয়িত'
       );
       setImageUrl('/assets/aistudio/Centrifugal__casting__0584978e.png');
       setPdfUrl('/assets/docs/metaltek_technical_datasheet.pdf');
@@ -121,10 +156,54 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
       setIsPublished(true);
     }
     setActiveTab('edit');
+    setActiveLangTab('en');
     setError(null);
+    setTranslationSuccess(null);
   }, [initialItem, defaultMenuId, defaultSubItemId, isOpen, menus]);
 
   if (!isOpen) return null;
+
+  // Manual Trigger: Auto-Translate current tab to opposite language
+  const handleAutoTranslate = () => {
+    setError(null);
+    if (activeLangTab === 'en') {
+      // Translate English -> Bengali
+      if (!titleEn.trim() && !bodyMdxEn.trim()) {
+        setError('Please enter English text first before translating to Bengali.');
+        return;
+      }
+      const newTitleBn = translateBiDirectional(titleEn, 'bn');
+      const newSubtitleBn = translateBiDirectional(subtitleEn, 'bn');
+      const newEyebrowBn = translateBiDirectional(eyebrowEn, 'bn');
+      const newBodyBn = translateBiDirectional(bodyMdxEn, 'bn');
+      setTitleBn(newTitleBn);
+      setSubtitleBn(newSubtitleBn);
+      setEyebrowBn(newEyebrowBn);
+      setBodyMdxBn(newBodyBn);
+      setActiveLangTab('bn');
+      setTranslationSuccess('✨ Successfully translated to polished Bengali! Switched to [বাংলা] tab.');
+    } else {
+      // Translate Bengali -> English
+      if (!titleBn.trim() && !bodyMdxBn.trim()) {
+        setError('অনুবাদ করার পূর্বে অনুগ্রহ করে কিছু বাংলা টেক্সট লিখুন।');
+        return;
+      }
+      const newTitleEn = translateBiDirectional(titleBn, 'en');
+      const newSubtitleEn = translateBiDirectional(subtitleBn, 'en');
+      const newEyebrowEn = translateBiDirectional(eyebrowBn, 'en');
+      const newBodyEn = translateBiDirectional(bodyMdxBn, 'en');
+      setTitleEn(newTitleEn);
+      setSubtitleEn(newSubtitleEn);
+      setEyebrowEn(newEyebrowEn);
+      setBodyMdxEn(newBodyEn);
+      setActiveLangTab('en');
+      setTranslationSuccess('✨ Successfully translated to professional English! Switched to [English] tab.');
+    }
+
+    setTimeout(() => {
+      setTranslationSuccess(null);
+    }, 4500);
+  };
 
   const handleAddSpecRow = () => {
     setSpecs([...specs, { key: '', value: '' }]);
@@ -140,46 +219,39 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
     setSpecs(specs.filter((_, i) => i !== index));
   };
 
-  const handleLoadPresetSpecs = (type: 'foundry' | 'ndt' | 'tolerance') => {
-    if (type === 'foundry') {
-      setSpecs([
-        { key: 'Alloy Grade', value: 'CF8M / 316 Stainless / Inconel 625' },
-        { key: 'Melting Process', value: 'Induction Furnace (Medium Frequency)' },
-        { key: 'Max Pouring Weight', value: '15,000 kg (15 Metric Tons)' },
-        { key: 'Solidification', value: 'Computer-Simulated MagmaSoft modeling' },
-      ]);
-    } else if (type === 'ndt') {
-      setSpecs([
-        { key: 'Ultrasonic Testing (UT)', value: 'ASTM A609 Level 1 / ISO 4992-1' },
-        { key: 'Dye Penetrant (PT)', value: 'ASTM E165 / ASME Section V' },
-        { key: 'Magnetic Particle (MT)', value: 'ASTM E709 / EN 1369' },
-        { key: 'Material Cert', value: 'EN 10204 Type 3.1 & 3.2' },
-      ]);
-    } else {
-      setSpecs([
-        { key: 'Machining Tolerance', value: '± 0.012 mm (CNC 5-Axis)' },
-        { key: 'Surface Finish', value: 'Ra 0.8 µm - 1.6 µm' },
-        { key: 'Balancing', value: 'ISO 1940 Grade G2.5 Dynamic' },
-        { key: 'Pressure Test', value: 'Hydrostatic up to 15,000 PSI' },
-      ]);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
-      setError('Article / Component Title is required.');
+    
+    // Ensure at least one language title is provided
+    const finalTitleEn = titleEn.trim() || (titleBn.trim() ? translateBiDirectional(titleBn, 'en') : '');
+    const finalTitleBn = titleBn.trim() || (titleEn.trim() ? translateBiDirectional(titleEn, 'bn') : '');
+
+    if (!finalTitleEn && !finalTitleBn) {
+      setError('Article / Component Title is required in either English or Bengali.');
       return;
     }
+
+    const finalSubtitleEn = subtitleEn.trim() || (subtitleBn.trim() ? translateBiDirectional(subtitleBn, 'en') : '');
+    const finalSubtitleBn = subtitleBn.trim() || (subtitleEn.trim() ? translateBiDirectional(subtitleEn, 'bn') : '');
+
+    const finalEyebrowEn = eyebrowEn.trim() || (eyebrowBn.trim() ? translateBiDirectional(eyebrowBn, 'en') : '');
+    const finalEyebrowBn = eyebrowBn.trim() || (eyebrowEn.trim() ? translateBiDirectional(eyebrowEn, 'bn') : '');
+
+    const finalBodyEn = bodyMdxEn.trim() || (bodyMdxBn.trim() ? translateBiDirectional(bodyMdxBn, 'en') : '');
+    const finalBodyBn = bodyMdxBn.trim() || (bodyMdxEn.trim() ? translateBiDirectional(bodyMdxEn, 'bn') : '');
 
     const item: ContentItem = {
       id: initialItem ? initialItem.id : `content-${Date.now()}`,
       menuId,
       subItemId,
-      title: title.trim(),
-      subtitle: subtitle.trim(),
-      eyebrow: eyebrow.trim(),
-      bodyMdx,
+      title: finalTitleEn,
+      titleBn: finalTitleBn,
+      subtitle: finalSubtitleEn,
+      subtitleBn: finalSubtitleBn,
+      eyebrow: finalEyebrowEn,
+      eyebrowBn: finalEyebrowBn,
+      bodyMdx: finalBodyEn,
+      bodyMdxBn: finalBodyBn,
       imageUrl: imageUrl.trim(),
       pdfUrl: pdfUrl.trim(),
       pdfSize: pdfSize.trim(),
@@ -210,7 +282,7 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                 {initialItem ? 'Edit Component / Article Content' : 'Create New Content / Specification'}
               </h2>
               <p className="text-xs text-slate-300">
-                Foundry Article, Engineering Specs, Media Attachments & MDX Body
+                Bi-Directional English & বাংলা Input, Automatic AI Translation & Formatting Preservation
               </p>
             </div>
           </div>
@@ -228,6 +300,13 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
             <div className="p-3 bg-rose-50 border-l-4 border-rose-500 rounded-[4px] text-rose-800 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
+            </div>
+          )}
+
+          {translationSuccess && (
+            <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 rounded-[4px] text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+              <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{translationSuccess}</span>
             </div>
           )}
 
@@ -249,9 +328,9 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                 }}
                 className="w-full px-3 py-2 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-semibold text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
               >
-                {menus.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.label}
+                {menus.map((menu) => (
+                  <option key={menu.id} value={menu.id}>
+                    {menu.label}
                   </option>
                 ))}
               </select>
@@ -299,31 +378,116 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
             </div>
           </div>
 
-          {/* Titles & Eyebrows */}
+          {/* DUAL-LANGUAGE WORKSPACE BAR */}
+          <div className="bg-gradient-to-r from-slate-900 to-[#101F3B] p-3.5 rounded-[6px] border border-slate-700 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
+                <Languages className="w-4 h-4 text-[#3B82F6]" />
+                Language Workspace:
+              </span>
+              
+              {/* Language Tabs */}
+              <div className="inline-flex rounded-md p-1 bg-slate-800/80 border border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setActiveLangTab('en')}
+                  className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    activeLangTab === 'en'
+                      ? 'bg-[#1D4ED8] text-white shadow-xs'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span>English (EN)</span>
+                  {titleEn && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveLangTab('bn')}
+                  className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    activeLangTab === 'bn'
+                      ? 'bg-[#1D4ED8] text-white shadow-xs'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span>বাংলা (BN)</span>
+                  {titleBn && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                </button>
+              </div>
+
+              {/* Detected Language Tag */}
+              <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
+                Input: {detectedInputLanguage === 'bn' ? 'বাংলা' : 'English'}
+              </span>
+            </div>
+
+            {/* AUTO-TRANSLATE ONE-CLICK ACTION */}
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-extrabold rounded-[4px] shadow-sm flex items-center justify-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              title="Automatically translate title, subtitle, eyebrow and markdown body between English and Bengali"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span>
+                {activeLangTab === 'en'
+                  ? '✨ Auto-Translate to বাংলা'
+                  : '✨ Auto-Translate to English'}
+              </span>
+            </button>
+          </div>
+
+          {/* Titles & Eyebrows (Dynamically Switched By Language Tab) */}
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#0F1B2D] mb-1.5">
-                  Component / Article Title <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#0F1B2D] mb-1.5 flex items-center justify-between">
+                  <span>
+                    {activeLangTab === 'en' ? 'Article / Component Title (English)' : 'আর্টিকেল / যন্ত্রাংশের শিরোনাম (বাংলা)'}{' '}
+                    <span className="text-rose-500">*</span>
+                  </span>
+                  <span className="text-[10px] font-normal text-slate-400">
+                    {activeLangTab === 'en' ? 'EN' : 'BN'}
+                  </span>
                 </label>
                 <input
                   type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Centrifugal Cast High-Temperature Radiant Tubes"
+                  value={activeLangTab === 'en' ? titleEn : titleBn}
+                  onChange={(e) => {
+                    if (activeLangTab === 'en') {
+                      setTitleEn(e.target.value);
+                    } else {
+                      setTitleBn(e.target.value);
+                    }
+                  }}
+                  placeholder={
+                    activeLangTab === 'en'
+                      ? 'e.g. Centrifugal Cast High-Temperature Radiant Tubes'
+                      : 'যেমন: সেন্ট্রিফিউগাল কাস্ট উচ্চ-তাপমাত্রা রেডিয়ান্ট টিউব'
+                  }
                   className="w-full px-3.5 py-2.5 bg-white border border-[#D9DCE1] rounded-[4px] text-sm text-[#0F1B2D] font-bold focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#0F1B2D] mb-1.5">
-                  Eyebrow / Category Tag
+                  {activeLangTab === 'en' ? 'Eyebrow / Tag' : 'ট্যাগ / ক্যাটাগরি'}
                 </label>
                 <input
                   type="text"
-                  value={eyebrow}
-                  onChange={(e) => setEyebrow(e.target.value)}
-                  placeholder="e.g. DIRECTIONAL SOLIDIFICATION"
+                  value={activeLangTab === 'en' ? eyebrowEn : eyebrowBn}
+                  onChange={(e) => {
+                    if (activeLangTab === 'en') {
+                      setEyebrowEn(e.target.value);
+                    } else {
+                      setEyebrowBn(e.target.value);
+                    }
+                  }}
+                  placeholder={
+                    activeLangTab === 'en'
+                      ? 'e.g. DIRECTIONAL SOLIDIFICATION'
+                      : 'যেমন: দিকনির্দেশিত ঘনীভবন'
+                  }
                   className="w-full px-3.5 py-2.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-bold text-[#F5B800] uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
                 />
               </div>
@@ -331,13 +495,23 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#0F1B2D] mb-1.5">
-                Sub-Heading / Lead Summary
+                {activeLangTab === 'en' ? 'Sub-Heading / Lead Summary' : 'সাব-হেডিং / সারসংক্ষেপ'}
               </label>
               <input
                 type="text"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                placeholder="High-integrity net-shape alloy castings with micro-defect elimination for petrochemical furnaces..."
+                value={activeLangTab === 'en' ? subtitleEn : subtitleBn}
+                onChange={(e) => {
+                  if (activeLangTab === 'en') {
+                    setSubtitleEn(e.target.value);
+                  } else {
+                    setSubtitleBn(e.target.value);
+                  }
+                }}
+                placeholder={
+                  activeLangTab === 'en'
+                    ? 'High-integrity net-shape alloy castings with micro-defect elimination...'
+                    : 'পেট্রোকেমিক্যাল ফার্নেসের জন্য উচ্চ-নির্ভরযোগ্য অ্যালয় কাস্টিং...'
+                }
                 className="w-full px-3.5 py-2 bg-white border border-[#D9DCE1] rounded-[4px] text-xs text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
               />
             </div>
@@ -379,142 +553,93 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                   ))}
                 </select>
               </div>
-
-              {/* Live Preview */}
-              {imageUrl && (
-                <div className="relative h-28 bg-slate-900 rounded-[4px] overflow-hidden border border-[#D9DCE1] flex items-center justify-center">
-                  <img
-                    src={imageUrl}
-                    alt="Preview"
-                    className="max-h-full max-w-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
-            {/* Document / PDF attachment */}
+            {/* PDF attachment section */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#0F1B2D] flex items-center gap-1.5">
-                  <FileDown className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                  <span>PDF / Technical Datasheet Attachment</span>
+                  <FileDown className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Engineering Datasheet (PDF)</span>
                 </label>
-                <span className="text-[10px] text-[#5B6470]">Brochure or QA Cert</span>
+                <span className="text-[10px] text-[#5B6470]">Optional download</span>
               </div>
-              <input
-                type="text"
-                value={pdfUrl}
-                onChange={(e) => setPdfUrl(e.target.value)}
-                placeholder="/assets/docs/... or https://..."
-                className="w-full px-3 py-2 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-mono text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
-              />
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#5B6470] mb-1">
-                  File Size Badge (e.g. 1.8 MB, 3.2 MB)
-                </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={pdfUrl}
+                  onChange={(e) => setPdfUrl(e.target.value)}
+                  placeholder="/downloads/technical_spec.pdf"
+                  className="flex-1 px-3 py-2 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-mono text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
+                />
                 <input
                   type="text"
                   value={pdfSize}
                   onChange={(e) => setPdfSize(e.target.value)}
-                  placeholder="2.4 MB"
-                  className="w-full px-3 py-1.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-mono text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
+                  placeholder="1.5 MB"
+                  className="w-20 px-2 py-2 bg-white border border-[#D9DCE1] rounded-[4px] text-xs text-center font-mono text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
                 />
               </div>
-
-              <div className="p-2.5 bg-[#F3F4F6] rounded-[4px] border border-[#D9DCE1] text-[11px] text-[#5B6470] flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-[10px]">
-                  PDF
-                </div>
-                <div className="truncate flex-1">
-                  <span className="font-semibold text-[#0F1B2D]">Live Attachment:</span>{' '}
-                  <span className="font-mono">{pdfUrl || 'No file linked'}</span> ({pdfSize})
-                </div>
-              </div>
+              <p className="text-[11px] text-[#5B6470] m-0">
+                Allows prospective engineering buyers to download formal CAD and technical data sheets.
+              </p>
             </div>
           </div>
 
-          {/* Dynamic Key-Value Specifications Table */}
-          <div className="bg-white p-4 rounded-[6px] border border-[#D9DCE1] space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#D9DCE1]">
+          {/* Dynamic Technical Specs Grid */}
+          <div className="space-y-3 bg-[#F3F4F6] p-4 rounded-[6px] border border-[#D9DCE1]">
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] flex items-center gap-1.5">
-                  <ListPlus className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                  <span>Foundry Engineering & Chemical Specifications Table</span>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] m-0">
+                  Engineering Specifications & Tolerances
                 </h3>
-                <p className="text-[11px] text-[#5B6470]">
-                  Dynamic key-value pairs rendered in product cards and technical sheets
+                <p className="text-[11px] text-[#5B6470] m-0">
+                  Key parameters displayed in the specifications table
                 </p>
               </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleLoadPresetSpecs('foundry')}
-                  className="px-2 py-1 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0F1B2D] text-[11px] font-semibold rounded-[4px] transition-colors cursor-pointer"
-                >
-                  + Foundry Presets
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLoadPresetSpecs('ndt')}
-                  className="px-2 py-1 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0F1B2D] text-[11px] font-semibold rounded-[4px] transition-colors cursor-pointer"
-                >
-                  + NDT QA Presets
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddSpecRow}
-                  className="px-2.5 py-1 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-[11px] font-bold rounded-[4px] flex items-center gap-1 cursor-pointer transition-colors"
-                >
-                  <Plus className="w-3 h-3" />
-                  <span>Add Spec Row</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleAddSpecRow}
+                className="px-2.5 py-1 bg-white border border-[#D9DCE1] hover:bg-slate-100 text-[#0F1B2D] text-xs font-semibold rounded-[4px] flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Add Row</span>
+              </button>
             </div>
 
-            {specs.length === 0 ? (
-              <div className="p-4 text-center text-xs text-[#5B6470] bg-[#F3F4F6] rounded-[4px]">
-                No specifications added yet. Click &quot;Add Spec Row&quot; or choose a preset above.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {specs.map((spec, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={spec.key}
-                      onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-                      placeholder="e.g. Tensile Strength"
-                      className="w-1/3 px-3 py-1.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-semibold text-[#0F1B2D] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
-                    />
-                    <input
-                      type="text"
-                      value={spec.value}
-                      onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                      placeholder="e.g. 580 MPa min / ASTM A609 Level 1"
-                      className="flex-1 px-3 py-1.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs text-[#1F2933] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSpec(index)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-[4px] hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Delete row"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="space-y-2">
+              {specs.map((spec, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={spec.key}
+                    onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                    placeholder="Parameter (e.g. Tensile Strength)"
+                    className="w-1/2 px-3 py-1.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-semibold text-[#0F1B2D] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
+                  />
+                  <input
+                    type="text"
+                    value={spec.value}
+                    onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                    placeholder="Specification value (e.g. 550 MPa)"
+                    className="flex-1 px-3 py-1.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs font-mono text-[#1D4ED8] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSpec(index)}
+                    className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-[4px] cursor-pointer"
+                    title="Remove specification"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Markdown / Rich Text Body Editor */}
-          <div className="bg-white p-4 rounded-[6px] border border-[#D9DCE1] space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#D9DCE1]">
+          {/* Article MDX Body with Preview & Markdown Support */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between border-b border-[#D9DCE1] pb-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -526,7 +651,9 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                   }`}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
-                  <span>Markdown Editor</span>
+                  <span>
+                    {activeLangTab === 'en' ? 'Markdown Editor (English)' : 'মার্কডাউন এডিটর (বাংলা)'}
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -541,28 +668,40 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                   <span>Rendered Preview</span>
                 </button>
               </div>
-              <span className="text-[11px] text-[#5B6470]">Supports headings, bullet points, and code</span>
+              <span className="text-[11px] text-[#5B6470]">
+                Preserves headings, bullet points, numbers & HTML
+              </span>
             </div>
 
             {activeTab === 'edit' ? (
               <textarea
                 rows={9}
-                value={bodyMdx}
-                onChange={(e) => setBodyMdx(e.target.value)}
-                placeholder="Write article overview, metallurgical analysis, chemical compositions, and foundry guarantees..."
+                value={activeLangTab === 'en' ? bodyMdxEn : bodyMdxBn}
+                onChange={(e) => {
+                  if (activeLangTab === 'en') {
+                    setBodyMdxEn(e.target.value);
+                  } else {
+                    setBodyMdxBn(e.target.value);
+                  }
+                }}
+                placeholder={
+                  activeLangTab === 'en'
+                    ? 'Write article overview, metallurgical analysis, chemical compositions, and foundry guarantees...'
+                    : 'আর্টিকেলের সারসংক্ষেপ, ধাতুবিদ্যা বিশ্লেষণ, রাসায়নিক সংযুক্তি ও ফাউন্ড্রি গ্যারান্টি লিখুন...'
+                }
                 className="w-full px-3.5 py-2.5 bg-white border border-[#D9DCE1] rounded-[4px] text-xs text-[#1F2933] font-mono focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] leading-relaxed resize-y"
               />
             ) : (
               <div className="p-4 bg-[#F3F4F6] rounded-[4px] border border-[#D9DCE1] prose prose-sm max-w-none text-xs text-[#1F2933] leading-relaxed max-h-64 overflow-y-auto whitespace-pre-line">
-                {bodyMdx || 'No content written yet.'}
+                {(activeLangTab === 'en' ? bodyMdxEn : bodyMdxBn) || 'No content written yet in this language.'}
               </div>
             )}
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-[#D9DCE1] flex items-center justify-between">
+          <div className="pt-4 border-t border-[#D9DCE1] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span className="text-xs text-[#5B6470]">
-              All changes persist instantly in localStorage and live frontend views
+              Dual-language content is automatically generated and synchronized for the user panel
             </span>
             <div className="flex items-center gap-3">
               <button
@@ -577,7 +716,7 @@ export const ContentEditorModal: React.FC<ContentEditorModalProps> = ({
                 className="px-5 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-[4px] shadow-[0_2px_8px_rgba(15,27,45,.08)] transition-all hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-[#F5B800] flex items-center gap-1.5 cursor-pointer"
               >
                 <Save className="w-4 h-4" />
-                <span>Save Component / Article</span>
+                <span>Save Dual-Language Content</span>
               </button>
             </div>
           </div>

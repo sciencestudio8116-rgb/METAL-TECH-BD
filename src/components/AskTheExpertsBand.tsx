@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import { SITE_METADATA } from '../data/siteData';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AskTheExpertsBandProps {
   onContactClick: () => void;
@@ -8,6 +9,7 @@ interface AskTheExpertsBandProps {
 }
 
 export const AskTheExpertsBand: React.FC<AskTheExpertsBandProps> = ({ onContactClick, onRfqClick }) => {
+  const { isBn } = useLanguage();
   return (
     <section className="relative bg-[#070D1E] text-white py-16 border-t border-b border-[#2B3E50] overflow-hidden">
       {/* Subtle ambient lighting with zero blur overhead */}
@@ -19,13 +21,15 @@ export const AskTheExpertsBand: React.FC<AskTheExpertsBandProps> = ({ onContactC
           <div className="space-y-2.5 text-center lg:text-left max-w-xl">
             <span className="text-xs font-bold uppercase tracking-widest text-[#4CC9F0] flex items-center justify-center lg:justify-start gap-1.5">
               <ShieldCheck className="w-4 h-4 text-[#3B82F6]" />
-              Direct Engineering Consultation
+              {isBn ? 'সরাসরি ইঞ্জিনিয়ারিং পরামর্শ' : 'Direct Engineering Consultation'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white m-0">
-              Ask The Metal Experts
+              {isBn ? 'মেটাল বিশেষজ্ঞদের পরামর্শ নিন' : 'Ask The Metal Experts'}
             </h2>
             <p className="text-[#8D99AE] text-sm sm:text-base m-0 leading-relaxed">
-              Have a challenging high-temperature, sour-gas, or wear-intensive application? Speak directly with our PhD metallurgists and foundry engineers.
+              {isBn
+                ? 'উচ্চ তাপমাত্রা, অ্যাসিড-গ্যাস বা ক্ষয়প্রতিরোধী যন্ত্রাংশের চ্যালেঞ্জ রয়েছে? আমাদের ধাতু বিশেষজ্ঞ এবং ফাউন্ড্রি প্রকৌশলীদের সাথে সরাসরি কথা বলুন।'
+                : 'Have a challenging high-temperature, sour-gas, or wear-intensive application? Speak directly with our PhD metallurgists and foundry engineers.'}
             </p>
           </div>
 
@@ -43,7 +47,7 @@ export const AskTheExpertsBand: React.FC<AskTheExpertsBandProps> = ({ onContactC
               onClick={onRfqClick || onContactClick}
               className="flex items-center gap-2 px-6 py-3 rounded-md bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:shadow-[0_0_25px_rgba(59,130,246,0.55)] transition-all duration-300 active:scale-[0.98] cursor-pointer"
             >
-              <span>Contact Us</span>
+              <span>{isBn ? 'যোগাযোগ করুন' : 'Contact Us'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

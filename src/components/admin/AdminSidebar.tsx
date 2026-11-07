@@ -23,15 +23,18 @@ import {
   Database
 } from 'lucide-react';
 import { NavigationMenuItem, NavigationSubItem, ContentItem } from '../../context/AdminContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { Video, Sparkles } from 'lucide-react';
 
 interface AdminSidebarProps {
   menus: NavigationMenuItem[];
   contentItems: ContentItem[];
-  activeView: 'hierarchy' | 'overview' | 'settings' | 'alloys' | 'faqs' | 'downloads' | 'case-studies' | 'leads' | 'backup';
+  activeView: 'hierarchy' | 'overview' | 'settings' | 'alloys' | 'faqs' | 'downloads' | 'case-studies' | 'leads' | 'backup' | 'videos' | 'cards';
   activeMenuId: string;
   activeSubItemId: string;
   onSelectSubItem: (menuId: string, subItemId: string) => void;
-  onSelectSystemTab: (tab: 'overview' | 'settings' | 'alloys' | 'faqs' | 'downloads' | 'case-studies' | 'leads' | 'backup') => void;
+  onSelectSystemTab: (tab: 'overview' | 'settings' | 'alloys' | 'faqs' | 'downloads' | 'case-studies' | 'leads' | 'backup' | 'videos' | 'cards') => void;
+  onOpenAddMainMenu?: () => void;
   onOpenAddSubMenu: (menuId: string) => void;
   onOpenEditSubMenu: (menuId: string, subItem: NavigationSubItem) => void;
   onDeleteSubMenu: (menuId: string, subItemId: string) => void;
@@ -48,6 +51,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeSubItemId,
   onSelectSubItem,
   onSelectSystemTab,
+  onOpenAddMainMenu,
   onOpenAddSubMenu,
   onOpenEditSubMenu,
   onDeleteSubMenu,
@@ -55,6 +59,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   mobileOpen,
   onCloseMobile,
 }) => {
+  const { adminIsBn: isBn, adminT: t } = useLanguage();
+
+  const getSubLabel = (sub: NavigationSubItem) => {
+    if (isBn && t.header.subMenus[sub.id]) {
+      return t.header.subMenus[sub.id];
+    }
+    return sub.label;
+  };
+
+  const getMenuLabel = (menu: NavigationMenuItem) => {
+    if (isBn && (t.header.menus as any)[menu.id]) {
+      return (t.header.menus as any)[menu.id];
+    }
+    return menu.label;
+  };
   // Collapsed state for each menu category
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({
     casting: true,
@@ -93,10 +112,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <div>
           <div className="flex items-center justify-between px-2 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <span>Site Menu & Content Tree</span>
+              <span>{isBn ? t.admin.siteMenuTree : 'Site Menu & Content Tree'}</span>
             </span>
             <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded-[3px] font-mono">
-              6 Sections
+              {isBn ? t.admin.sectionsCount : '6 Sections'}
             </span>
           </div>
 
@@ -114,7 +133,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   >
                     <div className="flex items-center gap-2 truncate">
                       {getMenuIcon(menu.iconName)}
-                      <span className="truncate">{menu.label}</span>
+                      <span className="truncate">{getMenuLabel(menu)}</span>
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -128,7 +147,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                           onOpenAddSubMenu(menu.id);
                         }}
                         className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1D4ED8] transition-colors cursor-pointer"
-                        title={`Add sub-menu under ${menu.label}`}
+                        title={`Add sub-menu under ${getMenuLabel(menu)}`}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -145,12 +164,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     <div className="px-2 pb-2 pt-0.5 space-y-1 border-t border-slate-800/60 bg-[#0C1726]/80">
                       {menu.subItems.length === 0 ? (
                         <div className="px-3 py-2 text-[11px] text-slate-500 italic flex items-center justify-between">
-                          <span>No sub-menus configured</span>
+                          <span>{isBn ? 'কোনো সাব-মেনু নেই' : 'No sub-menus configured'}</span>
                           <button
                             onClick={() => onOpenAddSubMenu(menu.id)}
                             className="text-[#F5B800] hover:underline font-semibold"
                           >
-                            + Add
+                            + {isBn ? 'যোগ করুন' : 'Add'}
                           </button>
                         </div>
                       ) : (
@@ -184,7 +203,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                     isSelected ? 'bg-[#F5B800]' : 'bg-slate-600 group-hover:bg-[#F5B800]'
                                   }`}
                                 />
-                                <span className="truncate">{sub.label}</span>
+                                <span className="truncate">{getSubLabel(sub)}</span>
                               </div>
 
                               <div className="flex items-center gap-1 shrink-0">
@@ -245,6 +264,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 </div>
               );
             })}
+            {onOpenAddMainMenu && (
+              <button
+                type="button"
+                onClick={onOpenAddMainMenu}
+                className="w-full mt-2 py-2 px-3 rounded-[4px] border border-dashed border-slate-700 hover:border-[#1D4ED8] bg-[#142338]/50 hover:bg-[#142338] text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#F5B800]" />
+                <span>{isBn ? 'নতুন প্রধান মেনু যোগ করুন' : 'Add New Main Menu'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -252,7 +281,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <div>
           <div className="px-2 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Specialized Modules & Data
+              {isBn ? t.admin.systemManagement : 'Specialized Modules & Data'}
             </span>
           </div>
 
@@ -267,7 +296,37 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <LayoutDashboard className="w-4 h-4 text-[#F5B800]" />
-                <span>Executive Overview</span>
+                <span>{isBn ? t.admin.tabs.overview : 'Executive Overview'}</span>
+              </div>
+            </button>
+
+            {/* Videos Management Tab */}
+            <button
+              onClick={() => { onSelectSystemTab('videos'); onCloseMobile(); }}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-[4px] text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'videos'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Video className="w-4 h-4 text-cyan-400" />
+                <span>{isBn ? 'ভিডিও ব্যবস্থাপনা' : 'Video Management'}</span>
+              </div>
+            </button>
+
+            {/* Submenu & Overview Cards Management Tab */}
+            <button
+              onClick={() => { onSelectSystemTab('cards'); onCloseMobile(); }}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-[4px] text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'cards'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>{isBn ? 'কার্ড ও প্রসেস ব্যবস্থাপনা' : 'Overview & Submenu Cards'}</span>
               </div>
             </button>
 
@@ -281,7 +340,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Layers className="w-4 h-4 text-emerald-400" />
-                <span>Alloys Database Matrix</span>
+                <span>{isBn ? t.admin.tabs.alloys : 'Alloys Database Matrix'}</span>
               </div>
             </button>
 
@@ -295,7 +354,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <HelpCircle className="w-4 h-4 text-sky-400" />
-                <span>Technical FAQs</span>
+                <span>{isBn ? t.admin.tabs.faqs : 'Technical FAQs'}</span>
               </div>
             </button>
 
@@ -309,7 +368,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Download className="w-4 h-4 text-amber-400" />
-                <span>Datasheets & Downloads</span>
+                <span>{isBn ? t.admin.tabs.downloads : 'Datasheets & Downloads'}</span>
               </div>
             </button>
 
@@ -323,7 +382,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Briefcase className="w-4 h-4 text-purple-400" />
-                <span>Case Studies Hub</span>
+                <span>{isBn ? t.admin.tabs.caseStudies : 'Case Studies Hub'}</span>
               </div>
             </button>
 
@@ -337,7 +396,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-rose-400" />
-                <span>RFQ Inquiries & Leads</span>
+                <span>{isBn ? t.admin.tabs.leads : 'RFQ Inquiries & Leads'}</span>
               </div>
               {leadsCount > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-bold">
@@ -356,7 +415,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Settings className="w-4 h-4 text-slate-300" />
-                <span>Settings & Global Metadata</span>
+                <span>{isBn ? t.admin.tabs.settings : 'Settings & Global Metadata'}</span>
               </div>
             </button>
 
@@ -370,7 +429,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Database className="w-4 h-4 text-cyan-400" />
-                <span>Backup & JSON Sync</span>
+                <span>{isBn ? t.admin.tabs.backup : 'Backup & JSON Sync'}</span>
               </div>
             </button>
           </nav>

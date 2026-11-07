@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PageRoute } from '../types/navigation';
 import { ALLOY_DATABASE, CASTING_PROCESSES, CAPABILITIES, MARKET_SOLUTIONS, BLOG_POSTS, CASE_STUDIES, GLOSSARY_TERMS } from '../data/siteData';
 import { Search, X, ArrowRight, Layers, Settings, Globe, BookOpen, Factory } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface GlobalSearchModalProps {
 }
 
 export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, onClose, onNavigate }) => {
+  const { isBn } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
   const results = useMemo(() => {
@@ -86,7 +88,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
             autoFocus
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search all materials, alloys (e.g. 316, CF8M), casting processes, markets..."
+            placeholder={isBn ? "সমস্ত উপাদান, অ্যালয় (যেমন ৩১৬, সিএফ৮এম), কাস্টিং প্রক্রিয়া খুঁজুন..." : "Search all materials, alloys (e.g. 316, CF8M), casting processes, markets..."}
             className="w-full bg-transparent text-base text-white placeholder-[#8D99AE] focus:outline-hidden"
           />
           {searchTerm && (
@@ -94,7 +96,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
               onClick={() => setSearchTerm('')}
               className="text-xs text-[#8D99AE] hover:text-white px-2 py-0.5 rounded cursor-pointer"
             >
-              Clear
+              {isBn ? 'মুছুন' : 'Clear'}
             </button>
           )}
           <button 
@@ -109,9 +111,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
         <div className="p-5 overflow-y-auto space-y-5 divide-y divide-[#2B3E50]/60">
           {!results ? (
             <div className="py-8 text-center text-xs text-[#8D99AE] space-y-3">
-              <p>Type keywords to search through MetalTek's engineering knowledge base.</p>
+              <p>{isBn ? 'মেটালটেক ইঞ্জিনিয়ারিং নলেজ বেস অনুসন্ধানের জন্য কীওয়ার্ড টাইপ করুন।' : "Type keywords to search through MetalTek's engineering knowledge base."}</p>
               <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-                <span className="text-[#8D99AE]">Popular:</span>
+                <span className="text-[#8D99AE]">{isBn ? 'জনপ্রিয়:' : 'Popular:'}</span>
                 {['Centrifugal Casting', 'CF8M Stainless', 'Inconel 625', 'Nadcap Heat Treatment', 'Nuclear SMR', 'AOD Refining'].map(tag => (
                   <button
                     key={tag}
@@ -125,7 +127,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
             </div>
           ) : results.totalCount === 0 ? (
             <div className="py-8 text-center text-sm text-[#8D99AE]">
-              No results found for "<strong className="text-white">{searchTerm}</strong>".
+              {isBn ? 'কোনো ফলাফল পাওয়া যায়নি: ' : 'No results found for '} "<strong className="text-white">{searchTerm}</strong>".
             </div>
           ) : (
             <div className="space-y-4">
@@ -134,7 +136,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                 <div className="space-y-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-[#3B82F6]" />
-                    Alloys & Specifications ({results.alloys.length})
+                    {isBn ? 'অ্যালয় এবং স্পেসিফিকেশন' : 'Alloys & Specifications'} ({results.alloys.length})
                   </span>
                   <div className="grid grid-cols-1 gap-1.5">
                     {results.alloys.map(alloy => (
@@ -166,7 +168,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                 <div className="space-y-2 pt-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
                     <Factory className="w-3.5 h-3.5 text-[#3B82F6]" />
-                    Casting Processes ({results.processes.length})
+                    {isBn ? 'কাস্টিং প্রক্রিয়া' : 'Casting Processes'} ({results.processes.length})
                   </span>
                   <div className="grid grid-cols-1 gap-1.5">
                     {results.processes.map(proc => (
@@ -198,7 +200,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                 <div className="space-y-2 pt-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
                     <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
-                    Capabilities & Processing ({results.capabilities.length})
+                    {isBn ? 'সক্ষমতা ও প্রক্রিয়াজাতকরণ' : 'Capabilities & Processing'} ({results.capabilities.length})
                   </span>
                   <div className="grid grid-cols-1 gap-1.5">
                     {results.capabilities.map(cap => (
@@ -230,7 +232,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                 <div className="space-y-2 pt-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-[#3B82F6]" />
-                    Market Solutions ({results.markets.length})
+                    {isBn ? 'শিল্প সমাধান' : 'Market Solutions'} ({results.markets.length})
                   </span>
                   <div className="grid grid-cols-1 gap-1.5">
                     {results.markets.map(mkt => (
@@ -262,7 +264,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
                 <div className="space-y-2 pt-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CC9F0] flex items-center gap-1.5">
                     <BookOpen className="w-3.5 h-3.5 text-[#3B82F6]" />
-                    Technical Glossary
+                    {isBn ? 'কারিগরি শব্দকোষ' : 'Technical Glossary'}
                   </span>
                   <div className="grid grid-cols-1 gap-2">
                     {results.glossary.map(item => (

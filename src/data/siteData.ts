@@ -30,13 +30,21 @@ export interface Alloy {
 export interface ProcessItem {
   slug: string;
   title: string;
+  titleBn?: string;
   summary: string;
+  summaryBn?: string;
   description: string;
+  descriptionBn?: string;
   heroHeadline: string;
+  heroHeadlineBn?: string;
   sizeLimits: string;
+  sizeLimitsBn?: string;
   weightRange: string;
+  weightRangeBn?: string;
   tolerances: string;
+  tolerancesBn?: string;
   typicalComponents: string[];
+  typicalComponentsBn?: string[];
   suitableAlloys: string[];
   industriesServed: string[];
 }
@@ -44,22 +52,33 @@ export interface ProcessItem {
 export interface CapabilityItem {
   slug: string;
   title: string;
+  titleBn?: string;
   iconName: string;
   summary: string;
+  summaryBn?: string;
   description: string;
+  descriptionBn?: string;
   equipmentHighlights: string[];
+  equipmentHighlightsBn?: string[];
   specifications: string[];
+  specificationsBn?: string[];
   standards: string[];
 }
 
 export interface MarketItem {
   slug: string;
   title: string;
+  titleBn?: string;
   categoryTag?: string;
+  categoryTagBn?: string;
   summary: string;
+  summaryBn?: string;
   challenges: string;
+  challengesBn?: string;
   solutions: string;
+  solutionsBn?: string;
   componentsSupplied: string[];
+  componentsSuppliedBn?: string[];
   recommendedAlloys: string[];
   salesContactMarketSlug: string;
 }
@@ -90,10 +109,15 @@ export interface SalesContact {
 export interface CaseStudy {
   slug: string;
   title: string;
+  titleBn?: string;
   clientIndustry: string;
+  clientIndustryBn?: string;
   challenge: string;
+  challengeBn?: string;
   solution: string;
+  solutionBn?: string;
   results: string[];
+  resultsBn?: string[];
   alloysUsed: string;
   process: string;
 }
@@ -101,12 +125,17 @@ export interface CaseStudy {
 export interface BlogPost {
   slug: string;
   title: string;
+  titleBn?: string;
   date: string;
   author: string;
   readTime: string;
   excerpt: string;
+  excerptBn?: string;
   content: string[];
+  contentBn?: string[];
   category: string;
+  categoryBn?: string;
+  imageUrl?: string;
 }
 
 export interface GlossaryTerm {
@@ -144,52 +173,84 @@ export const CASTING_PROCESSES: ProcessItem[] = [
   {
     slug: 'centrifugal-casting',
     title: 'Centrifugal Casting',
+    titleBn: 'সেন্ট্রিফিউগাল কাস্টিং (ঘূর্ণন ঢালাই)',
     summary: 'High-density cylindrical castings with superior directional solidification and structural integrity.',
+    summaryBn: 'উচ্চ-ঘনত্বের নলাকার কাস্টিং যা উৎকৃষ্ট দিকনির্দেশক ঘনীভবন ও কাঠামোগত অখণ্ডতা প্রদান করে।',
     heroHeadline: 'Dense, Defect-Free Cylindrical Components for Severe Operating Demands',
+    heroHeadlineBn: 'কঠিন অপারেটিং পরিবেশের জন্য ত্রুটিমুক্ত ও টেকসই নলাকার উপাদান',
     description: 'Using high G-force rotational molds, centrifugal casting forces molten metal outward against the mold wall, achieving optimal directional solidification from outside in. Impurities and gas porosities migrate to the inner bore, which is cleanly machined out, yielding forging-quality microstructures without porosity or center-line shrinkage.',
+    descriptionBn: 'উচ্চ জি-ফোর্স ঘূর্ণমান ছাঁচ ব্যবহার করে গলিত ধাতু ছাঁচের দেয়ালে চাপ প্রয়োগের মাধ্যমে বাইরে থেকে ভেতরে নিখুঁত ঘনীভবন অর্জন করে। অপদ্রব্য এবং গ্যাস বুদবুদ ভেতরের বোরের দিকে চলে আসে যা পরবর্তীতে সিএনসি মেশিনিং দিয়ে পরিষ্কার করা হয়, ফলে ফোরজিং মানের নিখুঁত মাইক্রোস্ট্রাকচার পাওয়া যায়।',
     sizeLimits: 'Outside diameters from 75 mm (3 in) up to 3,000 mm (118 in); lengths up to 6,000 mm (20 ft)',
+    sizeLimitsBn: 'বাইরের ব্যাস ৭৫ মিমি (৩ ইঞ্চি) থেকে ৩,০০০ মিমি (১১৮ ইঞ্চি); দৈর্ঘ্য ৬,০০০ মিমি পর্যন্ত',
     weightRange: 'Up to 22,000 kg (48,500 lbs) per single pour',
+    weightRangeBn: 'একক ঢালাইয়ে ২২,০০০ কেজি (৪৮,৫০০ পাউন্ড) পর্যন্ত',
     tolerances: 'Rough machined to ±0.25 mm; finish machined to ±0.015 mm',
+    tolerancesBn: 'রাফ মেশিনিং ±০.২৫ মিমি; ফিনিশ মেশিনিং ±০.০১৫ মিমি',
     typicalComponents: ['Hydro-turbine wear rings', 'Offshore drill riser liners', 'Furnace radiant coils & reformer tubes', 'Paper mill suction roll shells', 'Pump casings & high-pressure sleeves'],
+    typicalComponentsBn: ['হাইড্রো-টারবাইন ওয়্যার রিংস', 'অফশোর ড্রিল রাইজার লাইনার্স', 'ফার্নেস রেডিয়েন্ট কয়েলস ও রিফর্মার টিউবস', 'কাগজ কলের সাকশন রোল শেল', 'পাম্প কেসিং ও উচ্চ-চাপের স্লিভস'],
     suitableAlloys: ['CF8M / 316 Stainless', 'HP-Nb Micro-alloyed', 'HK40 Heat Resistant', 'Inconel 625', 'Aluminum Bronze C95400'],
     industriesServed: ['Energy', 'Petrochemical', 'Turbine Engine', 'Process Equipment', 'Defense'],
   },
   {
     slug: 'sand-casting',
     title: 'Sand Casting',
+    titleBn: 'স্যান্ড কাস্টিং (বালি ছাঁচ ঢালাই)',
     summary: 'Versatile, heavy-section net-shape casting for intricate and large industrial geometries.',
+    summaryBn: 'জটিল এবং বৃহৎ শিল্প যন্ত্রাংশের জন্য অত্যন্ত নির্ভরযোগ্য ও টেকসই ভারী সেকশন কাস্টিং।',
     heroHeadline: 'Complex Large-Scale Castings with Robust Dimensional Repeatability',
+    heroHeadlineBn: 'উচ্চ মাত্রাগত পুনরাবৃত্তির সাথে বৃহৎ ও জটিল শিল্প কাস্টিং',
     description: 'Our chemically-bonded resin sand and no-bake molding systems deliver high dimensional repeatability for complex heavy industrial geometries. Backed by computational MagmaSoft solidification simulation, we design optimal gating and risering to guarantee sound, radiographically clean metal sections.',
+    descriptionBn: 'আমাদের কেমিক্যালি-বন্ডেড রেজিন স্যান্ড ও নো-বেক মোল্ডিং সিস্টেম জটিল ভারী শিল্প যন্ত্রাংশের জন্য উচ্চ ডাইমেনশনাল নির্ভুলতা নিশ্চিত করে। ম্যাগমাসফট কম্পিউটার সিমুলেশনের সহায়তায় আমরা নিখুঁত গেটিং ও রাইজার ডিজাইন করি যা সম্পূর্ণ ত্রুটিমুক্ত ধাতব উপাদান তৈরি করে।',
     sizeLimits: 'Part envelopes up to 4,500 mm × 3,800 mm × 2,200 mm',
+    sizeLimitsBn: 'যন্ত্রাংশের আকার ৪,৫০০ মিমি × ৩,৮০০ মিমি × ২,২০০ মিমি পর্যন্ত',
     weightRange: '50 kg to 18,000 kg finished weight',
+    weightRangeBn: '৫০ কেজি থেকে ১৮,০০০ কেজি সমাপ্ত ওজন',
     tolerances: 'Conforms to ISO 8062-3 Grade DGT8 to DGT10',
+    tolerancesBn: 'ISO 8062-3 গ্রেড DGT8 থেকে DGT10 অনুযায়ী',
     typicalComponents: ['Severe service valve bodies & bonnets', 'Centrifugal slurry pump volutes', 'Marine rudder pintle brackets', 'Compressor cylinder blocks', 'Pelton runner buckets'],
+    typicalComponentsBn: ['উচ্চ-চাপ ভালভ বডি ও বনেটস', 'সেন্ট্রিফিউগাল স্লাজ পাম্প ভলিউটস', 'জাহাজের রাডার পিন্টল ব্র্যাকেটস', 'কম্প্রেসার সিলিন্ডার ব্লকস', 'পেলটন রানার বাকেটস'],
     suitableAlloys: ['CA6NM Martensitic Stainless', 'CF3M Extra Low Carbon', 'Hastelloy C-276', 'High-Chrome White Iron', 'Carbon Steel WCB/WCC'],
     industriesServed: ['Petrochemical', 'Energy', 'Process Equipment', 'Marine & Shipbuilding', 'Defense'],
   },
   {
     slug: 'investment-casting',
     title: 'Investment Casting',
+    titleBn: 'ইনভেস্টমেন্ট কাস্টিং (লস্ট-ওয়াক্স ঢালাই)',
     summary: 'Precision lost-wax casting for tight tolerances, intricate details, and near-net shapes.',
+    summaryBn: 'সূক্ষ্ম সহনশীলতা ও জটিল আকারের জন্য প্রিসিশন লস্ট-ওয়াক্স কাস্টিং।',
     heroHeadline: 'Precision Lost-Wax Metallurgy for Complex Geometries Requiring Minimal Machining',
+    heroHeadlineBn: 'ন্যূনতম মেশিনিং সুবিধাযুক্ত জটিল জ্যামিতির জন্য প্রিসিশন লস্ট-ওয়াক্স প্রযুক্তি',
     description: 'Utilizing automated multi-layer robotic ceramic shell dipping and vacuum-assisted induction pouring, our investment casting delivers exceptional surface finish (Ra 3.2 µm) and near-net shape detail in superalloys and stainless grades.',
+    descriptionBn: 'স্বয়ংক্রিয় রোবোটিক সিরামিক শেল কোটিং এবং ভ্যাকুয়াম-সহায়ক ইন্ডাকশন ঢালাইয়ের মাধ্যমে আমাদের ইনভেস্টমেন্ট কাস্টিং চমৎকার সারফেস ফিনিশ (Ra 3.2 µm) এবং সুপারঅ্যালয় ও স্টেইনলেস গ্রেডের নিখুঁত আকার দেয়।',
     sizeLimits: 'Envelope up to 600 mm × 600 mm × 500 mm',
+    sizeLimitsBn: 'সর্বোচ্চ আকার ৬০০ মিমি × ৬০০ মিমি × ৫০০ মিমি',
     weightRange: '0.1 kg to 65 kg',
+    weightRangeBn: '০.১ কেজি থেকে ৬৫ কেজি',
     tolerances: 'Linear tolerances to ±0.13 mm per 25 mm (ISO 8062-3 DGT5/6)',
+    tolerancesBn: 'প্রতি ২৫ মিমিতে ±০.১৩ মিমি পর্যন্ত রৈখিক সহনশীলতা',
     typicalComponents: ['Turbine guide vanes & nozzles', 'Aerospace brackets & fittings', 'Food-grade stainless pump impellers', 'Defense ordnance trigger housings', 'Surgical instrument blanks'],
+    typicalComponentsBn: ['টারবাইন গাইড ভেন ও নজলস', 'মহাকাশযান ব্র্যাকেট ও ফিটিংস', 'ফুড-গ্রেড স্টেইনলেস পাম্প ইম্পেলার', 'প্রতিরক্ষা সমরাস্ত্র ট্রিগার হাউজিং', 'সার্জিক্যাল ইন্সট্রুমেন্ট ব্লাঙ্কস'],
     suitableAlloys: ['17-4PH Precipitation Hardening', 'M-Tek 440C Tool Steel', 'Inconel 718', 'Stellite 6 Cobalt Alloy', '316L Stainless'],
     industriesServed: ['Aerospace', 'Turbine Engine', 'Defense', 'Process Equipment'],
   },
   {
     slug: 'ingot',
     title: 'High-Integrity Ingot',
+    titleBn: 'হাই-ইন্টিগ্রিটি ইনগট ও মেটালিক বার',
     summary: 'Consistently refined remelt ingots and forging stock for critical re-processing.',
+    summaryBn: 'গুরুত্বপূর্ণ ফোরজিং ও রি-মেল্টিংয়ের জন্য পরিশোধিত ইনগট ও কাঁচামাল।',
     heroHeadline: 'Homogeneous Master Melts and Remelt Ingots for Critical Forgings',
+    heroHeadlineBn: 'সংকটপূর্ণ ফোরজিংয়ের জন্য উচ্চ-বিশুদ্ধতার মাস্টার মেল্ট এবং ইনগট',
     description: 'Formulated with certified virgin raw materials and secondary Argon Oxygen Decarburization (AOD) refining, MetalTek supplies certified round and polygonal ingots with minimal tramp elements (S ≤ 0.005%, P ≤ 0.010%) and low dissolved hydrogen/nitrogen.',
+    descriptionBn: 'সার্টিফায়েড ভার্জিন কাঁচামাল এবং এওডি (Argon Oxygen Decarburization) সেকেন্ডারি রিফাইনিং দ্বারা মেটাল টেক সরবরাহ করে অত্যন্ত কম সালফার (S ≤ 0.005%) এবং ফসফরাস (P ≤ 0.010%) সমৃদ্ধ উচ্চ বিশুদ্ধতার ইনগট।',
     sizeLimits: 'Ingot diameters from 200 mm to 900 mm; custom ingot lengths',
+    sizeLimitsBn: 'ইনগট ব্যাস ২০০ মিমি থেকে ৯০০ মিমি; কাস্টম দৈর্ঘ্য',
     weightRange: '500 kg to 12,000 kg ingots',
+    weightRangeBn: '৫০০ কেজি থেকে ১২,০০০ কেজি ইনগট',
     tolerances: 'Cropped and scalped as required, 100% UT tested',
+    tolerancesBn: 'প্রয়োজন অনুযায়ী ক্রপড এবং ১০০% আল্ট্রাসনিক টেস্টেড',
     typicalComponents: ['Closed-die forging billets', 'Extrusion billets for tubing', 'Re-melt master stock for aerospace foundries'],
+    typicalComponentsBn: ['ক্লোজড-ডাই ফোরজিং বিলেতস', 'টিউবিংয়ের জন্য এক্সট্রুশন বিলেতস', 'অ্যারোস্পেস ফাউন্ড্রির রি-মেল্ট স্টক'],
     suitableAlloys: ['Super Duplex 2507', 'Inconel 625', 'Alloy 20', 'AISI 4140 Modified', 'Nitronic 50'],
     industriesServed: ['Energy', 'Defense', 'Aerospace'],
   },
@@ -199,9 +260,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'metallurgy-engineering',
     title: 'Metallurgy & Engineering',
+    titleBn: 'মেটালার্জি ও ইঞ্জিনিয়ারিং',
     iconName: 'Microscope',
     summary: 'Integrated alloy and process expertise of more than 100 metallurgists and engineers.',
+    summaryBn: '১০০ জনেরও বেশি ধাতুবিজ্ঞানী এবং প্রকৌশলীর সমন্বিত অ্যালয় ও প্রক্রিয়াগত দক্ষতা।',
     description: 'Our metallurgical team collaborates with client designers from initial material selection through solidification simulation and stress analysis, eliminating premature field failures in high-corrosion, high-heat, and high-wear environments.',
+    descriptionBn: 'আমাদের ধাতুবিজ্ঞান দল প্রাথমিক উপাদান নির্বাচন থেকে শুরু করে সলিডিফিকেশন সিমুলেশন ও স্ট্রেস অ্যানালাইসিস পর্যন্ত গ্রাহক প্রকৌশলীদের সাথে কাজ করে, যা ক্ষয়কারী ও উচ্চ তাপমাত্রার ক্ষেত্রে ব্যর্থতা দূর করে।',
     equipmentHighlights: ['MagmaSoft Solidification & Mold Flow Modeling suite', 'Ansys FEA Stress & Thermal Gradient Analysis', 'Olympus Optical & SEM Metallurgical Microstructure Analyzers'],
     specifications: ['Solidification modeling for 100% shrinkage predictability', 'Phase transformation prediction', 'Custom chemistry formulation'],
     standards: ['ASTM E45', 'ASTM E112', 'NACE MR0175 / ISO 15156'],
@@ -209,9 +273,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'additive-manufacturing',
     title: 'Additive Manufacturing',
+    titleBn: 'অ্যাডিটিভ ম্যানুফ্যাকচারিং (৩ডি স্যান্ড প্রিন্টিং)',
     iconName: 'Cpu',
     summary: '3D printed sand molds and rapid wax patterns for prototype-to-production speed without tooling delays.',
+    summaryBn: 'টুলিং বিলম্ব ছাড়া প্রোটোটাইপ থেকে দ্রুত উৎপাদনে যাওয়ার জন্য ৩ডি প্রিন্টেড বালি ছাঁচ এবং ওয়াক্স প্যাটার্ন।',
     description: 'We integrate Binder-Jet 3D sand printing and stereolithography wax printing to produce complex casting cores and molds in hours rather than weeks. Ideal for rapid prototyping, complex internal cooling channels, and low-volume legacy component replacement.',
+    descriptionBn: 'আমরা বাইন্ডার-জেট ৩ডি স্যান্ড প্রিন্টিং প্রযুক্তির মাধ্যমে সপ্তাহের পরিবর্তে কয়েক ঘণ্টার মধ্যে জটিল কাস্টিং কোর ও ছাঁচ তৈরি করি। দ্রুত প্রোটোটাইপিং এবং জটিল কুলিং চ্যানেলের জন্য আদর্শ।',
     equipmentHighlights: ['ExOne S-Max Industrial Sand 3D Printer (1,800 × 1,000 × 700 mm build volume)', 'Large-format SLA wax pattern generator', 'Integrated MagmaSoft 3D additive flow verification'],
     specifications: ['Sand layer resolution: 280 µm', 'Direct pouring into printed molds without pattern drafts'],
     standards: ['ASTM B883', 'ISO/ASTM 52900'],
@@ -219,9 +286,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'heat-treatment',
     title: 'Heat Treatment',
+    titleBn: 'প্রিসিশন হিট ট্রিটমেন্ট (তাপ চিকিৎসা)',
     iconName: 'Flame',
     summary: 'Technical expertise to give customers the material properties that they need.',
+    summaryBn: 'গ্রাহকদের চাহিদামতো ধাতব বৈশিষ্ট্য অর্জনের জন্য উন্নত প্রযুক্তিগত দক্ষতা।',
     description: 'Precise mechanical properties demand tight thermal control. Our calibrated furnaces feature automated programmable temperature controllers maintaining tight uniformity across working zones up to 1,250°C.',
+    descriptionBn: 'নিখুঁত মেকানিক্যাল বৈশিষ্ট্যের জন্য সূক্ষ্ম তাপ নিয়ন্ত্রণ প্রয়োজন। আমাদের ১,২৫০°সে. পর্যন্ত ক্যালিব্রেটেড ফার্নেস স্বয়ংক্রিয় কন্ট্রোলারের মাধ্যমে সমরূপ তাপমাত্রা বজায় রাখে।',
     equipmentHighlights: ['Car-bottom gas furnaces (up to 7,000 mm length)', 'Agitated 120,000-liter rapid water quench tank with <15 sec transfer time', 'Cryogenic sub-zero stabilizing chambers (-80°C)'],
     specifications: ['Solution annealing, Solution & Aging, Quench & Temper, Stress Relieving, Normalizing'],
     standards: ['AMS 2750G (Pyrometry)', 'API 6A Appendix M', 'ASTM A380'],
@@ -229,9 +299,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'metal-machining',
     title: 'Metal Machining',
+    titleBn: 'মেটাল মেশিনিং (সিএনসি টার্নিং ও মিলিং)',
     iconName: 'Settings',
     summary: 'Over 200 machining centers to meet exact customer specifications.',
+    summaryBn: 'গ্রাহকের নির্দিষ্ট চাহিদা পূরণের জন্য ২০০টিরও বেশি সিএনসি মেশিনিং সেন্টার।',
     description: 'Delivering finish-machined components ready for immediate assembly. We specialize in hard-to-machine nickel superalloys, cobalt alloys, and work-hardening austenitic steels across horizontal boring mills and vertical turning centers.',
+    descriptionBn: 'সরাসরি অ্যাসেম্বলযোগ্য ফিনিশ-মেশিনযুক্ত যন্ত্রাংশ সরবরাহ। আমরা হরাইজন্টাল বোরিং মিল ও ভার্টিক্যাল টার্নিং সেন্টারের মাধ্যমে কঠিন নিকেল সুপারঅ্যালয় ও স্টেইনলেস স্টিল নিখুঁতভাবে মেশিনিং করি।',
     equipmentHighlights: ['Toshiba 5-Axis CNC Horizontal Boring Mills', 'Hankook CNC Vertical Turret Lathes up to 3,200 mm swing diameter', 'Okuma 4-Axis CNC Horizontal Machining Centers'],
     specifications: ['Diametrical accuracy down to 0.010 mm', 'Surface finishes to Ra 0.4 µm'],
     standards: ['ISO 2768-mK', 'ASME Y14.5 GD&T'],
@@ -239,9 +312,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'metal-fabrication',
     title: 'Metal Fabrication',
+    titleBn: 'মেটাল ফ্যাব্রিকেশন ও ওয়েল্ডিং',
     iconName: 'Wrench',
     summary: 'Tight-tolerance fabrication for petrochemical and other demanding markets.',
+    summaryBn: 'পেট্রোকেমিক্যাল এবং অন্যান্য চাহিদাসম্পন্ন বাজারের জন্য টাইট-টলারেন্স ফ্যাব্রিকেশন।',
     description: 'Full-service fabrication qualified for ASME Boiler & Pressure Vessel construction. Our automated submerged arc weld overlay systems apply corrosion-resistant overlays (Inconel 625, Stellite) onto heavy structural substrates.',
+    descriptionBn: 'ASME বয়লার ও প্রেসার ভেসেল মানের পূর্ণাঙ্গ ফ্যাব্রিকেশন সেবা। আমাদের অটোমেটেড সাবমার্জড আর্ক ওয়েল্ডিং ক্ষয়-প্রতিরোধী ওভারলে (Inconel 625, Stellite) প্রয়োগে সক্ষম।',
     equipmentHighlights: ['Automated Twin-Wire Submerged Arc Welding (SAW) boom', 'TIG, MIG, and Flux-Cored Arc Welding stations', 'Post-weld heat treatment local induction units'],
     specifications: ['ASME Sec IX certified weld procedures for over 60 alloy combinations'],
     standards: ['ASME Sec IX', 'AWS D1.1 / D1.6', 'EN ISO 15614-1'],
@@ -249,9 +325,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'metal-testing-analysis',
     title: 'Metal Testing & Analysis',
+    titleBn: 'মেটাল টেস্টিং ও ল্যাবরেটরি অ্যানালাইসিস',
     iconName: 'ShieldCheck',
     summary: 'Quality assurance to the strictest customer and industry standards.',
+    summaryBn: 'কঠোর গ্রাহক ও আন্তর্জাতিক শিল্প মান অনুযায়ী সম্পূর্ণ গুণগত নিশ্চয়তা।',
     description: 'Full traceability and testing under one roof. We certify every melt with Mill Test Certificates (MTC) to EN 10204 Type 3.1 or independent third-party 3.2 inspection.',
+    descriptionBn: 'একই ছাদের নিচে সম্পূর্ণ ট্র্যাসিবিলিটি ও ল্যাব টেস্টিং। আমরা প্রতিটি ধাতব ব্যাচকে EN 10204 টাইপ ৩.১ মিল টেস্ট সার্টিফিকেট এবং ৩.২ পরিদর্শন দ্বারা প্রত্যয়ন করি।',
     equipmentHighlights: ['Thermo Scientific Optical Emission Spectrometers (OES)', 'LECO Carbon & Sulfur Determinators', 'Computerized Tensile Testers with Extensometer', 'Charpy V-Notch Impact Rig with liquid nitrogen bath down to -196°C', 'ASNT Level III Radiographic (X-Ray / Gamma), Ultrasonic, Magnetic Particle & Dye Penetrant testing'],
     specifications: ['100% melt chemistry verification before pouring', 'Cryogenic impact verification for LNG service'],
     standards: ['ISO/IEC 17025', 'ASTM E8/E8M', 'ASTM E23', 'ASTM E165', 'ASTM E709'],
@@ -259,9 +338,12 @@ export const CAPABILITIES: CapabilityItem[] = [
   {
     slug: 'training',
     title: 'TekSession Training',
+    titleBn: 'টেকসেশন টেকনিক্যাল ট্রেনিং',
     iconName: 'GraduationCap',
     summary: 'Proprietary training on alloy selection, casting processes, and component design.',
+    summaryBn: 'অ্যালয় নির্বাচন, কাস্টিং প্রক্রিয়া এবং উপাদান ডিজাইনের ওপর বিশেষায়িত ইঞ্জিনিয়ারিং প্রশিক্ষণ।',
     description: 'Our proprietary TekSession program offers structured in-person and virtual engineering workshops covering alloy selection, defect prevention, casting process trade-offs, and cost-reduction design practices.',
+    descriptionBn: 'আমাদের টেকসেশন প্রোগ্রাম অ্যালয় নির্বাচন, ডিফেক্ট প্রতিরোধ এবং সাশ্রয়ী ডিজাইনের ওপর পেশাদার ওয়ার্কশপ প্রদান করে।',
     equipmentHighlights: ['Dedicated Technical Training Centers', 'Interactive foundry virtual tour & metallurgical failure case analysis library'],
     specifications: ['Earn Professional Development Hours (PDH)', 'Customized sessions for OEM design engineering teams'],
     standards: ['ASME & ASM International continuing education syllabus'],
@@ -272,10 +354,15 @@ export const MARKET_SOLUTIONS: MarketItem[] = [
   {
     slug: 'railway',
     categoryTag: 'Railway',
+    categoryTagBn: 'রেলওয়ে খাত',
     title: 'Locomotives and wagons',
+    titleBn: 'লোকোমোটিভ ও ওয়াগন যন্ত্রাংশ',
     summary: 'Brake blocks, axle box housings and cast bogie parts.',
+    summaryBn: 'ব্রেক ব্লক, এক্সেল বক্স হাউজিং এবং কাস্ট বগি যন্ত্রাংশ।',
     challenges: 'Severe cyclic mechanical impact, dynamic fatigue, high-temperature friction wear, and intense rail vibrations under heavy axle loads.',
+    challengesBn: 'ভারী এক্সেল লোডের নিচে তীব্র মেকানিক্যাল ইমপ্যাক্ট, ডায়নামিক ফ্যাটিগ, উচ্চ তাপমাত্রার ঘর্ষণ ক্ষয় এবং রেল ভাইব্রেশন।',
     solutions: 'Impact-resistant spheroidal graphite cast iron, high-manganese cast steel, and precision-machined axle box assemblies engineered for zero brittle fracture.',
+    solutionsBn: 'ঘাত-সহনশীল নমনীয় ডাক্টাইল আয়রন, উচ্চ-ম্যাঙ্গানিজ স্টিল এবং শূন্য-ভাঙন নিশ্চয়তাসম্পন্ন সিএনসি প্রিসিশন এক্সেল বক্স।',
     componentsSupplied: [
       'High-friction railway brake blocks',
       'Locomotive axle box housings',
@@ -294,10 +381,15 @@ export const MARKET_SOLUTIONS: MarketItem[] = [
   {
     slug: 'navy-marine',
     categoryTag: 'Navy and marine',
+    categoryTagBn: 'নৌ ও সামুদ্রিক খাত',
     title: 'Ship and vessel components',
+    titleBn: 'জাহাজ ও সামুদ্রিক নৌযান উপাদান',
     summary: 'Bronze and aluminium bronze propellers, pump housings, valve bodies and deck fittings.',
+    summaryBn: 'ব্রোঞ্জ ও অ্যালুমিনিয়াম ব্রোঞ্জ প্রপেলার, পাম্প হাউজিং, ভালভ বডি ও ডেক ফিটিংস।',
     challenges: 'Aggressive saltwater galvanic corrosion, cavitation erosion on hydrodynamic surfaces, bio-fouling, and strict naval shock survivability standards.',
+    challengesBn: 'লবণাক্ত পানির ক্ষয়, ক্যাভিটেশন ইরোশন, সামুদ্রিক শ্যাওলা আক্রমণ এবং কঠোর নেভাল শক স্ট্যান্ডার্ড।',
     solutions: 'Demagnetized high-strength nickel aluminium bronze (NAB) casting, duplex stainless steels, and centrifugal stern-tube bearing liners certified by marine classification societies.',
+    solutionsBn: 'উচ্চ-শক্তির নিকেল অ্যালুমিনিয়াম ব্রোঞ্জ (NAB) কাস্টিং, ডুপ্লেক্স স্টেইনলেস স্টিল এবং মেরিন ক্লাসিফিকেশন অনুমোদিত সেন্ট্রিফিউগাল স্টার্ন টিউব লাইনার।',
     componentsSupplied: [
       'Bronze & aluminium bronze vessel propellers',
       'High-volume seawater cooling pump housings',
@@ -317,10 +409,15 @@ export const MARKET_SOLUTIONS: MarketItem[] = [
   {
     slug: 'heavy-vehicles',
     categoryTag: 'Heavy vehicles',
+    categoryTagBn: 'ভারী বাণিজ্যিক যানবাহন',
     title: 'Truck and bus brake systems',
+    titleBn: 'ট্রাক ও বাস ব্রেক সিস্টেম',
     summary: 'Brake drums, discs, shoes and flywheels in grey cast iron.',
+    summaryBn: 'গ্রে কাস্ট আয়রনের উচ্চ-মানের ব্রেক ড্রাম, ডিস্ক, শু এবং ফ্লাইহুইল।',
     challenges: 'Extreme thermal cyclic shock, heat fade, micro-craze thermal cracking, and torsional stress across commercial bus, coach, and haulage duty cycles.',
+    challengesBn: 'চরম থার্মাল সাইক্লিক শক, তাপ অপচয়, মাইক্রো-থার্মাল ক্র্যাকিং এবং টরশনাল স্ট্রেস।',
     solutions: 'High-thermal-conductivity lamellar grey iron with controlled pearlitic matrix, uniform graphite distribution, and precision CNC balance with tight dynamic runout.',
+    solutionsBn: 'উচ্চ তাপ পরিবাহী ল্যামেলার গ্রে আয়রন যা পার্লিটিক ম্যাট্রিক্স ও সুষম গ্রাফাইট বিন্যাসের মাধ্যমে নিখুঁত ব্রেকিং প্রদান করে।',
     componentsSupplied: [
       'Heavy commercial truck brake drums',
       'Ventilated bus & coach brake discs',
@@ -339,10 +436,15 @@ export const MARKET_SOLUTIONS: MarketItem[] = [
   {
     slug: 'industry',
     categoryTag: 'Industry',
+    categoryTagBn: 'শিল্প খাত',
     title: 'Pumps, valves and machine parts',
+    titleBn: 'পাম্প, ভালভ ও ভারী যন্ত্রাংশ',
     summary: 'Custom castings from drawing to delivery.',
+    summaryBn: 'ইঞ্জিনিয়ারিং ড্রয়িং থেকে সরাসরি ডেলিভারি পর্যন্ত কাস্টম কাস্টিং।',
     challenges: 'Intricate internal hydraulic passages, abrasive industrial slurries, high-pressure boundary integrity, and tight CNC machining tolerances on critical mating surfaces.',
+    challengesBn: 'জটিল অভ্যন্তরীণ হাইড্রোলিক প্যাসেজ, ক্ষয়কারী স্লারি, উচ্চ চাপের সীমানা অখণ্ডতা এবং অত্যন্ত সংবেদনশীল সিএনসি টলারেন্স।',
     solutions: 'Integrated MagmaSoft computational solidification simulation, chemically bonded no-bake sand & investment casting, 5-axis CNC machining, and 100% hydrostatic and MTC 3.1 inspection.',
+    solutionsBn: 'ম্যাগমাসফট সিমুলেশন, কেমিক্যালি বন্ডেড নো-বেক ও ইনভেস্টমেন্ট কাস্টিং, ৫-অ্যাক্সিস সিএনসি মেশিনিং এবং ১০০% হাইড্রোস্ট্যাটিক টেস্ট।',
     componentsSupplied: [
       'Industrial centrifugal pump volutes & impellers',
       'High-pressure gate, globe & ball valve bodies',
@@ -737,45 +839,70 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'nuclear-metal-castings-smrs-microreactors',
     title: 'Nuclear Metal Castings for Small Modular Reactors and Microreactors',
+    titleBn: 'স্মল মডুলার রিঅ্যাক্টর (এসএমআর) এবং মাইক্রোরিঅ্যাক্টরের জন্য পারমাণবিক ধাতু ঢালাই',
     date: 'September 22, 2026',
     author: 'MetalTek Engineering Team',
     readTime: '6 min read',
     excerpt: 'Rising global energy demand is giving new attention to nuclear energy as a dependable, carbon-free source of baseload power.',
+    excerptBn: 'ক্রমবর্ধমান বৈশ্বিক জ্বালানি চাহিদা নির্ভরযোগ্য ও কার্বনমুক্ত বেসলোড শক্তির উৎস হিসেবে পারমাণবিক শক্তির দিকে নতুন দৃষ্টি আকর্ষণ করছে।',
     content: [
       'Rising global energy demand is giving new attention to nuclear energy as a dependable, carbon-free source of baseload power. As clean energy mandates push baseload generation toward next-generation Small Modular Reactors (SMRs) and microreactors, structural metallurgists face unprecedented demands for material integrity and long-life reliability.',
       'Centrifugal casting technology has emerged as a proven method for cylindrical SMR pressure boundaries, primary coolant pump barrels, and penetration sleeves. By spinning molds at rotational speeds producing intense centrifugal force, the liquid alloy is subjected to extreme pressure that drives directional solidification.',
       'This gravitational pressure forces lighter non-metallic inclusions, dissolved gases, and oxides inward toward the inner bore. Once cooled, the inner diameter is cleanly machined away by CNC turning, leaving a dense, isotropic cylinder exhibiting mechanical properties that rival forged equivalents in all three planes.',
       'When combined with secondary Argon Oxygen Decarburization (AOD), carbon levels can be maintained consistently below 0.020%, and trace residual cobalt is limited to strict nuclear thresholds, minimizing long-term radioactive activation during the plant’s operating lifetime.',
     ],
+    contentBn: [
+      'ক্রমবর্ধমান বৈশ্বিক জ্বালানি চাহিদা নির্ভরযোগ্য ও কার্বনমুক্ত বেসলোড শক্তির উৎস হিসেবে পারমাণবিক শক্তির দিকে নতুন দৃষ্টি আকর্ষণ করছে। পরিবেশবান্ধব জ্বালানি নীতি যখন পরবর্তী প্রজন্মের স্মল মডুলার রিঅ্যাক্টর (এসএমআর) এবং মাইক্রোরিঅ্যাক্টরের দিকে অগ্রসর হচ্ছে, তখন কাঠামোগত ধাতুবিদরা উপাদানের নির্ভরযোগ্যতা ও দীর্ঘস্থায়িত্ব নিশ্চিতকরণে নজিরবিহীন চ্যালেঞ্জের মুখোমুখি হচ্ছেন।',
+      'সেন্ট্রিফিউগাল কাস্টিং প্রযুক্তি বেলনাকার এসএমআর প্রেসার বাউন্ডারি, প্রাইমারি কুল্যান্ট পাম্প ব্যারেল এবং পেনিট্রেশন স্লিভের জন্য একটি প্রমাণিত পদ্ধতি হিসেবে প্রতিষ্ঠিত হয়েছে। উচ্চ ঘূর্ণন গতিতে ছাঁচ ঘোরানোর মাধ্যমে উৎপন্ন তীব্র সেন্ট্রিফিউগাল বলের প্রভাবে গলিত ধাতু অত্যন্ত উচ্চ চাপে দিকনির্দেশিত ঘনীভবন লাভ করে।',
+      'এই মাধ্যাকর্ষণ বল তুলনামূলক হালকা নন-মেটালিক অপদ্রব্য, দ্রবীভূত গ্যাস ও অক্সাইডকে ভেতরের বোরের দিকে ঠেলে দেয়। শীতল হওয়ার পর ভেতরের ব্যাসটি নিখুঁতভাবে সিএনসি টার্নিংয়ের মাধ্যমে কেটে ফেলা হয়, ফলে একটি ঘন ও সমসত্ব সিলিন্ডার অবশিষ্ট থাকে যার যান্ত্রিক বৈশিষ্ট্য ফোরজিংয়ের সাথে তুলনীয়।',
+      'সেকেন্ডারি আর্গন অক্সিজেন ডিকার্বুরাইজেশন (এওডি) প্রক্রিয়ার সমন্বয়ে কার্বনের মাত্রা ০.০২০% এর নিচে বজায় রাখা সম্ভব হয় এবং অবশিষ্ট কোবাল্টের পরিমাণ কঠোর পারমাণবিক মানদণ্ডে সীমাবদ্ধ থাকে, যা চুল্লির কার্যকালীন দীর্ঘমেয়াদী তেজস্ক্রিয় সক্রিয়করণ হ্রাস করে।',
+    ],
     category: 'Nuclear & Energy',
+    categoryBn: 'পারমাণবিক ও শক্তি খাত',
   },
   {
     slug: 'metaltek-names-david-bacon-ceo',
     title: 'MetalTek Names David Bacon CEO',
+    titleBn: 'মেটালটেক ডেভিড বেকনকে নতুন প্রধান নির্বাহী কর্মকর্তা (সিইও) হিসেবে ঘোষণা করেছে',
     date: 'August 10, 2026',
     author: 'Corporate Communications',
     readTime: '4 min read',
     excerpt: 'David Bacon, Chief Executive Officer, MetalTek International. MetalTek International today announced the appointment of David Bacon as Chief Executive Officer.',
+    excerptBn: 'মেটালটেক ইন্টারন্যাশনাল ডেভিড বেকনকে তাদের নতুন প্রধান নির্বাহী কর্মকর্তা (সিইও) হিসেবে নিয়োগের আনুষ্ঠানিক ঘোষণা দিয়েছে।',
     content: [
       'MetalTek International today announced the appointment of David Bacon as Chief Executive Officer. Mr. Bacon brings extensive executive leadership and manufacturing expertise across high-specification industrial and aerospace sectors.',
       'In his new role, David will guide MetalTek through its next chapter of global growth, advancing the company’s manufacturing footprint across centrifugal, sand, and investment casting operations while expanding turnkey CNC machining capabilities.',
       'MetalTek continues its relentless focus on customer collaboration, from initial metallurgical consultation through finished delivery, making a lasting difference for mission-critical industrial applications worldwide.',
     ],
+    contentBn: [
+      'মেটালটেক ইন্টারন্যাশনাল ডেভিড বেকনকে প্রধান নির্বাহী কর্মকর্তা হিসেবে নিয়োগের ঘোষণা দিয়েছে। তিনি উচ্চমানের শিল্প ও মহাকাশ প্রযুক্তি খাতে দীর্ঘদিনের নির্বাহী নেতৃত্ব ও উৎপাদন দক্ষতার অভিজ্ঞতা বহন করছেন।',
+      'নতুন দায়িত্বে ডেভিড মেটালটেকের বৈশ্বিক প্রবৃদ্ধির পরবর্তী ধাপ পরিচালনা করবেন এবং সেন্ট্রিফিউগাল, স্যান্ড ও ইনভেস্টমেন্ট কাস্টিং অপারেশনের পরিধি আরও বিস্তৃত করার পাশাপাশি টার্নকি সিএনসি মেশিনিং সক্ষমতা বৃদ্ধি করবেন।',
+      'মেটালটেক ধাতুবিদ্যা সংক্রান্ত প্রাথমিক পরামর্শ থেকে শুরু করে পণ্য ডেলিভারি পর্যন্ত গ্রাহকদের সাথে নিবিড় অংশীদারিত্বের উপর নিরবচ্ছিন্ন গুরুত্ব দিয়ে যাচ্ছে, যা বৈশ্বিক শিল্পখাতে নির্ভরযোগ্য পরিবর্তন আনছে।',
+    ],
     category: 'Company Announcement',
+    categoryBn: 'প্রাতিষ্ঠানিক ঘোষণা',
   },
   {
     slug: 'cf8m-vs-cf3m-austenitic-casting-guide',
     title: 'CF8M vs CF3M: Choosing the Right Cast Stainless Grade for Sour Service',
+    titleBn: 'সিএফ৮এম বনাম সিএফ৩এম: ক্ষয়কারী পরিবেশের জন্য সঠিক স্টেইনলেস কাস্টিং গ্রেড নির্বাচন',
     date: 'July 14, 2026',
     author: 'Lead Metallurgist',
     readTime: '8 min read',
     excerpt: 'Understanding the crucial metallurgical trade-offs between standard carbon CF8M and extra-low carbon CF3M in welded pressure vessels and marine service.',
+    excerptBn: 'ওয়েল্ডেড প্রেসার ভেসেল ও সামুদ্রিক ব্যবহারের ক্ষেত্রে স্ট্যান্ডার্ড কার্বন সিএফ৮এম এবং এক্সট্রা-লো কার্বন সিএফ৩এম-এর ধাতুবিদ্যাগত পার্থক্য অনুধাবন।',
     content: [
       'Design engineers frequently specify CF8M (the casting equivalent of wrought 316 stainless) as an automatic default for corrosive service. However, when the component requires fabrication welding or high-temperature field assembly, failure to understand carbon solubility can lead to catastrophic intergranular corrosion.',
       'During slow cooling from welding temperatures (between 425°C and 850°C), carbon in standard CF8M (up to 0.08% C) binds with chromium at grain boundaries to form chromium carbides. This depletes the adjacent matrix of chromium below the 12% threshold necessary for passivation.',
       'By selecting CF3M (maximum 0.03% C), carbon remains in solid solution, preserving corrosion resistance in the heat-affected zone (HAZ) without the expense of post-weld solution annealing.',
     ],
+    contentBn: [
+      'ডিজাইন ইঞ্জিনিয়াররা ক্ষয়কারী পরিবেশের জন্য স্বাভাবিকভাবেই সিএফ৮এম (রট ৩১৬ স্টেইনলেসের কাস্টিং সমতুল্য) নির্ধারণ করেন। তবে যন্ত্রাংশটিতে যখন ওয়েল্ডিং বা উচ্চ-তাপমাত্রার ফিল্ড অ্যাসেম্বলি প্রয়োজন হয়, তখন কার্বনের দ্রবণীয়তা যথাযথভাবে মূল্যায়ন না করলে মারাত্মক ইন্টারগ্র্যানুলার ক্ষয় হতে পারে।',
+      'ওয়েল্ডিং তাপমাত্রা (৪২৫° সে. থেকে ৮৫০° সে.) থেকে ধীরে ধীরে শীতল হওয়ার সময় স্ট্যান্ডার্ড সিএফ৮এম-এর কার্বন (০.০৮% পর্যন্ত) গ্রেইন বাউন্ডারিতে ক্রোমিয়ামের সাথে যুক্ত হয়ে ক্রোমিয়াম কার্বাইড তৈরি করে। ফলে সংলগ্ন ম্যাট্রিক্সে প্যাসিভেশনের জন্য প্রয়োজনীয় ১২% ন্যূনতম সীমার নিচে ক্রোমিয়াম হ্রাস পায়।',
+      'সিএফ৩এম (সর্বোচ্চ ০.০৩% কার্বন) নির্বাচনের মাধ্যমে কার্বন সলিড দ্রবণে বজায় থাকে, যা পোস্ট-ওয়েল্ড সলিউশন অ্যানিলিং ছাড়াই হিট-অ্যাফেক্টেড জোনে (এইচএজেড) ক্ষয় প্রতিরোধ ক্ষমতা অটুট রাখে।',
+    ],
     category: 'Technical Metallurgy',
+    categoryBn: 'প্রকৌশল ও ধাতুবিদ্যা',
   },
 ];
 

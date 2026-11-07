@@ -24,14 +24,15 @@ import { ContactUsView } from './views/ContactUsView';
 import { LegalView } from './views/LegalView';
 import { AdminDashboardView } from './views/admin/AdminDashboardView';
 import { AdminProvider, useAdmin } from './context/AdminContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AdminLoginModal } from './components/admin/AdminLoginModal';
 import { AdminFloatingTrigger } from './components/admin/AdminFloatingTrigger';
 import { ShieldCheck, Lock, ArrowLeft } from 'lucide-react';
 
 function AppContent() {
   const { isAuthenticated } = useAdmin();
+  const { language, toggleLanguage, isBn } = useLanguage();
   const [currentRoute, setCurrentRoute] = useState<PageRoute>({ view: 'home' });
-  const [language, setLanguage] = useState<Language>('en');
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
 
   // Modals
@@ -72,9 +73,7 @@ function AppContent() {
     setRfqOpen(true);
   };
 
-  const handleToggleLanguage = () => {
-    setLanguage(prev => (prev === 'en' ? 'bn' : 'en'));
-  };
+  const handleToggleLanguage = toggleLanguage;
 
   // Dedicated full-screen Admin View when view is 'admin'
   if (currentRoute.view === 'admin') {
@@ -89,11 +88,17 @@ function AppContent() {
             <Lock className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-wide">Administrator Portal</h1>
-            <p className="text-xs text-slate-400 mt-1">Metal Tek BD Master Content Management System</p>
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              {isBn ? 'অ্যাডমিনিস্ট্রেটর পোর্টাল' : 'Administrator Portal'}
+            </h1>
+            <p className="text-xs text-slate-400 mt-1">
+              {isBn ? 'মেটাল টেক বিডি মাস্টার কনটেন্ট ম্যানেজমেন্ট সিস্টেম' : 'Metal Tek BD Master Content Management System'}
+            </p>
           </div>
           <div className="p-3 rounded bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            Authentication required to access website management, alloy specs, and customer inquiries.
+            {isBn
+              ? 'ওয়েবসাইট ম্যানেজমেন্ট, অ্যালয় স্পেক্স এবং কাস্টমার অনুসন্ধান অ্যাক্সেস করতে প্রমাণীকরণ প্রয়োজন।'
+              : 'Authentication required to access website management, alloy specs, and customer inquiries.'}
           </div>
           <div className="space-y-2.5">
             <button
@@ -101,14 +106,14 @@ function AppContent() {
               className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold rounded text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Unlock Admin Console</span>
+              <span>{isBn ? 'লগইন কনসোল খুলুন' : 'Unlock Admin Console'}</span>
             </button>
             <button
               onClick={() => handleNavigate({ view: 'home' })}
               className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Return to Public Website</span>
+              <span>{isBn ? 'পাবলিক ওয়েবসাইটে ফিরুন' : 'Return to Public Website'}</span>
             </button>
           </div>
         </div>
@@ -342,8 +347,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AdminProvider>
-      <AppContent />
-    </AdminProvider>
+    <LanguageProvider>
+      <AdminProvider>
+        <AppContent />
+      </AdminProvider>
+    </LanguageProvider>
   );
 }

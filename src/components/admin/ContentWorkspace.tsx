@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { ContentItem, NavigationMenuItem, NavigationSubItem } from '../../context/AdminContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageRoute } from '../../types/navigation';
 
 interface ContentWorkspaceProps {
@@ -42,6 +43,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
   onOpenEditSubMenu,
   onNavigateLive,
 }) => {
+  const { isBn, t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [selectedItemForPreview, setSelectedItemForPreview] = useState<ContentItem | null>(null);
@@ -81,6 +83,9 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
     } as any);
   };
 
+  const localizedSubLabel = isBn && t.header.subMenus[subItem.id] ? t.header.subMenus[subItem.id] : subItem.label;
+  const localizedParentLabel = isBn && (t.header.menus as any)[parentMenu.id] ? (t.header.menus as any)[parentMenu.id] : parentMenu.label;
+
   return (
     <div className="space-y-6 font-sans">
       {/* 1. Sub-Menu Header Banner Card */}
@@ -89,21 +94,23 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
           <div className="space-y-1.5 max-w-2xl">
             {/* Breadcrumb & Eyebrow */}
             <div className="flex items-center gap-2 text-xs">
-              <span className="font-semibold text-[#5B6470]">{parentMenu.label}</span>
+              <span className="font-semibold text-[#5B6470]">{localizedParentLabel}</span>
               <span className="text-slate-300">/</span>
-              <span className="font-bold text-[#1D4ED8]">{subItem.label}</span>
+              <span className="font-bold text-[#1D4ED8]">{localizedSubLabel}</span>
               <span className="px-2 py-0.5 rounded-[4px] bg-[#F5B800]/15 text-[#B45309] font-bold text-[10px] tracking-wider uppercase">
                 {subItem.slug}
               </span>
             </div>
 
             <h1 className="text-2xl font-bold text-[#0F1B2D] tracking-tight">
-              {subItem.label}
+              {localizedSubLabel}
             </h1>
 
             <p className="text-sm text-[#5B6470] leading-relaxed">
               {subItem.description ||
-                `Manage all industrial articles, engineering specs, media assets, and data sheets configured under ${subItem.label}.`}
+                (isBn
+                  ? `${localizedSubLabel}-এর অধীন সমস্ত শিল্প আর্টিকেল, ইঞ্জিনিয়ারিং স্পেসিফিকেশন ও মিডিয়া ডেটা পরিচালনা করুন।`
+                  : `Manage all industrial articles, engineering specs, media assets, and data sheets configured under ${subItem.label}.`)}
             </p>
           </div>
 
@@ -115,7 +122,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
               title="Preview sub-menu page on the live website"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Preview Live Page</span>
+              <span>{isBn ? 'লাইভ প্রিভিউ দেখুন' : 'Preview Live Page'}</span>
             </button>
 
             <button
@@ -124,7 +131,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
               title="Edit sub-menu title, slug, and description"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit Sub-Menu</span>
+              <span>{isBn ? 'সাব-মেনু সম্পাদনা' : 'Edit Sub-Menu'}</span>
             </button>
 
             <button
@@ -132,7 +139,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
               className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-[4px] shadow-[0_2px_8px_rgba(15,27,45,.08)] flex items-center gap-1.5 transition-all hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-[#F5B800] cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Add New Content / Spec</span>
+              <span>{isBn ? '+ নতুন কনটেন্ট / স্পেক্স যোগ করুন' : 'Add New Content / Spec'}</span>
             </button>
           </div>
         </div>
@@ -302,12 +309,12 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
                 </div>
 
                 <h2 className="text-base font-bold text-[#0F1B2D] hover:text-[#1D4ED8] transition-colors leading-snug">
-                  {item.title}
+                  {isBn ? (item.titleBn || item.title) : item.title}
                 </h2>
 
-                {item.subtitle && (
+                {(item.subtitle || item.subtitleBn) && (
                   <p className="text-xs text-[#5B6470] line-clamp-2 leading-relaxed">
-                    {item.subtitle}
+                    {isBn ? (item.subtitleBn || item.subtitle) : (item.subtitle || item.subtitleBn)}
                   </p>
                 )}
 
@@ -385,7 +392,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
                   Content Preview
                 </span>
                 <h3 className="text-base font-bold text-white truncate max-w-md">
-                  {selectedItemForPreview.title}
+                  {isBn ? (selectedItemForPreview.titleBn || selectedItemForPreview.title) : selectedItemForPreview.title}
                 </h3>
               </div>
               <button
@@ -401,22 +408,22 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
                 <div className="h-48 bg-slate-900 rounded-[4px] overflow-hidden flex items-center justify-center">
                   <img
                     src={selectedItemForPreview.imageUrl}
-                    alt={selectedItemForPreview.title}
+                    alt={isBn ? (selectedItemForPreview.titleBn || selectedItemForPreview.title) : selectedItemForPreview.title}
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>
               )}
 
-              {selectedItemForPreview.subtitle && (
+              {(selectedItemForPreview.subtitle || selectedItemForPreview.subtitleBn) && (
                 <p className="text-sm font-semibold text-[#0F1B2D]">
-                  {selectedItemForPreview.subtitle}
+                  {isBn ? (selectedItemForPreview.subtitleBn || selectedItemForPreview.subtitle) : (selectedItemForPreview.subtitle || selectedItemForPreview.subtitleBn)}
                 </p>
               )}
 
               {selectedItemForPreview.specs && selectedItemForPreview.specs.length > 0 && (
                 <div className="bg-[#F3F4F6] p-4 rounded-[4px] border border-[#D9DCE1]">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] mb-2">
-                    Engineering Specifications
+                    {isBn ? 'ইঞ্জিনিয়ারিং স্পেসিফিকেশন ও মানদণ্ড' : 'Engineering Specifications'}
                   </h4>
                   <table className="w-full text-xs">
                     <tbody>
@@ -432,7 +439,7 @@ export const ContentWorkspace: React.FC<ContentWorkspaceProps> = ({
               )}
 
               <div className="prose prose-sm max-w-none text-xs text-[#1F2933] leading-relaxed whitespace-pre-line">
-                {selectedItemForPreview.bodyMdx}
+                {isBn ? (selectedItemForPreview.bodyMdxBn || selectedItemForPreview.bodyMdx) : selectedItemForPreview.bodyMdx}
               </div>
             </div>
 
