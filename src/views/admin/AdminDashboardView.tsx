@@ -143,6 +143,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
     supabaseConnected,
     supabaseSyncing,
     syncWithSupabase,
+    pushAllToSupabase,
   } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<AdminTab>('hierarchy');
@@ -354,10 +355,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
     salesContactMarketSlug: '',
   });
 
-  // Handle Logout
-  const handleLogout = () => {
-    logout();
-    onNavigate({ view: 'home' });
+  // Handle Secure Logout
+  const handleLogout = async () => {
+    await logout();
+    onNavigate({ view: 'admin' });
   };
 
   // Technical Paper Bi-Lingual Modal State
@@ -1252,6 +1253,47 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
                       }}
                     />
                   </label>
+                </div>
+
+                {/* One-Click Supabase Cloud Sync Card */}
+                <div className="md:col-span-2 p-5 rounded-md bg-gradient-to-r from-emerald-950/40 via-cyan-950/30 to-[#0C1527] border border-emerald-500/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                      <Database className="w-5 h-5 text-emerald-400 animate-pulse" />
+                      <span>One-Click Supabase Cloud Synchronization & Migration</span>
+                    </div>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600/50">
+                      {supabaseConnected ? '● Cloud Connected' : '○ Standby'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Instantly push your entire website catalog—including Navigation Menus, Process Cards, Capabilities, Market Solutions, Technical Videos, Metallurgy Alloys, FAQs, Datasheets, Content Items, and Site Metadata—directly into your Supabase PostgreSQL tables.
+                  </p>
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      disabled={supabaseSyncing}
+                      onClick={async () => {
+                        const res = await pushAllToSupabase();
+                        if (res.success) {
+                          alert('Success: All website catalog data has been pushed and synchronized to Supabase Cloud!');
+                        }
+                      }}
+                      className="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      <span>{supabaseSyncing ? 'Synchronizing to Cloud...' : '🚀 Push All Data to Supabase Database'}</span>
+                    </button>
+                    <button
+                      disabled={supabaseSyncing}
+                      onClick={async () => {
+                        await syncWithSupabase();
+                      }}
+                      className="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded text-xs transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <RotateCcw className={`w-3.5 h-3.5 ${supabaseSyncing ? 'animate-spin' : ''}`} />
+                      <span>Pull Latest from Supabase</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Reset Card */}

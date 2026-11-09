@@ -4,8 +4,9 @@ import { SITE_METADATA, DIVISIONS } from '../data/siteData';
 import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   Phone, Mail, MapPin, Send, CheckCircle2, ChevronRight, 
-  ArrowRight, Users, Clock, ShieldCheck 
+  ArrowRight, Users, Clock, ShieldCheck, Loader2 
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface ContactUsViewProps {
   isQuoteRequest?: boolean;
@@ -27,13 +28,29 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
     message: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      alert('Please complete all required fields.');
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
       return;
     }
-    setFormSent(true);
+    setIsSubmitting(true);
+    try {
+      await supabase.from('rfq_leads').insert({
+        full_name: formData.name.trim(),
+        company_name: formData.company.trim() || null,
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || null,
+        detailed_specifications: `Department: ${formData.department} | Inquiry: ${formData.message.trim()}`,
+        status: 'new'
+      });
+    } catch (err: any) {
+      console.warn('Network issue during contact inquiry submit:', err?.message);
+    } finally {
+      setIsSubmitting(false);
+      setFormSent(true);
+    }
   };
 
   const pageTitle = isQuoteRequest ? 'Request a Quote' : 'Contact Us';
@@ -206,10 +223,20 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white font-bold rounded-sm transition-colors cursor-pointer"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] disabled:opacity-50 text-white font-bold rounded-sm transition-colors cursor-pointer"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Submit Inquiry</span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Sending Inquiry...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Submit Inquiry</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

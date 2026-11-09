@@ -229,6 +229,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCookies, onOpe
             >
               {isBn ? 'কুকি সেটিংস' : 'Cookie Settings'}
             </button>
+            <span className="text-slate-700 hidden sm:inline">•</span>
+            <button
+              onClick={() => onNavigate({ view: 'admin' })}
+              className="hover:text-cyan-400 transition-colors cursor-pointer text-slate-500"
+              title="Enterprise Admin Portal"
+            >
+              {isBn ? 'অ্যাডমিন পোর্টাল' : 'Admin Portal'}
+            </button>
           </div>
 
           {/* Certifications & Copyright */}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Check, ChevronRight, ChevronLeft, Upload, FileText, 
-  Clock, CheckCircle2, Printer
+  Clock, CheckCircle2, Printer, Loader2
 } from 'lucide-react';
 import { MARKET_SOLUTIONS } from '../data/siteData';
+import { supabase } from '../lib/supabase';
 
 interface RfqModalProps {
   isOpen: boolean;
@@ -98,6 +99,7 @@ export const RfqModal: React.FC<RfqModalProps> = ({ isOpen, onClose, prefill }) 
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [generatedRfqId, setGeneratedRfqId] = useState<string>('');
 
   useEffect(() => {
@@ -173,15 +175,58 @@ export const RfqModal: React.FC<RfqModalProps> = ({ isOpen, onClose, prefill }) 
     setStep(prev => Math.max(1, prev - 1));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep(4)) return;
 
+    setIsSubmitting(true);
     const randomSeq = Math.floor(100000 + Math.random() * 900000);
     const rfqId = `RFQ-2026-${randomSeq}`;
-    setGeneratedRfqId(rfqId);
-    setIsSubmitted(true);
-    sessionStorage.removeItem('metaltech_rfq_draft');
+
+    // Compile comprehensive specifications summary
+    const techSpecs = [
+      formData.industry ? `Industry: ${formData.industry}` : '',
+      formData.projectType ? `Project Type: ${formData.projectType}` : '',
+      formData.dimensions ? `Dimensions: ${formData.dimensions}` : '',
+      formData.weightValue ? `Weight: ${formData.weightValue} ${formData.weightUnit}` : '',
+      formData.heatTreatmentRequired ? `Heat Treatment: Required` : '',
+      formData.machiningRequired ? `CNC Machining: Required` : '',
+      formData.testingRequired.length ? `Testing: ${formData.testingRequired.join(', ')}` : '',
+      formData.deliveryLocation ? `Location: ${formData.deliveryLocation}` : '',
+      formData.projectDescription ? `Description: ${formData.projectDescription}` : '',
+    ].filter(Boolean).join(' | ');
+
+    try {
+      const { error: insertError } = await supabase.from('rfq_leads').insert({
+        full_name: formData.fullName,
+        company_name: formData.companyName || null,
+        email: formData.businessEmail,
+        phone: formData.phoneWhatsapp || null,
+        metal_process: formData.processes.join(', ') || null,
+        alloy_choice: formData.alloyGrade || null,
+        quantity_estimate: formData.quantityFirstOrder 
+          ? `${formData.quantityFirstOrder} pcs (Annual: ${formData.quantityAnnual || 'N/A'})` 
+          : null,
+        delivery_deadline: formData.targetDeliveryDate || null,
+        detailed_specifications: techSpecs || null,
+        drawing_file_url: formData.uploadedFiles.length 
+          ? formData.uploadedFiles.map(f => f.name).join(', ') 
+          : null,
+        nda_required: formData.ndaRequested,
+        status: 'new'
+      });
+
+      if (insertError) {
+        console.warn('Supabase lead insertion notice:', insertError.message);
+      }
+    } catch (err: any) {
+      console.warn('Network issue during lead insertion:', err?.message);
+    } finally {
+      setIsSubmitting(false);
+      setGeneratedRfqId(rfqId);
+      setIsSubmitted(true);
+      sessionStorage.removeItem('metaltech_rfq_draft');
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -841,10 +886,20 @@ export const RfqModal: React.FC<RfqModalProps> = ({ isOpen, onClose, prefill }) 
                 ) : (
                   <button
                     type="submit"
-                    className="flex items-center gap-2 px-8 py-2.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-extrabold rounded-md shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all cursor-pointer"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-8 py-2.5 bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white text-xs font-extrabold rounded-md shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all cursor-pointer"
                   >
-                    <span>Transmit RFQ to Metallurgists</span>
-                    <CheckCircle2 className="w-4 h-4 text-[#4CC9F0]" />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Transmitting Proposal...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Transmit RFQ to Metallurgists</span>
+                        <CheckCircle2 className="w-4 h-4 text-[#4CC9F0]" />
+                      </>
+                    )}
                   </button>
                 )}
               </div>

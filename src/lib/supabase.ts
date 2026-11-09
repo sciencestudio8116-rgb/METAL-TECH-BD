@@ -1,8 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase project credentials provided for Metal Tek BD
-export const SUPABASE_URL = 'https://jqxdzkekcmqhytcdayhq.supabase.co';
-export const SUPABASE_ANON_KEY = 'sb_publishable_2BsxSk0IHRkSsSgxbQWzvQ_ZhNCQwHS';
+// Supabase project credentials for Metal Tek BD
+// Configured to dynamically read from Vite environment variables during deployment (Vercel)
+// with resilient fallback to project default credentials
+export const SUPABASE_URL = 
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
+  'https://jqxdzkekcmqhytcdayhq.supabase.co';
+
+export const SUPABASE_ANON_KEY = 
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) ||
+  'sb_publishable_2BsxSk0IHRkSsSgxbQWzvQ_ZhNCQwHS';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {

@@ -33,7 +33,15 @@ import {
   toMarketCardRow, fromMarketCardRow,
   toVideoRow, fromVideoRow,
   toLeadRow, fromLeadRow,
-  toSiteMetadataRow, fromSiteMetadataRow
+  toSiteMetadataRow, fromSiteMetadataRow,
+  toNavigationMenuRow, fromNavigationMenuRow,
+  toContentItemRow, fromContentItemRow,
+  toAlloyRow, fromAlloyRow,
+  toBlogPostRow, fromBlogPostRow,
+  toCaseStudyRow, fromCaseStudyRow,
+  toFaqRow, fromFaqRow,
+  toDownloadRow, fromDownloadRow,
+  toGlossaryRow, fromGlossaryRow
 } from '../lib/supabaseTransformers';
 
 export interface VideoItem {
@@ -227,8 +235,8 @@ interface AdminContextType {
   // Auth
   isAuthenticated: boolean;
   adminUser: AdminUser | null;
-  login: (usernameOrEmail: string, password: string) => { success: boolean; error?: string };
-  logout: () => void;
+  login: (usernameOrEmail: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
 
   // Dynamic Navigation & Main/Sub-menus Mirror
   navigationMenu: NavigationMenuItem[];
@@ -320,6 +328,7 @@ interface AdminContextType {
   supabaseConnected: boolean;
   supabaseSyncing: boolean;
   syncWithSupabase: () => Promise<void>;
+  pushAllToSupabase: () => Promise<{ success: boolean; message: string }>;
 }
 
 const STORAGE_KEYS = {
@@ -769,41 +778,112 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  // Auth Handlers
-  const login = (usernameOrEmail: string, pass: string) => {
+  // Auth Handlers (Supabase Auth Integration with Resilient Fallback)
+  const login = async (usernameOrEmail: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     const cleanUser = usernameOrEmail.trim().toLowerCase();
     const cleanPass = pass.trim();
 
-    // Default Authorized Credentials:
-    // Usernames: admin@metaltekbd.com | admin
-    // Password: MetalTek@2026 | admin123
-    const isValidUser = cleanUser === 'admin@metaltekbd.com' || cleanUser === 'admin';
-    const isValidPass = cleanPass === 'MetalTek@2026' || cleanPass === 'admin123';
+    try {
+      // 1. Authenticate with Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanUser.includes('@') ? cleanUser : `${cleanUser}@metaltekbd.com`,
+        password: cleanPass,
+      });
 
-    if (isValidUser && isValidPass) {
-      const user: AdminUser = {
-        email: cleanUser.includes('@') ? cleanUser : 'admin@metaltekbd.com',
-        name: 'Chief Metallurgical Officer / Admin',
-        role: 'superadmin',
-        loginTime: new Date().toISOString(),
+      if (!error && data?.user) {
+        const user: AdminUser = {
+          email: data.user.email || cleanUser,
+          name: data.user.user_metadata?.full_name || 'Chief Metallurgical Officer / Admin',
+          role: 'superadmin',
+          loginTime: new Date().toISOString(),
+        };
+        setAdminUser(user);
+        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
+        showToast('Supabase Authentication Successful. Welcome to Admin Console.', 'success');
+        return { success: true };
+      }
+
+      // 2. Resilient fallback for default authorized credentials if offline or user not created yet in Auth
+      const isValidUser = cleanUser === 'admin@metaltekbd.com' || cleanUser === 'admin';
+      const isValidPass = cleanPass === 'MetalTek@2026' || cleanPass === 'admin123';
+
+      if (isValidUser && isValidPass) {
+        const user: AdminUser = {
+          email: cleanUser.includes('@') ? cleanUser : 'admin@metaltekbd.com',
+          name: 'Chief Metallurgical Officer / Admin',
+          role: 'superadmin',
+          loginTime: new Date().toISOString(),
+        };
+        setAdminUser(user);
+        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
+        showToast('Authentication Successful. Welcome to Admin Console.', 'success');
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: error?.message || 'Invalid credentials. Please enter authorized username/email and password.',
       };
-      setAdminUser(user);
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
-      showToast('Authentication Successful. Welcome to Admin Console.', 'success');
-      return { success: true };
+    } catch (err: any) {
+      const isValidUser = cleanUser === 'admin@metaltekbd.com' || cleanUser === 'admin';
+      const isValidPass = cleanPass === 'MetalTek@2026' || cleanPass === 'admin123';
+      if (isValidUser && isValidPass) {
+        const user: AdminUser = {
+          email: 'admin@metaltekbd.com',
+          name: 'Chief Metallurgical Officer / Admin',
+          role: 'superadmin',
+          loginTime: new Date().toISOString(),
+        };
+        setAdminUser(user);
+        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
+        return { success: true };
+      }
+      return {
+        success: false,
+        error: err.message || 'Authentication error. Please try again.',
+      };
     }
-
-    return {
-      success: false,
-      error: 'Invalid credentials. Please enter authorized username/email and password.',
-    };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('Supabase sign out notice:', e);
+    }
     setAdminUser(null);
     localStorage.removeItem(STORAGE_KEYS.SESSION);
     showToast('Logged out of Admin Console.', 'info');
   };
+
+  // Listen to Supabase Auth state changes
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setAdminUser({
+          email: session.user.email || 'admin@metaltekbd.com',
+          name: session.user.user_metadata?.full_name || 'Chief Metallurgical Officer / Admin',
+          role: 'superadmin',
+          loginTime: new Date().toISOString(),
+        });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAdminUser({
+          email: session.user.email || 'admin@metaltekbd.com',
+          name: session.user.user_metadata?.full_name || 'Chief Metallurgical Officer / Admin',
+          role: 'superadmin',
+          loginTime: new Date().toISOString(),
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Persistence Effects
   useEffect(() => {
@@ -882,35 +962,91 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSupabaseConnected(true);
       }
 
-      // 2. Process Cards
+      // 2. Navigation Menus
+      const { data: navData, error: navErr } = await supabase.from('navigation_menus').select('*').order('sort_order', { ascending: true });
+      if (!navErr && navData && navData.length > 0) {
+        setNavigationMenu(navData.map(fromNavigationMenuRow));
+        setSupabaseConnected(true);
+      }
+
+      // 3. Content Workspace Items
+      const { data: contentData, error: contentErr } = await supabase.from('content_items').select('*');
+      if (!contentErr && contentData && contentData.length > 0) {
+        setContentItems(contentData.map(fromContentItemRow));
+        setSupabaseConnected(true);
+      }
+
+      // 4. Process Cards
       const { data: procData, error: procErr } = await supabase.from('process_cards').select('*');
       if (!procErr && procData && procData.length > 0) {
         setProcessCards(procData.map(fromProcessCardRow));
         setSupabaseConnected(true);
       }
 
-      // 3. Capability Cards
+      // 5. Capability Cards
       const { data: capData, error: capErr } = await supabase.from('capability_cards').select('*');
       if (!capErr && capData && capData.length > 0) {
         setCapabilityCards(capData.map(fromCapabilityCardRow));
         setSupabaseConnected(true);
       }
 
-      // 4. Market Cards
+      // 6. Market Cards
       const { data: mktData, error: mktErr } = await supabase.from('market_cards').select('*');
       if (!mktErr && mktData && mktData.length > 0) {
         setMarketCards(mktData.map(fromMarketCardRow));
         setSupabaseConnected(true);
       }
 
-      // 5. Videos
-      const { data: vidData, error: vidErr } = await supabase.from('videos').select('*');
+      // 7. Videos
+      const { data: vidData, error: vidErr } = await supabase.from('videos').select('*').order('sort_order', { ascending: true });
       if (!vidErr && vidData && vidData.length > 0) {
         setVideos(vidData.map(fromVideoRow));
         setSupabaseConnected(true);
       }
 
-      // 6. RFQ Leads
+      // 8. Alloys Database
+      const { data: alloyData, error: alloyErr } = await supabase.from('alloys').select('*');
+      if (!alloyErr && alloyData && alloyData.length > 0) {
+        setAlloys(alloyData.map(fromAlloyRow));
+        setSupabaseConnected(true);
+      }
+
+      // 9. Blog Posts & Technical Papers
+      const { data: blogData, error: blogErr } = await supabase.from('blog_posts').select('*');
+      if (!blogErr && blogData && blogData.length > 0) {
+        setBlogPosts(blogData.map(fromBlogPostRow));
+        setSupabaseConnected(true);
+      }
+
+      // 10. Case Studies
+      const { data: csData, error: csErr } = await supabase.from('case_studies').select('*');
+      if (!csErr && csData && csData.length > 0) {
+        setCaseStudies(csData.map(fromCaseStudyRow));
+        setSupabaseConnected(true);
+      }
+
+      // 11. FAQs
+      const { data: faqData, error: faqErr } = await supabase.from('faqs').select('*').order('sort_order', { ascending: true });
+      if (!faqErr && faqData && faqData.length > 0) {
+        setFaqs(faqData.map(fromFaqRow));
+        setSupabaseConnected(true);
+      }
+
+      // 12. Downloads
+      const { data: dlData, error: dlErr } = await supabase.from('downloads').select('*').order('sort_order', { ascending: true });
+      if (!dlErr && dlData && dlData.length > 0) {
+        setDownloads(dlData.map(fromDownloadRow));
+        setSupabaseConnected(true);
+      }
+
+      // 13. Glossary Terms
+      const { data: glossData, error: glossErr } = await supabase.from('glossary_terms').select('*').order('sort_order', { ascending: true });
+      if (!glossErr && glossData && glossData.length > 0) {
+        setGlossary(glossData.map(fromGlossaryRow));
+        setSupabaseConnected(true);
+      }
+
+      // 14. RFQ Leads
       const { data: leadData, error: leadErr } = await supabase.from('rfq_leads').select('*').order('created_at', { ascending: false });
       if (!leadErr && leadData && leadData.length > 0) {
         setLeads(leadData.map(fromLeadRow));
@@ -943,8 +1079,40 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (data && data.length > 0) setMarketCards(data.map(fromMarketCardRow));
           });
         } else if (payload.table === 'videos') {
-          supabase.from('videos').select('*').then(({ data }) => {
+          supabase.from('videos').select('*').order('sort_order', { ascending: true }).then(({ data }) => {
             if (data && data.length > 0) setVideos(data.map(fromVideoRow));
+          });
+        } else if (payload.table === 'navigation_menus') {
+          supabase.from('navigation_menus').select('*').order('sort_order', { ascending: true }).then(({ data }) => {
+            if (data && data.length > 0) setNavigationMenu(data.map(fromNavigationMenuRow));
+          });
+        } else if (payload.table === 'content_items') {
+          supabase.from('content_items').select('*').then(({ data }) => {
+            if (data && data.length > 0) setContentItems(data.map(fromContentItemRow));
+          });
+        } else if (payload.table === 'alloys') {
+          supabase.from('alloys').select('*').then(({ data }) => {
+            if (data && data.length > 0) setAlloys(data.map(fromAlloyRow));
+          });
+        } else if (payload.table === 'blog_posts') {
+          supabase.from('blog_posts').select('*').then(({ data }) => {
+            if (data && data.length > 0) setBlogPosts(data.map(fromBlogPostRow));
+          });
+        } else if (payload.table === 'case_studies') {
+          supabase.from('case_studies').select('*').then(({ data }) => {
+            if (data && data.length > 0) setCaseStudies(data.map(fromCaseStudyRow));
+          });
+        } else if (payload.table === 'faqs') {
+          supabase.from('faqs').select('*').order('sort_order', { ascending: true }).then(({ data }) => {
+            if (data && data.length > 0) setFaqs(data.map(fromFaqRow));
+          });
+        } else if (payload.table === 'downloads') {
+          supabase.from('downloads').select('*').order('sort_order', { ascending: true }).then(({ data }) => {
+            if (data && data.length > 0) setDownloads(data.map(fromDownloadRow));
+          });
+        } else if (payload.table === 'glossary_terms') {
+          supabase.from('glossary_terms').select('*').order('sort_order', { ascending: true }).then(({ data }) => {
+            if (data && data.length > 0) setGlossary(data.map(fromGlossaryRow));
           });
         } else if (payload.table === 'rfq_leads') {
           supabase.from('rfq_leads').select('*').order('created_at', { ascending: false }).then(({ data }) => {
@@ -967,19 +1135,37 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  // Main Menu Handlers
+  // Main Menu Handlers (with Supabase Sync)
   const addMainMenu = (menu: NavigationMenuItem) => {
-    setNavigationMenu(prev => [...prev, menu]);
+    setNavigationMenu(prev => {
+      const next = [...prev, menu];
+      supabase.from('navigation_menus').upsert(toNavigationMenuRow(menu, next.length - 1)).then(({ error }) => {
+        if (error) console.warn('Supabase add main menu:', error.message);
+      });
+      return next;
+    });
     showToast(`Main menu "${menu.label}" created!`);
   };
 
   const updateMainMenu = (menuId: string, updated: Partial<NavigationMenuItem>) => {
-    setNavigationMenu(prev => prev.map(m => m.id === menuId ? { ...m, ...updated } : m));
+    setNavigationMenu(prev => {
+      const next = prev.map(m => m.id === menuId ? { ...m, ...updated } : m);
+      const target = next.find(m => m.id === menuId);
+      if (target) {
+        supabase.from('navigation_menus').upsert(toNavigationMenuRow(target)).then(({ error }) => {
+          if (error) console.warn('Supabase update main menu:', error.message);
+        });
+      }
+      return next;
+    });
     showToast('Main menu updated!');
   };
 
   const deleteMainMenu = (menuId: string) => {
     setNavigationMenu(prev => prev.filter(m => m.id !== menuId));
+    supabase.from('navigation_menus').delete().eq('id', menuId).then(({ error }) => {
+      if (error) console.warn('Supabase delete main menu:', error.message);
+    });
     showToast('Main menu removed from navigation.', 'info');
   };
 
@@ -1123,63 +1309,97 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Technical video removed.', 'info');
   };
 
-  // Navigation Sub-menu Handlers (Syncs directly with header dropdowns)
+  // Navigation Sub-menu Handlers (Syncs directly with header dropdowns and Supabase)
   const addSubMenu = (menuId: string, subItem: NavigationSubItem) => {
-    setNavigationMenu(prev => prev.map(m => {
-      if (m.id === menuId) {
-        return { ...m, subItems: [...m.subItems, subItem] };
-      }
-      return m;
-    }));
+    setNavigationMenu(prev => {
+      const next = prev.map(m => {
+        if (m.id === menuId) {
+          const updatedMenu = { ...m, subItems: [...m.subItems, subItem] };
+          supabase.from('navigation_menus').upsert(toNavigationMenuRow(updatedMenu)).then(({ error }) => {
+            if (error) console.warn('Supabase add sub menu:', error.message);
+          });
+          return updatedMenu;
+        }
+        return m;
+      });
+      return next;
+    });
     showToast(`Sub-menu "${subItem.label}" added to ${menuId}!`);
   };
 
   const updateSubMenu = (menuId: string, subItemId: string, updated: Partial<NavigationSubItem>) => {
-    setNavigationMenu(prev => prev.map(m => {
-      if (m.id === menuId) {
-        return {
-          ...m,
-          subItems: m.subItems.map(s => s.id === subItemId ? { ...s, ...updated } : s),
-        };
-      }
-      return m;
-    }));
+    setNavigationMenu(prev => {
+      const next = prev.map(m => {
+        if (m.id === menuId) {
+          const updatedMenu = {
+            ...m,
+            subItems: m.subItems.map(s => s.id === subItemId ? { ...s, ...updated } : s),
+          };
+          supabase.from('navigation_menus').upsert(toNavigationMenuRow(updatedMenu)).then(({ error }) => {
+            if (error) console.warn('Supabase update sub menu:', error.message);
+          });
+          return updatedMenu;
+        }
+        return m;
+      });
+      return next;
+    });
     showToast('Sub-menu updated!');
   };
 
   const deleteSubMenu = (menuId: string, subItemId: string) => {
-    setNavigationMenu(prev => prev.map(m => {
-      if (m.id === menuId) {
-        return {
-          ...m,
-          subItems: m.subItems.filter(s => s.id !== subItemId),
-        };
-      }
-      return m;
-    }));
+    setNavigationMenu(prev => {
+      const next = prev.map(m => {
+        if (m.id === menuId) {
+          const updatedMenu = {
+            ...m,
+            subItems: m.subItems.filter(s => s.id !== subItemId),
+          };
+          supabase.from('navigation_menus').upsert(toNavigationMenuRow(updatedMenu)).then(({ error }) => {
+            if (error) console.warn('Supabase delete sub menu:', error.message);
+          });
+          return updatedMenu;
+        }
+        return m;
+      });
+      return next;
+    });
     showToast('Sub-menu removed from navigation.', 'info');
   };
 
-  // Content, Article & Media Workspace Handlers (with Bi-directional Auto-Translation)
+  // Content, Article & Media Workspace Handlers (with Bi-directional Auto-Translation & Supabase Sync)
   const addContentItem = (item: ContentItem) => {
     const bilingualItem = autoTranslateContentItemFields(item);
     setContentItems(prev => [bilingualItem, ...prev]);
+    supabase.from('content_items').upsert(toContentItemRow(bilingualItem)).then(({ error }) => {
+      if (error) console.warn('Supabase add content item:', error.message);
+    });
     showToast(`Content item "${bilingualItem.title}" saved with English & Bengali versions!`);
   };
 
   const updateContentItem = (id: string, updated: Partial<ContentItem>) => {
+    let targetItem: ContentItem | undefined;
     setContentItems(prev => prev.map(c => {
       if (c.id === id) {
         const merged = { ...c, ...updated, updatedAt: new Date().toISOString().substring(0, 10) };
-        return autoTranslateContentItemFields(merged);
+        targetItem = autoTranslateContentItemFields(merged);
+        return targetItem;
       }
       return c;
     }));
+    if (targetItem) {
+      supabase.from('content_items').upsert(toContentItemRow(targetItem)).then(({ error }) => {
+        if (error) console.warn('Supabase update content item:', error.message);
+      });
+    }
     showToast('Content item updated with bi-lingual sync!');
   };
 
   const deleteContentItem = (id: string) => {
     setContentItems(prev => prev.filter(c => c.id !== id));
+    supabase.from('content_items').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn('Supabase delete content item:', error.message);
+    });
     showToast('Content item deleted.', 'info');
   };
 
@@ -1206,107 +1426,316 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Hero content for "${pageKey}" updated!`);
   };
 
-  // Alloys CRUD
+  // Alloys CRUD (with Supabase Sync)
   const addAlloy = (alloy: Alloy) => {
     setAlloys(prev => [alloy, ...prev]);
+    supabase.from('alloys').upsert(toAlloyRow(alloy)).then(({ error }) => {
+      if (error) console.warn('Supabase add alloy:', error.message);
+    });
     showToast(`Alloy "${alloy.name}" added to catalog!`);
   };
 
   const updateAlloy = (id: string, updated: Partial<Alloy>) => {
-    setAlloys(prev => prev.map(a => (a.id === id ? { ...a, ...updated } : a)));
+    let targetAlloy: Alloy | undefined;
+    setAlloys(prev => prev.map(a => {
+      if (a.id === id) {
+        targetAlloy = { ...a, ...updated };
+        return targetAlloy;
+      }
+      return a;
+    }));
+    if (targetAlloy) {
+      supabase.from('alloys').upsert(toAlloyRow(targetAlloy)).then(({ error }) => {
+        if (error) console.warn('Supabase update alloy:', error.message);
+      });
+    }
     showToast('Alloy specifications updated!');
   };
 
   const deleteAlloy = (id: string) => {
     setAlloys(prev => prev.filter(a => a.id !== id));
+    supabase.from('alloys').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn('Supabase delete alloy:', error.message);
+    });
     showToast('Alloy removed from catalog.', 'info');
   };
 
-  // Case Studies CRUD
+  // Case Studies CRUD (with Supabase Sync)
   const addCaseStudy = (caseStudy: CaseStudy) => {
     setCaseStudies(prev => [caseStudy, ...prev]);
+    supabase.from('case_studies').upsert(toCaseStudyRow(caseStudy)).then(({ error }) => {
+      if (error) console.warn('Supabase add case study:', error.message);
+    });
     showToast(`Case study "${caseStudy.title}" published!`);
   };
 
   const updateCaseStudy = (slug: string, updated: Partial<CaseStudy>) => {
-    setCaseStudies(prev => prev.map(c => (c.slug === slug ? { ...c, ...updated } : c)));
+    let targetCs: CaseStudy | undefined;
+    setCaseStudies(prev => prev.map(c => {
+      if (c.slug === slug) {
+        targetCs = { ...c, ...updated };
+        return targetCs;
+      }
+      return c;
+    }));
+    if (targetCs) {
+      supabase.from('case_studies').upsert(toCaseStudyRow(targetCs)).then(({ error }) => {
+        if (error) console.warn('Supabase update case study:', error.message);
+      });
+    }
     showToast('Case study updated!');
   };
 
   const deleteCaseStudy = (slug: string) => {
     setCaseStudies(prev => prev.filter(c => c.slug !== slug));
+    supabase.from('case_studies').delete().eq('slug', slug).then(({ error }) => {
+      if (error) console.warn('Supabase delete case study:', error.message);
+    });
     showToast('Case study deleted.', 'info');
   };
 
-  // Blog Posts & Technical Papers CRUD (with Bi-directional Auto-Translation)
+  // Blog Posts & Technical Papers CRUD (with Bi-directional Auto-Translation & Supabase Sync)
   const addBlogPost = (post: BlogPost) => {
     const bilingualPost = autoTranslateBlogPostFields(post);
     setBlogPosts(prev => [bilingualPost, ...prev]);
+    supabase.from('blog_posts').upsert(toBlogPostRow(bilingualPost)).then(({ error }) => {
+      if (error) console.warn('Supabase add blog post:', error.message);
+    });
     showToast(`Article "${bilingualPost.title}" published with bi-lingual translations!`);
   };
 
   const updateBlogPost = (slug: string, updated: Partial<BlogPost>) => {
+    let targetPost: BlogPost | undefined;
     setBlogPosts(prev => prev.map(b => {
       if (b.slug === slug) {
         const merged = { ...b, ...updated };
-        return autoTranslateBlogPostFields(merged);
+        targetPost = autoTranslateBlogPostFields(merged);
+        return targetPost;
       }
       return b;
     }));
+    if (targetPost) {
+      supabase.from('blog_posts').upsert(toBlogPostRow(targetPost)).then(({ error }) => {
+        if (error) console.warn('Supabase update blog post:', error.message);
+      });
+    }
     showToast('Technical paper updated!');
   };
 
   const deleteBlogPost = (slug: string) => {
     setBlogPosts(prev => prev.filter(b => b.slug !== slug));
+    supabase.from('blog_posts').delete().eq('slug', slug).then(({ error }) => {
+      if (error) console.warn('Supabase delete blog post:', error.message);
+    });
     showToast('Technical paper deleted.', 'info');
   };
 
-  // FAQs CRUD
+  // FAQs CRUD (with Supabase Sync)
   const addFaq = (faq: FaqItem) => {
-    setFaqs(prev => [...prev, faq]);
+    setFaqs(prev => {
+      const next = [...prev, faq];
+      supabase.from('faqs').upsert(toFaqRow(faq, next.length - 1)).then(({ error }) => {
+        if (error) console.warn('Supabase add faq:', error.message);
+      });
+      return next;
+    });
     showToast('New FAQ added!');
   };
 
   const updateFaq = (index: number, updated: Partial<FaqItem>) => {
-    setFaqs(prev => prev.map((f, i) => (i === index ? { ...f, ...updated } : f)));
+    setFaqs(prev => {
+      const next = prev.map((f, i) => (i === index ? { ...f, ...updated } : f));
+      const target = next[index];
+      if (target) {
+        supabase.from('faqs').upsert(toFaqRow(target, index)).then(({ error }) => {
+          if (error) console.warn('Supabase update faq:', error.message);
+        });
+      }
+      return next;
+    });
     showToast('FAQ updated!');
   };
 
   const deleteFaq = (index: number) => {
-    setFaqs(prev => prev.filter((_, i) => i !== index));
+    setFaqs(prev => {
+      const next = prev.filter((_, i) => i !== index);
+      supabase.from('faqs').delete().eq('id', index + 1).then(({ error }) => {
+        if (error) console.warn('Supabase delete faq:', error.message);
+      });
+      return next;
+    });
     showToast('FAQ removed.', 'info');
   };
 
-  // Downloads CRUD
+  // Downloads CRUD (with Supabase Sync)
   const addDownload = (item: DownloadItem) => {
-    setDownloads(prev => [item, ...prev]);
+    setDownloads(prev => {
+      const next = [item, ...prev];
+      supabase.from('downloads').upsert(toDownloadRow(item, next.length)).then(({ error }) => {
+        if (error) console.warn('Supabase add download:', error.message);
+      });
+      return next;
+    });
     showToast(`Document "${item.title}" added to Downloads!`);
   };
 
   const updateDownload = (index: number, updated: Partial<DownloadItem>) => {
-    setDownloads(prev => prev.map((d, i) => (i === index ? { ...d, ...updated } : d)));
+    setDownloads(prev => {
+      const next = prev.map((d, i) => (i === index ? { ...d, ...updated } : d));
+      const target = next[index];
+      if (target) {
+        supabase.from('downloads').upsert(toDownloadRow(target, index + 1)).then(({ error }) => {
+          if (error) console.warn('Supabase update download:', error.message);
+        });
+      }
+      return next;
+    });
     showToast('Download item updated!');
   };
 
   const deleteDownload = (index: number) => {
-    setDownloads(prev => prev.filter((_, i) => i !== index));
+    setDownloads(prev => {
+      const next = prev.filter((_, i) => i !== index);
+      supabase.from('downloads').delete().eq('id', index + 1).then(({ error }) => {
+        if (error) console.warn('Supabase delete download:', error.message);
+      });
+      return next;
+    });
     showToast('Download item removed.', 'info');
   };
 
-  // Glossary CRUD
+  // Glossary CRUD (with Supabase Sync)
   const addGlossaryTerm = (term: GlossaryTerm) => {
-    setGlossary(prev => [...prev, term].sort((a, b) => a.term.localeCompare(b.term)));
+    setGlossary(prev => {
+      const next = [...prev, term].sort((a, b) => a.term.localeCompare(b.term));
+      const idx = next.findIndex(t => t.term === term.term);
+      supabase.from('glossary_terms').upsert(toGlossaryRow(term, idx >= 0 ? idx : next.length)).then(({ error }) => {
+        if (error) console.warn('Supabase add glossary:', error.message);
+      });
+      return next;
+    });
     showToast(`Glossary term "${term.term}" added!`);
   };
 
   const updateGlossaryTerm = (index: number, updated: Partial<GlossaryTerm>) => {
-    setGlossary(prev => prev.map((g, i) => (i === index ? { ...g, ...updated } : g)));
+    setGlossary(prev => {
+      const next = prev.map((g, i) => (i === index ? { ...g, ...updated } : g));
+      const target = next[index];
+      if (target) {
+        supabase.from('glossary_terms').upsert(toGlossaryRow(target, index + 1)).then(({ error }) => {
+          if (error) console.warn('Supabase update glossary:', error.message);
+        });
+      }
+      return next;
+    });
     showToast('Glossary term updated!');
   };
 
   const deleteGlossaryTerm = (index: number) => {
-    setGlossary(prev => prev.filter((_, i) => i !== index));
+    setGlossary(prev => {
+      const next = prev.filter((_, i) => i !== index);
+      supabase.from('glossary_terms').delete().eq('id', index + 1).then(({ error }) => {
+        if (error) console.warn('Supabase delete glossary:', error.message);
+      });
+      return next;
+    });
     showToast('Glossary term removed.', 'info');
+  };
+
+  // One-Click Bulk Cloud Synchronization (Pushes entire current app state into Supabase)
+  const pushAllToSupabase = async (): Promise<{ success: boolean; message: string }> => {
+    setSupabaseSyncing(true);
+    try {
+      // 1. Site Metadata
+      await supabase.from('site_metadata').upsert(toSiteMetadataRow(siteMetadata));
+
+      // 2. Navigation Menus
+      for (let i = 0; i < navigationMenu.length; i++) {
+        await supabase.from('navigation_menus').upsert(toNavigationMenuRow(navigationMenu[i], i));
+      }
+
+      // 3. Process Cards
+      for (const card of processCards) {
+        await supabase.from('process_cards').upsert(toProcessCardRow(card));
+      }
+
+      // 4. Capability Cards
+      for (const cap of capabilityCards) {
+        await supabase.from('capability_cards').upsert(toCapabilityCardRow(cap));
+      }
+
+      // 5. Market Cards
+      for (const mkt of marketCards) {
+        await supabase.from('market_cards').upsert(toMarketCardRow(mkt));
+      }
+
+      // 6. Videos
+      for (const vid of videos) {
+        await supabase.from('videos').upsert(toVideoRow(vid));
+      }
+
+      // 7. Content Items
+      for (const item of contentItems) {
+        await supabase.from('content_items').upsert(toContentItemRow(item));
+      }
+
+      // 8. Alloys
+      for (const alloy of alloys) {
+        await supabase.from('alloys').upsert(toAlloyRow(alloy));
+      }
+
+      // 9. Blog Posts
+      for (const post of blogPosts) {
+        await supabase.from('blog_posts').upsert(toBlogPostRow(post));
+      }
+
+      // 10. Case Studies
+      for (const cs of caseStudies) {
+        await supabase.from('case_studies').upsert(toCaseStudyRow(cs));
+      }
+
+      // 11. FAQs
+      for (let i = 0; i < faqs.length; i++) {
+        await supabase.from('faqs').upsert(toFaqRow(faqs[i], i));
+      }
+
+      // 12. Downloads
+      for (let i = 0; i < downloads.length; i++) {
+        await supabase.from('downloads').upsert(toDownloadRow(downloads[i], i));
+      }
+
+      // 13. Glossary
+      for (let i = 0; i < glossary.length; i++) {
+        await supabase.from('glossary_terms').upsert(toGlossaryRow(glossary[i], i));
+      }
+
+      // 14. Action Log
+      await supabase.from('admin_action_logs').insert([
+        {
+          action_type: 'BULK_CLOUD_SYNC',
+          entity_type: 'entire_database',
+          details: {
+            process_cards: processCards.length,
+            capabilities: capabilityCards.length,
+            markets: marketCards.length,
+            videos: videos.length,
+            alloys: alloys.length,
+            menus: navigationMenu.length
+          },
+          performed_by: adminUser?.email || 'admin@metaltekbd.com'
+        }
+      ]);
+
+      setSupabaseConnected(true);
+      showToast('All website data successfully synced to Supabase Cloud!', 'success');
+      return { success: true, message: 'All tables synchronized successfully!' };
+    } catch (err: any) {
+      console.error('Bulk sync failed:', err);
+      showToast(`Sync error: ${err.message || 'Unknown failure'}`, 'error');
+      return { success: false, message: err.message || 'Sync failed' };
+    } finally {
+      setSupabaseSyncing(false);
+    }
   };
 
   // Leads
@@ -1482,6 +1911,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         supabaseConnected,
         supabaseSyncing,
         syncWithSupabase,
+        pushAllToSupabase,
       }}
     >
       {children}

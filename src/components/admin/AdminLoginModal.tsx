@@ -68,22 +68,27 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
     setIsLoading(true);
 
-    // Brief verification delay for smooth feedback
-    setTimeout(() => {
-      const res = login(trimmedUser, password);
-      setIsLoading(false);
+    // Asynchronous authentication verification
+    (async () => {
+      try {
+        const res = await login(trimmedUser, password);
+        setIsLoading(false);
 
-      if (res.success) {
-        setUsername('');
-        setPassword('');
-        onClose();
-        if (onSuccessRedirect) {
-          onSuccessRedirect();
+        if (res.success) {
+          setUsername('');
+          setPassword('');
+          onClose();
+          if (onSuccessRedirect) {
+            onSuccessRedirect();
+          }
+        } else {
+          setError(res.error || (isBn ? t.admin.loginModal.errorMessage : 'Invalid credentials. Access denied.'));
         }
-      } else {
-        setError(res.error || (isBn ? t.admin.loginModal.errorMessage : 'Invalid credentials. Access denied.'));
+      } catch (err: any) {
+        setIsLoading(false);
+        setError(err.message || 'Login failed.');
       }
-    }, 350);
+    })();
   };
 
   return (
