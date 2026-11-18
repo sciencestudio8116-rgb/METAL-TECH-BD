@@ -33,7 +33,7 @@ import {
   toMarketCardRow, fromMarketCardRow,
   toVideoRow, fromVideoRow,
   toLeadRow, fromLeadRow,
-  toSiteMetadataRow, fromSiteMetadataRow,
+  toSiteMetadataRow, toSiteMetadataBaseRow, fromSiteMetadataRow,
   toNavigationMenuRow, fromNavigationMenuRow,
   toContentItemRow, fromContentItemRow,
   toAlloyRow, fromAlloyRow,
@@ -215,6 +215,8 @@ export interface ToastNotification {
 export interface SiteMetadata {
   name: string;
   shortName: string;
+  headerBrandName?: string;
+  headerLogoUrl?: string;
   tagline: string;
   heroHeadline: string;
   heroSubhead: string;
@@ -646,11 +648,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // 2. Content States
   const [siteMetadata, setSiteMetadata] = useState<SiteMetadata>(() => {
+    const baseDefaults: SiteMetadata = {
+      ...SITE_METADATA,
+      headerBrandName: 'METAL TECH BD',
+      headerLogoUrl: '',
+    };
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SITE_METADATA);
-      return saved ? { ...SITE_METADATA, ...JSON.parse(saved) } : SITE_METADATA;
+      return saved ? { ...baseDefaults, ...JSON.parse(saved) } : baseDefaults;
     } catch {
-      return SITE_METADATA;
+      return baseDefaults;
     }
   });
 
@@ -1408,7 +1415,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSiteMetadata(prev => {
       const merged = { ...prev, ...data };
       supabase.from('site_metadata').upsert(toSiteMetadataRow(merged)).then(({ error }) => {
-        if (error) console.warn('Supabase sync site metadata:', error.message);
+        if (error) {
+          console.warn('Supabase sync site metadata (retrying base columns):', error.message);
+          supabase.from('site_metadata').upsert(toSiteMetadataBaseRow(merged)).then(({ error: baseErr }) => {
+            if (baseErr) console.warn('Supabase base site metadata sync:', baseErr.message);
+          });
+        }
       });
       return merged;
     });
@@ -1647,7 +1659,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSupabaseSyncing(true);
     try {
       // 1. Site Metadata
-      await supabase.from('site_metadata').upsert(toSiteMetadataRow(siteMetadata));
+      const { error: metaErr } = await supabase.from('site_metadata').upsert(toSiteMetadataRow(siteMetadata));
+      if (metaErr) {
+        await supabase.from('site_metadata').upsert(toSiteMetadataBaseRow(siteMetadata));
+      }
 
       // 2. Navigation Menus
       for (let i = 0; i < navigationMenu.length; i++) {

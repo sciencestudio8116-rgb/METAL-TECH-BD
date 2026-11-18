@@ -2,7 +2,6 @@ import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { CASTING_PROCESSES, ProcessItem } from '../data/siteData';
 import { IMAGES } from '../assets/images';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { ChevronRight, ArrowRight, ShieldCheck, Factory, Check } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -19,7 +18,12 @@ interface ProcessDetailViewProps {
 export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNavigate, onOpenRfq }) => {
   const { isBn } = useLanguage();
   const { processCards } = useAdmin();
-  const activeProcesses = processCards && processCards.length > 0 ? processCards : CASTING_PROCESSES;
+  const ingotFallback = CASTING_PROCESSES.find(p => p.slug === 'ingot');
+  const baseProcesses = processCards && processCards.length > 0 ? processCards : CASTING_PROCESSES;
+  const activeProcesses =
+    ingotFallback && !baseProcesses.some(p => p.slug === 'ingot' || p.slug === 'continuous-casting')
+      ? [...baseProcesses, ingotFallback]
+      : baseProcesses;
 
   // If no slug, show the Metal Casting Overview Hub
   const currentProcess: ProcessItem | undefined = activeProcesses.find(
@@ -28,7 +32,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
 
   if (!slug || !currentProcess) {
     return (
-      <div className="space-y-8 pb-12">
+      <div className="w-full">
         {/* Full-width 400px Hero */}
         <PageHero
           title={isBn ? 'মেটাল কাস্টিং ও ঢালাই' : 'Metal Casting'}
@@ -42,7 +46,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
           imageAlt="High-Integrity Metal Casting Processes at Metal Tech BD"
         />
 
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-6">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
             <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8] cursor-pointer">
@@ -70,7 +74,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
                 <div
                   key={proc.slug}
                   onClick={() => onNavigate({ view: 'metal-casting', subSlug: proc.slug })}
-                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                  className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
                 >
                   <div className="flex flex-col items-center text-center w-full">
                     <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
@@ -104,12 +108,143 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
               );
             })}
           </div>
-        </div>
 
-        <AskTheExpertsBand
-          onContactClick={() => onNavigate({ view: 'contact-us' })}
-          onRfqClick={() => onOpenRfq()}
-        />
+          {/* Understanding Metal Casting & Comparison Table Section */}
+          <section className="mt-12 mb-4 space-y-10">
+            {/* Part 1: Overview Content ("Understanding Metal Casting") */}
+            <div className="bg-white border border-gray-200 rounded-sm px-6 py-8 sm:px-10 sm:py-10 shadow-xs text-left text-[#1F2933]">
+              <div className="max-w-4xl text-left">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F1B2D] tracking-tight mb-6">
+                  {isBn ? 'মেটাল কাস্টিং সম্পর্কে বিস্তারিত ধারণা' : 'Understanding Metal Casting'}
+                </h2>
+
+                <div className="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed">
+                  <p className="m-0">
+                    {isBn
+                      ? 'মেটাল কাস্টিং একটি মৌলিক উৎপাদন প্রক্রিয়া যেখানে গলিত ধাতু চূড়ান্ত যন্ত্রাংশের কাঙ্ক্ষিত আকৃতির একটি ছাঁচের গহ্বরে (mold cavity) ঢালা হয়। এরপর ধাতু ছাঁচের ভেতরে ঠান্ডা হয়ে কঠিন আকার ধারণ করে। কঠিন হয়ে গেলে ছাঁচ থেকে কাস্টিং বের করা হয় এবং চূড়ান্ত স্পেসিফিকেশন অর্জনের জন্য মেশিনিংয়ের মতো পরবর্তী প্রক্রিয়াকরণ করা হতে পারে। এই বহুমুখী প্রক্রিয়া ছোট সূক্ষ্ম যন্ত্রাংশ থেকে শুরু করে বিশাল শিল্প যন্ত্রাংশ পর্যন্ত জটিল ও নিখুঁত আকৃতি তৈরির সুযোগ দেয়।'
+                      : 'Metal casting is a fundamental manufacturing process where molten metal is poured into a mold cavity that has the desired shape of the final part. The metal is then allowed to solidify within the mold. Once solidified, the casting is removed from the mold, and may undergo further processing, such as machining, to achieve the final specifications. This versatile process allows for the creation of complex and intricate shapes, ranging from small, detailed components to very large industrial parts.'}
+                  </p>
+
+                  <p className="font-medium m-0">
+                    {isBn
+                      ? 'বিভিন্ন ধরনের শিল্প চাহিদা পূরণের জন্য আমরা নানা উন্নত মেটাল কাস্টিং প্রযুক্তি ব্যবহার করি, যার মধ্যে রয়েছে:'
+                      : 'We leverage a variety of advanced metal casting techniques to cater to a wide spectrum of needs, including:'}
+                  </p>
+
+                  <ul className="list-disc pl-6 my-4 space-y-2 text-sm sm:text-base text-slate-700 leading-relaxed">
+                    <li>
+                      <strong className="text-[#0F1B2D] font-bold">
+                        {isBn ? 'সেন্ট্রিফিউগাল কাস্টিং:' : 'Centrifugal Casting:'}
+                      </strong>{' '}
+                      {isBn
+                        ? 'উচ্চ শক্তি ও নির্ভরযোগ্যতাসম্পন্ন সিলিন্ড্রিক্যাল যন্ত্রাংশ উৎপাদনের জন্য আদর্শ।'
+                        : 'Ideal for producing cylindrical components with high strength and reliability.'}
+                    </li>
+                    <li>
+                      <strong className="text-[#0F1B2D] font-bold">
+                        {isBn ? 'স্যান্ড কাস্টিং:' : 'Sand Casting:'}
+                      </strong>{' '}
+                      {isBn
+                        ? 'বৃহৎ যন্ত্রাংশসহ বিভিন্ন আকার ও পরিমাণের উৎপাদনের জন্য একটি বহুমুখী ও সাশ্রয়ী পদ্ধতি।'
+                        : 'A versatile and cost-effective method for producing various sizes and volumes, including larger parts.'}
+                    </li>
+                    <li>
+                      <strong className="text-[#0F1B2D] font-bold">
+                        {isBn ? 'ইনভেস্টমেন্ট কাস্টিং (লস্ট-ওয়াক্স কাস্টিং):' : 'Investment Casting (Lost-Wax Casting):'}
+                      </strong>{' '}
+                      {isBn
+                        ? 'চমৎকার সারফেস ফিনিশ ও সূক্ষ্ম টলারেন্সসহ জটিল এবং নিখুঁত যন্ত্রাংশ তৈরির জন্য উপযুক্ত।'
+                        : 'Well-suited for creating complex and intricate parts with excellent surface finishes and tight tolerances.'}
+                    </li>
+                  </ul>
+
+                  <p className="m-0">
+                    {isBn
+                      ? 'গভীর ধাতুবিদ্যাগত জ্ঞান এবং দীর্ঘ প্রক্রিয়াগত অভিজ্ঞতার মাধ্যমে আমরা এমন উচ্চমানের মেটাল কাস্টিং উৎপাদন নিশ্চিত করি যা অ্যারোস্পেস, প্রতিরক্ষা, জ্বালানি ও পেট্রোকেমিক্যাল শিল্পের কঠোর মানদণ্ড পূরণ বা অতিক্রম করে। মান, উদ্ভাবন এবং গ্রাহক সন্তুষ্টির প্রতি আমাদের অঙ্গীকার আমাদের বিশ্বব্যাপী সেন্ট্রিফিউগাল, ইনভেস্টমেন্ট, স্যান্ড, ইনগট এবং এওডি কাস্টিং সমাধানের অন্যতম শীর্ষ সরবরাহকারী হিসেবে প্রতিষ্ঠিত করেছে।'
+                      : 'With deep metallurgical knowledge and extensive process expertise, we ensure the production of high-quality metal castings that meet or exceed the stringent requirements of industries such as aerospace, defense, energy, and petrochemical. Our commitment to quality, innovation, and customer satisfaction makes us a leading provider of centrifugal, investment, sand, ingot, and AOD casting solutions worldwide.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Part 2: Industrial Comparison Table (5 Columns, Crisp Borders) */}
+            <div className="overflow-x-auto shadow-xs rounded-sm border border-slate-400 bg-white">
+              <table className="w-full min-w-[760px] border-collapse border border-slate-400 text-left text-sm">
+                <thead>
+                  <tr className="bg-[#4A4A4A] text-white">
+                    <th className="p-4 font-semibold border border-slate-400 w-[16%]">
+                      {isBn ? 'বৈশিষ্ট্য' : 'Feature'}
+                    </th>
+                    <th className="p-4 font-semibold border border-slate-400 w-[21%]">
+                      {isBn ? 'সেন্ট্রিফিউগাল কাস্টিং' : 'Centrifugal Casting'}
+                    </th>
+                    <th className="p-4 font-semibold border border-slate-400 w-[21%]">
+                      {isBn ? 'ইনভেস্টমেন্ট কাস্টিং' : 'Investment Casting'}
+                    </th>
+                    <th className="p-4 font-semibold border border-slate-400 w-[21%]">
+                      {isBn ? 'স্যান্ড কাস্টিং' : 'Sand Casting'}
+                    </th>
+                    <th className="p-4 font-semibold border border-slate-400 w-[21%]">
+                      {isBn ? 'ইনগট কাস্টিং' : 'Ingot Casting'}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-4 font-bold text-gray-900 bg-[#D4D442] border border-slate-400 align-top">
+                      {isBn ? 'প্রক্রিয়ার সংক্ষিপ্ত বিবরণ' : 'Process Overview'}
+                    </td>
+                    <td className="p-4 bg-white text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'ঘূর্ণায়মান ছাঁচে গলিত ধাতু ঢালা হয় এবং ধাতু ছড়িয়ে দিতে সেন্ট্রিফিউগাল বল ব্যবহার করা হয়।'
+                        : 'Molten metal poured into a rotating mold, using centrifugal force to distribute the metal.'}
+                    </td>
+                    <td className="p-4 bg-white text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'মোমের প্যাটার্ন তৈরি করে সিরামিক স্লারি দিয়ে আবৃত করা হয়, এরপর মোম গলিয়ে বের করে ওই ছাঁচে গলিত ধাতু ঢালা হয়।'
+                        : 'Wax patterns are created, coated with a ceramic slurry, the wax is melted out, and molten metal is poured into the resulting mold.'}
+                    </td>
+                    <td className="p-4 bg-white text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'বালি দিয়ে তৈরি ছাঁচে গলিত ধাতু ঢালা হয়।'
+                        : 'Molten metal is poured into a mold made of sand.'}
+                    </td>
+                    <td className="p-4 bg-white text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'ধাতুর বড় ব্লক (ইনগট) তৈরি করার জন্য একটি বড় ছাঁচে (ইনগট মোল্ড) গলিত ধাতু ঢালা হয়।'
+                        : 'Molten metal is poured into a large mold (ingot mold) to produce a large block of metal (ingot).'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-bold text-gray-900 bg-[#D4D442] border border-slate-400 align-top">
+                      {isBn ? 'সাধারণ ব্যবহার' : 'Typical Applications'}
+                    </td>
+                    <td className="p-4 bg-gray-50 text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'সিলিন্ড্রিক্যাল যন্ত্রাংশ, পাইপ, বুশিং, রিং এবং উচ্চ ম্যাটেরিয়াল সাউন্ডনেস প্রয়োজন এমন নির্ভরযোগ্য পার্টস।'
+                        : 'Cylindrical components, pipes, bushings, rings, high-reliability parts requiring high material soundness.'}
+                    </td>
+                    <td className="p-4 bg-gray-50 text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'সূক্ষ্ম নকশাসহ জটিল আকৃতি, নিখুঁত টলারেন্স, চমৎকার সারফেস ফিনিশ এবং ছোট থেকে মাঝারি আকারের যন্ত্রাংশ।'
+                        : 'Complex shapes with fine details, tight tolerances, excellent surface finish, small to medium-sized parts.'}
+                    </td>
+                    <td className="p-4 bg-gray-50 text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'বড় যন্ত্রাংশ, জটিল বাহ্যিক আকৃতি, অভ্যন্তরীণ প্যাসেজওয়ে, প্রোটোটাইপ এবং স্বল্প থেকে মাঝারি উৎপাদন ব্যাচ।'
+                        : 'Large parts, complex external shapes, internal passageways, prototypes, short to medium production runs.'}
+                    </td>
+                    <td className="p-4 bg-gray-50 text-gray-800 border border-slate-400 align-top leading-relaxed">
+                      {isBn
+                        ? 'বিভিন্ন আকৃতি ও পণ্য তৈরিতে পরবর্তী প্রক্রিয়াকরণের (যেমন ফোর্জিং, রোলিং) জন্য কাঁচামাল উৎপাদন।'
+                        : 'Production of raw material for further processing (e.g., forging, rolling) into various shapes and products.'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
       </div>
     );
   }
@@ -132,7 +267,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
 
   // Individual Process Template (Centrifugal, Sand, Investment, Continuous)
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero strictly matching rules */}
       <PageHero
         title={currentTitle}
@@ -142,7 +277,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
         imageAlt={`${currentTitle} at Metal Tech BD`}
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb & Action Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -177,17 +312,17 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Description (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="space-y-3">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 sm:p-7 shadow-xs space-y-3">
               <h2 className="text-xl font-bold text-[#0F1B2D] m-0">
                 {isBn ? 'প্রক্রিয়া পর্যালোচনা ও ধাতুবিদ্যার মূলনীতি' : 'Process Overview & Metallurgical Principle'}
               </h2>
-              <p className="text-sm text-slate-700 leading-relaxed m-0">
+              <p className="text-sm text-slate-700 leading-relaxed m-0 text-justify">
                 {currentDesc}
               </p>
             </div>
 
             {/* Specifications Table */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-3 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 space-y-3 shadow-xs">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F1B2D] pb-2 border-b border-slate-100 m-0">
                 {isBn ? 'মাত্রাগত ও উৎপাদন সক্ষমতা' : 'Dimensional & Capacity Envelope'}
               </h3>
@@ -216,13 +351,13 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
             </div>
 
             {/* Typical Components */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F1B2D] m-0">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 space-y-4 shadow-xs">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F1B2D] m-0 pb-2 border-b border-slate-100">
                 {isBn ? 'উৎপাদিত সাধারণ উপাদানসমূহ' : 'Typical Components Manufactured'}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {currentComponents.map((comp, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2.5 bg-[#F3F4F6] rounded-sm text-xs text-slate-800">
+                  <div key={idx} className="flex items-center gap-2.5 p-3 bg-[#F3F4F6] border border-slate-200 rounded-sm text-xs text-slate-800">
                     <Check className="w-4 h-4 text-[#1D4ED8] shrink-0" />
                     <span>{comp}</span>
                   </div>
@@ -276,7 +411,7 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
             </div>
 
             {/* Direct Consultation Box */}
-            <div className="bg-[#0F1B2D] text-white p-5 rounded-sm space-y-3">
+            <div className="bg-[#0F1B2D] border border-slate-800 text-white p-6 rounded-sm space-y-3 shadow-xs">
               <span className="text-xs font-bold text-[#F5B800] uppercase block">
                 {isBn ? 'কারিগরি পরামর্শ প্রয়োজন?' : 'Need Technical Sizing?'}
               </span>
@@ -295,12 +430,6 @@ export const ProcessDetailView: React.FC<ProcessDetailViewProps> = ({ slug, onNa
           </div>
         </div>
       </div>
-
-      {/* Pre-Footer Band */}
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq({ process: currentProcess.title })}
-      />
     </div>
   );
 };

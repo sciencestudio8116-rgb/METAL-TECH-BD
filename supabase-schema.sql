@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS public.site_metadata (
   id TEXT PRIMARY KEY DEFAULT 'default',
   name TEXT NOT NULL DEFAULT 'Metal Tek BD',
   short_name TEXT NOT NULL DEFAULT 'MetalTek',
+  header_brand_name TEXT DEFAULT 'METAL TECH BD',
+  header_logo_url TEXT,
   tagline TEXT DEFAULT 'High-Integrity Centrifugal & Static Alloy Castings',
   hero_headline TEXT DEFAULT 'Engineering High-Integrity Castings for Severe Service',
   hero_subhead TEXT DEFAULT 'High-performance centrifugal, sand, and investment castings engineered for mission-critical industrial applications.',
@@ -45,6 +47,10 @@ CREATE TABLE IF NOT EXISTS public.site_metadata (
   copyright TEXT DEFAULT '© 2026 Metal Tek BD (Authorized MetalTek International Partner). All rights reserved.',
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure header branding columns exist on already-provisioned databases
+ALTER TABLE public.site_metadata ADD COLUMN IF NOT EXISTS header_brand_name TEXT DEFAULT 'METAL TECH BD';
+ALTER TABLE public.site_metadata ADD COLUMN IF NOT EXISTS header_logo_url TEXT;
 
 -- 3.2 Navigation Menu Hierarchy
 CREATE TABLE IF NOT EXISTS public.navigation_menus (

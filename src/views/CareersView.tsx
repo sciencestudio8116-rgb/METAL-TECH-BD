@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageRoute } from '../types/navigation';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { Briefcase, MapPin, Clock, ChevronRight, CheckCircle2, Send, X } from 'lucide-react';
 
 interface CareersViewProps {
@@ -46,7 +45,7 @@ const OPEN_POSITIONS = [
 import { IMAGES } from '../assets/images';
 import { PageHero } from '../components/PageHero';
 
-export const CareersView: React.FC<CareersViewProps> = ({ onNavigate, onOpenRfq }) => {
+export const CareersView: React.FC<CareersViewProps> = ({ onNavigate }) => {
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);
   const [candidate, setCandidate] = useState({ name: '', email: '', phone: '', cvNote: '' });
@@ -57,7 +56,7 @@ export const CareersView: React.FC<CareersViewProps> = ({ onNavigate, onOpenRfq 
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero */}
       <PageHero
         title="Careers & Culture"
@@ -67,7 +66,7 @@ export const CareersView: React.FC<CareersViewProps> = ({ onNavigate, onOpenRfq 
         imageAlt="Careers and engineering opportunities at Metal Tech BD"
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -75,66 +74,78 @@ export const CareersView: React.FC<CareersViewProps> = ({ onNavigate, onOpenRfq 
           <span className="font-semibold text-slate-800">Careers</span>
         </nav>
 
-        {/* Open Positions List */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#0F1B2D] m-0">
-            Current Open Engineering & Foundry Positions
-          </h2>
+        {/* Open Positions Grid */}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-[#0F1B2D] m-0">
+              Current Open Engineering &amp; Foundry Positions
+            </h2>
+            <p className="text-sm text-slate-600 m-0">
+              Explore specialized career opportunities across our foundry, CNC machining, and metallurgical testing complexes.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {OPEN_POSITIONS.map((job) => (
               <div
                 key={job.id}
-                className="bg-white border border-[#D9DCE1] rounded-sm p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="aspect-square rounded-xl border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 bg-white p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="space-y-1.5 max-w-2xl">
-                  <span className="text-[11px] font-bold text-[#1D4ED8] uppercase">
+                <div className="space-y-2.5 min-h-0">
+                  <span className="inline-block text-[11px] font-bold text-[#1D4ED8] uppercase tracking-wider">
                     {job.dept}
                   </span>
-                  <h3 className="text-lg font-bold text-[#0F1B2D] m-0">
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
                     {job.title}
                   </h3>
-                  <p className="text-xs text-slate-600 m-0 leading-relaxed">
+                  <div className="w-10 h-[2px] bg-[#F5B800] rounded-full" />
+                  <p className="text-xs text-slate-600 m-0 leading-relaxed text-justify">
                     {job.desc}
                   </p>
-                  <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" /> {job.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" /> {job.type}
-                    </span>
-                  </div>
                 </div>
 
-                <button
-                  onClick={() => { setSelectedJob(job.title); setApplied(false); }}
-                  className="px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-sm transition-colors cursor-pointer shrink-0"
-                >
-                  Apply for Position
-                </button>
+                <div className="space-y-3 pt-3 border-t border-slate-100">
+                  <div className="space-y-1 text-[11px] text-slate-500">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">{job.location}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>{job.type}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => { setSelectedJob(job.title); setApplied(false); }}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-lg shadow-xs transition-all duration-200 active:scale-[0.98] cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Apply Now</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Culture & Benefits Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-          <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+          <div className="bg-white border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-xl p-6 space-y-2.5 shadow-sm transition-all duration-300 hover:shadow-md">
             <h4 className="text-sm font-bold text-[#0F1B2D] m-0">Global Quality Exposure</h4>
-            <p className="text-xs text-slate-600 m-0 leading-relaxed">
+            <p className="text-xs text-slate-600 m-0 leading-relaxed text-justify">
               Direct exposure to international aerospace standards (AS9100), nuclear codes (ASME Section III), and marine classification societies.
             </p>
           </div>
-          <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-2">
+          <div className="bg-white border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-xl p-6 space-y-2.5 shadow-sm transition-all duration-300 hover:shadow-md">
             <h4 className="text-sm font-bold text-[#0F1B2D] m-0">Continuous Training (TekSession)</h4>
-            <p className="text-xs text-slate-600 m-0 leading-relaxed">
+            <p className="text-xs text-slate-600 m-0 leading-relaxed text-justify">
               Company-funded certifications for ASNT Level II/III NDT, Six Sigma green/black belt, and computational CFD modeling.
             </p>
           </div>
-          <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-2">
+          <div className="bg-white border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-xl p-6 space-y-2.5 shadow-sm transition-all duration-300 hover:shadow-md">
             <h4 className="text-sm font-bold text-[#0F1B2D] m-0">Comprehensive Care</h4>
-            <p className="text-xs text-slate-600 m-0 leading-relaxed">
+            <p className="text-xs text-slate-600 m-0 leading-relaxed text-justify">
               Competitive compensation, full health coverage, performance bonuses, and safe industrial workplace environments adhering to ISO 45001.
             </p>
           </div>
@@ -235,11 +246,6 @@ export const CareersView: React.FC<CareersViewProps> = ({ onNavigate, onOpenRfq 
           </div>
         </div>
       )}
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

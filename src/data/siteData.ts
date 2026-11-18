@@ -235,8 +235,8 @@ export const CASTING_PROCESSES: ProcessItem[] = [
   },
   {
     slug: 'ingot',
-    title: 'High-Integrity Ingot',
-    titleBn: 'হাই-ইন্টিগ্রিটি ইনগট ও মেটালিক বার',
+    title: 'High-Integrity Ingot Casting',
+    titleBn: 'হাই-ইন্টিগ্রিটি ইনগট কাস্টিং',
     summary: 'Consistently refined remelt ingots and forging stock for critical re-processing.',
     summaryBn: 'গুরুত্বপূর্ণ ফোরজিং ও রি-মেল্টিংয়ের জন্য পরিশোধিত ইনগট ও কাঁচামাল।',
     heroHeadline: 'Homogeneous Master Melts and Remelt Ingots for Critical Forgings',

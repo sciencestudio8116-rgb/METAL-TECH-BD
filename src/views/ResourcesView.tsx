@@ -4,7 +4,6 @@ import {
   BLOG_POSTS, CASE_STUDIES, GLOSSARY_TERMS, FAQ_ITEMS, 
   BlogPost, CaseStudy, GlossaryTerm, FAQItem, CERTIFICATIONS 
 } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   ChevronRight, ArrowRight, BookOpen, FileText, Video, 
   HelpCircle, Download, Check, Search, ShieldCheck, ChevronDown, Play, X
@@ -65,7 +64,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
     : FAQ_ITEMS.filter(f => f.category === selectedFaqCat);
 
   return (
-    <div className="w-full m-0 p-0 pb-12">
+    <div className="w-full m-0 p-0">
       {/* Responsive Hero Banner Container - 100% Width, Auto Height, Zero Gaps, Full Preview */}
       <div 
         className="w-full h-auto m-0 p-0 relative overflow-hidden bg-transparent block"
@@ -81,7 +80,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
         />
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 pt-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -131,7 +130,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
                   <div
                     key={post.slug}
                     onClick={() => onNavigate({ view: 'blog-post', slug: post.slug })}
-                    className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                    className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
                   >
                     <div className="flex flex-col items-center text-center w-full space-y-3">
                       <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
@@ -168,7 +167,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
               {CASE_STUDIES.map(cs => (
                 <div
                   key={cs.slug}
-                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs space-y-4"
+                  className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-md transition-all duration-300 space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <span className="text-xs font-bold uppercase tracking-wider text-[#1D4ED8]">
@@ -196,11 +195,11 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
                   </div>
 
                   {/* Results */}
-                  <div className="p-4 bg-[#F3F4F6] rounded-sm space-y-2">
+                  <div className="p-4 sm:p-5 bg-[#F3F4F6] border border-slate-200 rounded-sm space-y-2.5">
                     <span className="text-xs font-bold uppercase text-[#0F1B2D] block">
                       Quantified Project Results:
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {cs.results.map((res, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-xs text-slate-800">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -278,7 +277,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {filteredGlossary.map((item) => (
-                <div key={item.term} className="bg-white border border-[#D9DCE1] rounded-sm p-4 space-y-1.5 shadow-xs">
+                <div key={item.term} className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-4 space-y-1.5 shadow-xs hover:shadow-md transition-all duration-300">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-bold text-[#0F1B2D] m-0">
                       {item.term}
@@ -323,7 +322,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
                   <div
                     key={vid.id}
                     onClick={() => setSelectedVideo(vid)}
-                    className="bg-white border border-[#D9DCE1] rounded-sm overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 group cursor-pointer flex flex-col justify-between"
+                    className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col justify-between"
                   >
                     <div className="h-48 bg-[#0F1B2D] flex items-center justify-center text-white relative overflow-hidden">
                       {vid.thumbnailUrl ? (
@@ -394,7 +393,7 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
                 { title: 'Centrifugal vs Sand Casting Technical Comparison Guide', size: '3.1 MB PDF', desc: 'Design engineers handbook on solidification defects and cost trade-offs.' },
                 { title: 'NACE MR0175 / ISO 15156 Sour Gas Compliance Whitepaper', size: '2.4 MB PDF', desc: 'Hardness and stress corrosion cracking thresholds for upstream oil & gas.' },
               ].map((doc, idx) => (
-                <div key={idx} className="bg-white border border-[#D9DCE1] rounded-sm p-5 flex items-start justify-between gap-4 shadow-xs">
+                <div key={idx} className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-5 flex items-start justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-300">
                   <div className="space-y-1">
                     <span className="text-[11px] font-bold text-[#1D4ED8] uppercase">Technical Document</span>
                     <h4 className="text-sm font-bold text-[#0F1B2D] m-0">{doc.title}</h4>
@@ -512,11 +511,6 @@ export const ResourcesView: React.FC<ResourcesViewProps> = ({
           </div>
         </div>
       )}
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

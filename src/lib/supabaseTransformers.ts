@@ -217,7 +217,7 @@ export function fromLeadRow(row: any): RfqLead {
 }
 
 // --- Site Metadata ---
-export function toSiteMetadataRow(meta: SiteMetadata) {
+export function toSiteMetadataBaseRow(meta: SiteMetadata) {
   return {
     id: 'default',
     name: meta.name,
@@ -240,10 +240,20 @@ export function toSiteMetadataRow(meta: SiteMetadata) {
   };
 }
 
+export function toSiteMetadataRow(meta: SiteMetadata) {
+  return {
+    ...toSiteMetadataBaseRow(meta),
+    header_brand_name: meta.headerBrandName ?? meta.shortName ?? 'METAL TECH BD',
+    header_logo_url: meta.headerLogoUrl || null,
+  };
+}
+
 export function fromSiteMetadataRow(row: any): Partial<SiteMetadata> {
   return {
     name: row.name,
     shortName: row.short_name,
+    headerBrandName: row.header_brand_name || undefined,
+    headerLogoUrl: row.header_logo_url || undefined,
     tagline: row.tagline,
     heroHeadline: row.hero_headline,
     heroSubhead: row.hero_subhead,

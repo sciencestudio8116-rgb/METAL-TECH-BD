@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { PageRoute } from '../types/navigation';
 import { SITE_METADATA, DIVISIONS } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   Phone, Mail, MapPin, Send, CheckCircle2, ChevronRight, 
   ArrowRight, Users, Clock, ShieldCheck, Loader2 
@@ -56,7 +55,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
   const pageTitle = isQuoteRequest ? 'Request a Quote' : 'Contact Us';
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero */}
       <PageHero
         title={pageTitle}
@@ -66,7 +65,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
         imageAlt={`${pageTitle} at Metal Tech BD`}
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -75,7 +74,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
         </nav>
 
         {/* Key Account Manager Prompt Box (observed in reference sitemap) */}
-        <div className="bg-[#F3F4F6] border border-[#D9DCE1] rounded-sm p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-[#F3F4F6] border border-slate-200 rounded-sm p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-base font-bold text-[#0F1B2D] m-0">
               Looking for your industry's dedicated Key Account Manager?
@@ -95,7 +94,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
         {/* Main Content Split: Form & Locations */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* General Contact Form (7 cols) */}
-          <div className="lg:col-span-7 bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-sm p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-lg font-bold text-[#0F1B2D] m-0">
@@ -250,7 +249,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
             </h3>
 
             {/* Location 1: Dhaka HQ */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-4 space-y-2 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-5 space-y-2 shadow-xs">
               <span className="text-[11px] font-bold uppercase text-[#1D4ED8] tracking-wider block">
                 Central Complex & Headquarters
               </span>
@@ -266,7 +265,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
             </div>
 
             {/* Location 2: Gazipur Heavy Plant */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-4 space-y-2 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-5 space-y-2 shadow-xs">
               <span className="text-[11px] font-bold uppercase text-[#1D4ED8] tracking-wider block">
                 Heavy Casting & Heat Treat Hub
               </span>
@@ -281,7 +280,7 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
             </div>
 
             {/* Location 3: Chittagong Port Gateway */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-4 space-y-2 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-5 space-y-2 shadow-xs">
               <span className="text-[11px] font-bold uppercase text-[#1D4ED8] tracking-wider block">
                 Deepwater Export Gateway
               </span>
@@ -297,11 +296,6 @@ export const ContactUsView: React.FC<ContactUsViewProps> = ({ isQuoteRequest = f
           </div>
         </div>
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

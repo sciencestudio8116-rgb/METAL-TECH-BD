@@ -1,7 +1,6 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { CAPABILITIES, CapabilityItem } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   ChevronRight, ArrowRight, ShieldCheck, Cpu, Microscope, 
   Flame, Settings, Wrench, GraduationCap, CheckCircle 
@@ -38,7 +37,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
   // If no slug, show Capabilities Overview Hub
   if (!slug || !currentCap) {
     return (
-      <div className="space-y-8 pb-12">
+      <div className="w-full">
         {/* Full-width 400px Hero */}
         <PageHero
           title={isBn ? 'উৎপাদন ও ইঞ্জিনিয়ারিং সক্ষমতা' : 'Capabilities'}
@@ -52,7 +51,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
           imageAlt="Manufacturing and Engineering Capabilities at Metal Tech BD"
         />
 
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-6">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
             <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8] cursor-pointer">
@@ -81,7 +80,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
                 <div
                   key={cap.slug}
                   onClick={() => onNavigate({ view: 'capabilities', subSlug: cap.slug })}
-                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                  className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
                 >
                   <div className="flex flex-col items-center text-center w-full">
                     <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
@@ -108,11 +107,6 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
             })}
           </div>
         </div>
-
-        <AskTheExpertsBand
-          onContactClick={() => onNavigate({ view: 'contact-us' })}
-          onRfqClick={() => onOpenRfq()}
-        />
       </div>
     );
   }
@@ -134,7 +128,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
 
   // Capability Detail Page
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero strictly matching rules */}
       <PageHero
         title={currentTitle}
@@ -144,7 +138,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
         imageAlt={`${currentTitle} at Metal Tech BD`}
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb & Action Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -170,21 +164,21 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
         {/* Main Content Split */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="space-y-3">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 sm:p-7 shadow-xs space-y-3">
               <h2 className="text-xl font-bold text-[#0F1B2D] m-0">
                 {isBn ? 'সেবা পর্যালোচনা ও শিল্প মানদণ্ড' : 'Service Overview & Industrial Standards'}
               </h2>
-              <p className="text-sm text-slate-700 leading-relaxed m-0">
+              <p className="text-sm text-slate-700 leading-relaxed m-0 text-justify">
                 {currentDesc}
               </p>
             </div>
 
             {/* Equipment Highlights */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-3 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 space-y-3 shadow-xs">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F1B2D] pb-2 border-b border-slate-100 m-0">
                 {isBn ? 'প্ল্যান্টের সরঞ্জাম ও টুলিং হাইলাইটস' : 'Plant Equipment & Tooling Highlights'}
               </h3>
-              <ul className="space-y-2 text-xs">
+              <ul className="space-y-2.5 text-xs">
                 {currentCap.equipmentHighlights.map((eq, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-slate-700">
                     <CheckCircle className="w-4 h-4 text-[#1D4ED8] shrink-0 mt-0.5" />
@@ -196,24 +190,24 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
 
             {/* Specifications & Standards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-[#F3F4F6] rounded-sm p-4 space-y-2">
+              <div className="bg-[#F3F4F6] border border-slate-200 rounded-sm p-5 space-y-2.5">
                 <span className="text-xs font-bold uppercase text-[#0F1B2D] block">
                   {isBn ? 'মূল স্পেসিফিকেশনসমূহ' : 'Key Specifications'}
                 </span>
-                <ul className="space-y-1 text-xs text-slate-600">
+                <ul className="space-y-1.5 text-xs text-slate-600">
                   {currentCap.specifications.map((spec, idx) => (
                     <li key={idx}>• {spec}</li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-[#F3F4F6] rounded-sm p-4 space-y-2">
+              <div className="bg-[#F3F4F6] border border-slate-200 rounded-sm p-5 space-y-2.5">
                 <span className="text-xs font-bold uppercase text-[#0F1B2D] block">
                   {isBn ? 'অনুমোদিত মানদণ্ডসমূহ' : 'Governing Standards'}
                 </span>
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {currentCap.standards.map((std, idx) => (
-                    <span key={idx} className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-800">
+                    <span key={idx} className="px-2.5 py-1 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-800">
                       {std}
                     </span>
                   ))}
@@ -245,7 +239,7 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
               </div>
             </div>
 
-            <div className="bg-[#0F1B2D] text-white p-5 rounded-sm space-y-3">
+            <div className="bg-[#0F1B2D] border border-slate-800 text-white p-6 rounded-sm space-y-3 shadow-xs">
               <span className="text-xs font-bold text-[#F5B800] uppercase block">
                 {isBn ? 'কারিগরি সহায়তা প্রয়োজন?' : 'Need Technical Assistance?'}
               </span>
@@ -264,11 +258,6 @@ export const CapabilityDetailView: React.FC<CapabilityDetailViewProps> = ({ slug
           </div>
         </div>
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq({ process: currentCap.title })}
-      />
     </div>
   );
 };

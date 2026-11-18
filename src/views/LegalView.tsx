@@ -17,7 +17,7 @@ export const LegalView: React.FC<LegalViewProps> = ({ type, onNavigate }) => {
     'Terms & Conditions';
 
   return (
-    <div className="pb-16 bg-white space-y-8">
+    <div className="bg-white">
       {/* Full-width 400px Hero */}
       <PageHero
         title={title}
@@ -27,7 +27,7 @@ export const LegalView: React.FC<LegalViewProps> = ({ type, onNavigate }) => {
         imageAlt={`${title} at Metal Tech BD`}
       />
 
-      <div className="max-w-[850px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[850px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -36,7 +36,7 @@ export const LegalView: React.FC<LegalViewProps> = ({ type, onNavigate }) => {
         </nav>
 
         {type === 'privacy' && (
-          <article className="space-y-6 text-sm text-slate-700 leading-relaxed">
+          <article className="bg-white border border-slate-200 rounded-sm p-6 sm:p-10 shadow-xs space-y-6 text-sm text-slate-700 leading-relaxed">
             <h1 className="text-3xl font-extrabold text-[#0F1B2D] m-0">
               Corporate Privacy & Data Protection Policy
             </h1>
@@ -73,7 +73,7 @@ export const LegalView: React.FC<LegalViewProps> = ({ type, onNavigate }) => {
         )}
 
         {type === 'accessibility' && (
-          <article className="space-y-6 text-sm text-slate-700 leading-relaxed">
+          <article className="bg-white border border-slate-200 rounded-sm p-6 sm:p-10 shadow-xs space-y-6 text-sm text-slate-700 leading-relaxed">
             <h1 className="text-3xl font-extrabold text-[#0F1B2D] m-0">
               Accessibility Statement (WCAG 2.2 AA)
             </h1>
@@ -100,7 +100,7 @@ export const LegalView: React.FC<LegalViewProps> = ({ type, onNavigate }) => {
         )}
 
         {type === 'terms' && (
-          <article className="space-y-6 text-sm text-slate-700 leading-relaxed">
+          <article className="bg-white border border-slate-200 rounded-sm p-6 sm:p-10 shadow-xs space-y-6 text-sm text-slate-700 leading-relaxed">
             <h1 className="text-3xl font-extrabold text-[#0F1B2D] m-0">
               Website Terms & Conditions
             </h1>

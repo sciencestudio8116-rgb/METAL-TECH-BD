@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Settings,
@@ -36,9 +36,11 @@ import {
   Play,
   Film,
   Eye,
-  Flame
+  Flame,
+  Loader2
 } from 'lucide-react';
 import { useAdmin, DownloadItem, FaqItem, NavigationSubItem, NavigationMenuItem, ContentItem, VideoItem } from '../../context/AdminContext';
+import { uploadMediaToSupabase } from '../../lib/supabase';
 import { useLanguage } from '../../context/LanguageContext';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
 import { ContentWorkspace } from '../../components/admin/ContentWorkspace';
@@ -214,6 +216,41 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
 
   // Local form states for settings
   const [settingsForm, setSettingsForm] = useState(siteMetadata);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoUploadStatus, setLogoUploadStatus] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
+
+  useEffect(() => {
+    setSettingsForm(siteMetadata);
+  }, [siteMetadata]);
+
+  const handleHeaderLogoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    setLogoUploadStatus(null);
+    try {
+      const { url, error } = await uploadMediaToSupabase(file, 'images');
+      if (url && !error) {
+        setSettingsForm(prev => ({ ...prev, headerLogoUrl: url }));
+        setLogoUploadStatus({ type: 'success', message: 'Header logo uploaded to Supabase Storage! Click "Save & Sync Site Settings" below to apply.' });
+      } else {
+        // Fallback to Data URL for immediate preview & local persistence if storage policy blocks unauthenticated upload
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            setSettingsForm(prev => ({ ...prev, headerLogoUrl: reader.result as string }));
+            setLogoUploadStatus({ type: 'info', message: 'Header logo loaded! Click "Save & Sync Site Settings" below to apply.' });
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch {
+      setLogoUploadStatus({ type: 'error', message: 'Failed to process logo file.' });
+    } finally {
+      setLogoUploading(false);
+      e.target.value = '';
+    }
+  };
 
   // Search state for tables
   const [searchTerm, setSearchTerm] = useState('');
@@ -747,6 +784,122 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
               <div className="border-b border-slate-800 pb-4">
                 <h1 className="text-xl font-bold text-white">General Site Settings & SEO</h1>
                 <p className="text-xs text-slate-400">Manage contact information, office locations, emergency phone, and SEO tags across the entire website.</p>
+              </div>
+
+              {/* Header Logo & Brand Name Live Configuration Card */}
+              <div className="bg-[#0C1527] border border-cyan-500/30 rounded-md p-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-cyan-400" />
+                      <span>Header Logo & Brand Identity</span>
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Customize the brand name and logo displayed in the top-left of the public website header.
+                    </p>
+                  </div>
+
+                  {/* Live Header Preview */}
+                  <div className="bg-white px-4 py-2 rounded-md border border-slate-300 flex items-center gap-2.5 shrink-0 shadow-xs">
+                    {settingsForm.headerLogoUrl ? (
+                      <img
+                        src={settingsForm.headerLogoUrl}
+                        alt="Header Logo Preview"
+                        className="h-8 w-auto max-w-[100px] object-contain rounded-sm"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded bg-[#1D4ED8] flex items-center justify-center text-white font-black text-base">
+                        {(settingsForm.headerBrandName || 'M').trim().charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-black tracking-tight text-[#0F1B2D] leading-none">
+                        {settingsForm.headerBrandName || 'METAL TECH BD'}
+                      </span>
+                      <span className="text-[8px] uppercase font-bold tracking-widest text-[#1D4ED8] mt-0.5">
+                        High-Integrity Castings
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">Header Brand Name</label>
+                    <input
+                      type="text"
+                      value={settingsForm.headerBrandName ?? 'METAL TECH BD'}
+                      onChange={e => setSettingsForm({ ...settingsForm, headerBrandName: e.target.value })}
+                      placeholder="METAL TECH BD"
+                      className="mt-1 w-full p-2.5 bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded text-sm text-white outline-hidden"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Displayed prominently next to the header logo across all pages.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300">Header Logo (Image URL or Upload)</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={settingsForm.headerLogoUrl ?? ''}
+                        onChange={e => setSettingsForm({ ...settingsForm, headerLogoUrl: e.target.value })}
+                        placeholder="https://... or upload logo file"
+                        className="flex-1 p-2.5 bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded text-sm text-white outline-hidden"
+                      />
+                      <label className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-xs font-semibold text-cyan-300 cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
+                        {logoUploading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <UploadCloud className="w-3.5 h-3.5" />
+                        )}
+                        <span>{logoUploading ? 'Uploading...' : 'Upload'}</span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                          onChange={handleHeaderLogoFileUpload}
+                          className="hidden"
+                          disabled={logoUploading}
+                        />
+                      </label>
+                      {settingsForm.headerLogoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setSettingsForm({ ...settingsForm, headerLogoUrl: '' })}
+                          className="p-2.5 bg-slate-800 hover:bg-rose-950/70 border border-slate-700 hover:border-rose-500/40 rounded text-slate-400 hover:text-rose-300 cursor-pointer transition-colors"
+                          title="Reset to default monogram"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Leave empty to use the crisp default monogram badge.
+                    </p>
+                  </div>
+                </div>
+
+                {logoUploadStatus && (
+                  <div
+                    className={`px-3.5 py-2.5 rounded border text-xs font-medium flex items-center justify-between gap-2 ${
+                      logoUploadStatus.type === 'error'
+                        ? 'bg-rose-950/50 border-rose-500/40 text-rose-200'
+                        : logoUploadStatus.type === 'success'
+                        ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-200'
+                        : 'bg-cyan-950/50 border-cyan-500/40 text-cyan-200'
+                    }`}
+                  >
+                    <span>{logoUploadStatus.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setLogoUploadStatus(null)}
+                      className="text-current opacity-70 hover:opacity-100 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="bg-[#0C1527] border border-slate-800 rounded-md p-6 space-y-6">

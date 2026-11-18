@@ -1,3 +1,8 @@
+import sectorRailwayPhoto from './sector_railway_photo_1794993971804.jpg';
+import sectorMarinePhoto from './sector_marine_photo_1794993970723.jpg';
+import sectorHeavyVehiclesPhoto from './sector_heavy_vehicles_photo_1794993971624.jpg';
+import sectorIndustryPhoto from './sector_industry_photo_1794993972425.jpg';
+
 /**
  * Master Image & Hero Banner Asset Registry
  * Includes uploaded custom-designed brand banners from /assets/aistudio/
@@ -36,6 +41,12 @@ export const IMAGES = {
   machiningFacility: '/src/assets/images/machining_facility_1793414059522.jpg',
   metallurgyLab: '/src/assets/images/metallurgy_lab_1793414060783.jpg',
   turbineComponent: '/src/assets/images/turbine_component_1793414060189.jpg',
+
+  // Clean Text-Free Sector Card Photography (for Home Page "Sectors We Serve" cards)
+  railwayCard: sectorRailwayPhoto,
+  navyMarineCard: sectorMarinePhoto,
+  heavyVehiclesCard: sectorHeavyVehiclesPhoto,
+  industryCard: sectorIndustryPhoto,
 
   // Market Solutions (Mapped from newly uploaded official hero banners)
   marketSolutionsOverview: '/assets/aistudio/market_solution_overview_1ad25c65.png',

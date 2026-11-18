@@ -93,6 +93,25 @@ INSERT INTO public.process_cards (
   '["টারবাইন ব্লেড", "ইম্পেলার", "ইন্সট্রুমেন্টেশন ম্যানিফোল্ড", "বায়োমেডিকেল সামগ্রী", "মহাকাশ ব্র্যাকেট"]'::jsonb,
   '["Inconel 718", "Cobalt Alloy 6", "17-4 PH Stainless", "Hastelloy C-276"]'::jsonb,
   '["Aerospace & Defense", "Turbomachinery", "Medical Equipment", "High-Performance Fluid Control"]'::jsonb
+),
+(
+  'ingot',
+  'High-Integrity Ingot Casting',
+  'হাই-ইন্টিগ্রিটি ইনগট কাস্টিং',
+  'Consistently refined remelt ingots and forging stock for critical re-processing.',
+  'গুরুত্বপূর্ণ ফোরজিং ও রি-মেল্টিংয়ের জন্য পরিশোধিত ইনগট ও কাঁচামাল।',
+  'Formulated with certified virgin raw materials and secondary Argon Oxygen Decarburization (AOD) refining, Metal Tech BD supplies certified round and polygonal ingots with minimal tramp elements and low dissolved hydrogen/nitrogen.',
+  'সার্টিফায়েড ভার্জিন কাঁচামাল এবং এওডি সেকেন্ডারি রিফাইনিং দ্বারা মেটাল টেক সরবরাহ করে অত্যন্ত কম অপদ্রব্য সমৃদ্ধ উচ্চ বিশুদ্ধতার ইনগট।',
+  'Ingot diameters from 200 mm to 900 mm; custom ingot lengths',
+  'ইনগট ব্যাস ২০০ মিমি থেকে ৯০০ মিমি; কাস্টম দৈর্ঘ্য',
+  '500 kg to 12,000 kg ingots',
+  '৫০০ কেজি থেকে ১২,০০০ কেজি ইনগট',
+  'Cropped and scalped as required, 100% UT tested',
+  'প্রয়োজন অনুযায়ী ক্রপড ও স্ক্যাল্পড, ১০০% ইউটি পরীক্ষিত',
+  '["Master remelt ingots", "Forging billets", "Polygonal remelt stock", "Electroslag electrodes"]'::jsonb,
+  '["মাস্টার রিমেল্ট ইনগট", "ফোরজিং বিলেট", "পলিগোনাল রিমেল্ট স্টক", "ইলেকট্রোস্ল্যাগ ইলেকট্রোড"]'::jsonb,
+  '["Stainless Steel", "Nickel-Base Superalloys", "Duplex & Super Duplex", "Low-Alloy Steels"]'::jsonb,
+  '["Forging Houses", "Aerospace & Defense", "Energy & Power Generation", "Specialty Steel Mills"]'::jsonb
 )
 ON CONFLICT (slug) DO NOTHING;
 

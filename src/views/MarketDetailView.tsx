@@ -1,7 +1,6 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { MARKET_SOLUTIONS, MarketItem } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { ChevronRight, ArrowRight, ShieldCheck, Globe, Check, Phone, Mail } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -37,7 +36,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
   // If no slug, show Market Solutions Hub
   if (!slug || !currentMarket) {
     return (
-      <div className="space-y-8 pb-12">
+      <div className="w-full">
         {/* Full-width 400px Hero */}
         <PageHero
           title={isBn ? 'শিল্প বাজার সমাধান' : 'Market Solutions'}
@@ -51,7 +50,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
           imageAlt="Engineered Heavy Market Solutions at Metal Tech BD"
         />
 
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-6">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
             <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8] cursor-pointer">
               {isBn ? 'নীড়পাতা' : 'Home'}
@@ -77,7 +76,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
                 <div
                   key={mkt.slug}
                   onClick={() => onNavigate({ view: 'market-solutions', subSlug: mkt.slug })}
-                  className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-7 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
+                  className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-7 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between text-center group"
                 >
                   <div className="flex flex-col items-center text-center w-full">
                     <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
@@ -104,11 +103,6 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
             })}
           </div>
         </div>
-
-        <AskTheExpertsBand
-          onContactClick={() => onNavigate({ view: 'contact-us' })}
-          onRfqClick={() => onOpenRfq()}
-        />
       </div>
     );
   }
@@ -130,7 +124,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
 
   // Market Detail Page
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero strictly matching rules */}
       <PageHero
         title={currentTitle}
@@ -140,7 +134,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
         imageAlt={`${currentTitle} solutions at Metal Tech BD`}
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb & Action Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -175,7 +169,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-red-50/60 border border-red-100 rounded-sm p-5 space-y-2">
+              <div className="bg-red-50/60 border border-red-200/80 rounded-sm p-6 space-y-2.5">
                 <span className="text-xs font-bold uppercase text-red-700 block">
                   {isBn ? 'সংকটপূর্ণ অপারেটিং চ্যালেঞ্জ' : 'Critical Operating Challenges'}
                 </span>
@@ -184,7 +178,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
                 </p>
               </div>
 
-              <div className="bg-blue-50/60 border border-blue-100 rounded-sm p-5 space-y-2">
+              <div className="bg-blue-50/60 border border-blue-200/80 rounded-sm p-6 space-y-2.5">
                 <span className="text-xs font-bold uppercase text-[#1D4ED8] block">
                   {isBn ? 'মেটাল টেক বিডি সমাধান' : 'Metal Tech BD Solutions'}
                 </span>
@@ -195,15 +189,15 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
             </div>
 
             {/* Typical Components Supplied */}
-            <div className="bg-white border border-[#D9DCE1] rounded-sm p-5 space-y-3 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-sm p-6 space-y-4 shadow-xs">
               <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F1B2D] pb-2 border-b border-slate-100 m-0">
                 {isBn
                   ? `${currentTitle}-এর জন্য নিয়মিত সরবরাহকৃত যন্ত্রাংশ`
                   : `Components Regularly Supplied for ${currentMarket.title}`}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {currentComponents.map((comp, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2.5 bg-[#F3F4F6] rounded-sm text-xs text-slate-800">
+                  <div key={idx} className="flex items-center gap-2.5 p-3 bg-[#F3F4F6] border border-slate-200 rounded-sm text-xs text-slate-800">
                     <Check className="w-4 h-4 text-[#1D4ED8] shrink-0" />
                     <span>{comp}</span>
                   </div>
@@ -232,7 +226,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
 
           {/* Right Rail: Direct Account Manager Connection */}
           <div className="space-y-6">
-            <div className="bg-[#0F1B2D] text-white p-5 rounded-sm space-y-3">
+            <div className="bg-[#0F1B2D] border border-slate-800 text-white p-6 rounded-sm space-y-3 shadow-xs">
               <span className="text-xs font-bold text-[#F5B800] uppercase block">
                 {isBn ? 'বিশেষায়িত সেক্টর লিড' : 'Dedicated Sector Lead'}
               </span>
@@ -272,11 +266,6 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({ slug, onNavi
           </div>
         </div>
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq({ process: currentMarket.title })}
-      />
     </div>
   );
 };

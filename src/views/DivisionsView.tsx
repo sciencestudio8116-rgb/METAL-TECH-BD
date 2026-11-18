@@ -1,7 +1,6 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { DIVISIONS, DivisionItem } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { IMAGES } from '../assets/images';
 import { MapPin, Phone, Mail, Factory, ChevronRight, Check } from 'lucide-react';
 
@@ -14,7 +13,7 @@ interface DivisionsViewProps {
 
 export const DivisionsView: React.FC<DivisionsViewProps> = ({ onNavigate, onOpenRfq }) => {
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero */}
       <PageHero
         title="Divisions & Plants"
@@ -24,7 +23,7 @@ export const DivisionsView: React.FC<DivisionsViewProps> = ({ onNavigate, onOpen
         imageAlt="Specialized foundry and heavy machining facilities at Metal Tech BD"
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -37,7 +36,7 @@ export const DivisionsView: React.FC<DivisionsViewProps> = ({ onNavigate, onOpen
           {DIVISIONS.map((div, index) => (
             <div
               key={div.slug}
-              className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs space-y-6"
+              className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-md transition-all duration-300 space-y-6"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                 <div className="space-y-1">
@@ -78,9 +77,9 @@ export const DivisionsView: React.FC<DivisionsViewProps> = ({ onNavigate, onOpen
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] block mb-2">
                       Key Installed Equipment & Furnace Lines
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {div.equipment.map((eq, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 bg-[#F3F4F6] rounded-sm text-xs text-slate-800">
+                        <div key={idx} className="flex items-center gap-2 p-2.5 bg-[#F3F4F6] border border-slate-200 rounded-sm text-xs text-slate-800">
                           <Check className="w-3.5 h-3.5 text-[#1D4ED8] shrink-0" />
                           <span>{eq}</span>
                         </div>
@@ -109,11 +108,6 @@ export const DivisionsView: React.FC<DivisionsViewProps> = ({ onNavigate, onOpen
           ))}
         </div>
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

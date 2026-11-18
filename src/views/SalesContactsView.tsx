@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { PageRoute } from '../types/navigation';
 import { SALES_CONTACTS, SalesContact, SITE_METADATA } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { Phone, Mail, MapPin, ChevronRight, ArrowRight, UserCheck, Shield } from 'lucide-react';
 
 import { IMAGES } from '../assets/images';
@@ -25,7 +24,7 @@ export const SalesContactsView: React.FC<SalesContactsViewProps> = ({
     : SALES_CONTACTS.filter(sc => sc.marketSlug === selectedFilter);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="w-full">
       {/* Full-width 400px Hero */}
       <PageHero
         title="Sales Contacts"
@@ -35,7 +34,7 @@ export const SalesContactsView: React.FC<SalesContactsViewProps> = ({
         imageAlt="Direct sales contacts and key account engineering managers at Metal Tech BD"
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">Home</button>
@@ -76,7 +75,7 @@ export const SalesContactsView: React.FC<SalesContactsViewProps> = ({
           {filteredContacts.map((contact) => (
             <div
               key={contact.id}
-              className="bg-white border border-[#D9DCE1] rounded-sm p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-4"
+              className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -147,11 +146,6 @@ export const SalesContactsView: React.FC<SalesContactsViewProps> = ({
           </p>
         </div>
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

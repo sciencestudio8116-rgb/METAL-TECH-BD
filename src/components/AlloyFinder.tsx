@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ALLOY_DATABASE, Alloy } from '../data/siteData';
-import { Search, Filter, RotateCcw, Download, ArrowRight, ShieldCheck, ChevronDown, Check } from 'lucide-react';
+import { Search, RotateCcw, Download, ArrowRight, ShieldCheck, X } from 'lucide-react';
 
 interface AlloyFinderProps {
   onSelectAlloyForQuote: (alloyName: string) => void;
@@ -58,10 +58,10 @@ export const AlloyFinder: React.FC<AlloyFinderProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Intro Action Bar */}
-      <div className="bg-slate-50 border border-[#D9DCE1] rounded-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="space-y-1.5">
           <h2 className="text-base sm:text-lg font-bold text-[#0F1B2D] m-0">
             Non-Ferrous, Stainless & Specialty Alloys Guide
           </h2>
@@ -71,7 +71,7 @@ export const AlloyFinder: React.FC<AlloyFinderProps> = ({
         </div>
         <button
           onClick={onOpenAlloyGuideDownload}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-sm transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
         >
           <Download className="w-4 h-4" />
           <span>Download 2026 Alloy Guide (PDF)</span>
@@ -79,7 +79,7 @@ export const AlloyFinder: React.FC<AlloyFinderProps> = ({
       </div>
 
       {/* Filter and Search Controls Bar */}
-      <div className="bg-white border border-[#D9DCE1] rounded-sm p-4 sm:p-6 shadow-xs space-y-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -178,9 +178,9 @@ export const AlloyFinder: React.FC<AlloyFinderProps> = ({
         </div>
       </div>
 
-      {/* Alloy Cards Grid */}
+      {/* Alloy Square Boxes Grid */}
       {filteredAlloys.length === 0 ? (
-        <div className="bg-white border border-[#D9DCE1] rounded-sm p-12 text-center space-y-4">
+        <div className="bg-white border border-[#D9DCE1] rounded-xl p-12 text-center space-y-4">
           <p className="text-base text-slate-600 font-medium">
             No standard alloy grades matched your exact search query.
           </p>
@@ -189,173 +189,249 @@ export const AlloyFinder: React.FC<AlloyFinderProps> = ({
           </p>
           <button
             onClick={() => onSelectAlloyForQuote('Custom Formulation')}
-            className="px-5 py-2.5 bg-[#1D4ED8] text-white text-xs font-bold rounded-sm hover:bg-[#163A9E]"
+            className="px-5 py-2.5 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg hover:bg-[#163A9E] cursor-pointer"
           >
             Inquire About Custom Alloy Melts
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {filteredAlloys.map((alloy) => {
-            const isExpanded = expandedAlloyId === alloy.id;
-            return (
-              <div 
-                key={alloy.id}
-                className="bg-white border border-[#D9DCE1] rounded-sm shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden"
-              >
-                {/* Main Card Header */}
-                <div className="p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2.5 text-xs">
-                      <span className="font-bold text-[#1D4ED8] uppercase tracking-wider">{alloy.family}</span>
-                      <span className="text-slate-300">·</span>
-                      <span className="text-slate-500">Wrought Equiv: <strong className="text-slate-700">{alloy.wroughtEquiv}</strong></span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAlloys.map((alloy) => (
+            <div
+              key={alloy.id}
+              className="aspect-square rounded-xl border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 bg-white p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
+            >
+              {/* Top Content: Family, Name, and Justified Description */}
+              <div className="space-y-2 min-h-0">
+                <div className="flex items-center justify-between gap-2 text-[11px]">
+                  <span className="font-bold text-[#1D4ED8] uppercase tracking-wider truncate">
+                    {alloy.family}
+                  </span>
+                  <span className="font-semibold text-slate-500 shrink-0">
+                    UNS {alloy.castUNS}
+                  </span>
+                </div>
+
+                <h2 className="text-base sm:text-lg font-bold text-[#0F1B2D] group-hover:text-[#1D4ED8] transition-colors m-0 leading-snug">
+                  {alloy.name}
+                </h2>
+
+                <div className="w-10 h-[2px] bg-[#004B87] rounded-full group-hover:w-14 transition-all duration-300" />
+
+                <p className="text-[11.5px] sm:text-xs text-[#5B6470] m-0 leading-relaxed text-justify">
+                  {alloy.description}
+                </p>
+              </div>
+
+              {/* Bottom Footer: Standards & Actions */}
+              <div className="pt-3 border-t border-slate-100 space-y-2.5 shrink-0">
+                <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                  <span className="truncate">
+                    <strong className="text-slate-700">ASTM:</strong> {alloy.castASTM}
+                  </span>
+                  <span className="shrink-0">
+                    <strong className="text-slate-700">Equiv:</strong> {alloy.wroughtEquiv}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setExpandedAlloyId(alloy.id)}
+                    className="flex-1 px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#0F1B2D] text-[11px] font-bold rounded-lg transition-colors cursor-pointer text-center"
+                  >
+                    View Specs
+                  </button>
+                  <button
+                    onClick={() => onSelectAlloyForQuote(alloy.name)}
+                    className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    <span>Quote</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Alloy Technical Datasheet Modal */}
+      {(() => {
+        const selectedAlloy: Alloy | undefined = expandedAlloyId
+          ? ALLOY_DATABASE.find(a => a.id === expandedAlloyId)
+          : undefined;
+        if (!selectedAlloy) return null;
+
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]"
+            onClick={() => setExpandedAlloyId(null)}
+          >
+            <div
+              className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-2xl border border-slate-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 z-10 bg-white px-6 py-5 border-b border-slate-200 flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="font-bold text-[#1D4ED8] uppercase tracking-wider">
+                      {selectedAlloy.family}
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-600">
+                      Cast UNS: <strong className="text-slate-800">{selectedAlloy.castUNS}</strong>
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-600">
+                      ASTM: <strong className="text-slate-800">{selectedAlloy.castASTM}</strong>
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-600">
+                      DIN/EN: <strong className="text-slate-800">{selectedAlloy.equivalentDIN}</strong>
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#0F1B2D] m-0">
+                    {selectedAlloy.name}
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => setExpandedAlloyId(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                  aria-label="Close alloy specifications"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                <p className="text-sm text-[#5B6470] m-0 leading-relaxed text-justify">
+                  {selectedAlloy.description}
+                </p>
+
+                <div className="px-4 py-2.5 bg-slate-50 rounded-lg border border-slate-200/80 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                  <span className="font-semibold text-slate-700">Suitable Casting Processes:</span>
+                  {selectedAlloy.suitableProcesses.map(proc => (
+                    <span key={proc} className="text-[#1D4ED8] font-medium">✓ {proc}</span>
+                  ))}
+                </div>
+
+                {/* 2-Column Split: Chemistry & Mechanical */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Chemical Composition Table */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-200">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] m-0">
+                        Chemical Composition (% by Weight)
+                      </h4>
+                      <span className="text-[11px] text-slate-400">OES Certified</span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-[#0F1B2D] m-0">
-                      {alloy.name}
-                    </h2>
-                    <p className="text-xs text-[#5B6470] max-w-2xl m-0 leading-relaxed">
-                      {alloy.description}
-                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left">
+                        <thead>
+                          <tr className="border-b border-slate-200 text-slate-400">
+                            <th className="py-1.5 font-semibold">Element</th>
+                            <th className="py-1.5 font-semibold">Min %</th>
+                            <th className="py-1.5 font-semibold">Max %</th>
+                            <th className="py-1.5 font-semibold">Typical</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {selectedAlloy.composition.map((comp, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50">
+                              <td className="py-1.5 font-medium text-slate-800">{comp.element}</td>
+                              <td className="py-1.5 tabular-nums text-slate-600">{comp.min !== undefined ? `${comp.min}%` : '—'}</td>
+                              <td className="py-1.5 tabular-nums text-slate-600">{comp.max !== undefined ? `${comp.max}%` : '—'}</td>
+                              <td className="py-1.5 text-slate-600">{comp.typical || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
-                  {/* Quick Specs Pill Box (Design Constitution: clean metadata) */}
-                  <div className="flex flex-wrap lg:flex-col lg:items-end gap-1.5 text-xs text-slate-600 shrink-0">
-                    <div><span className="text-slate-400">Cast UNS:</span> <strong className="text-slate-800">{alloy.castUNS}</strong></div>
-                    <div><span className="text-slate-400">ASTM Spec:</span> <strong className="text-slate-800">{alloy.castASTM}</strong></div>
-                    <div><span className="text-slate-400">DIN / EN:</span> <strong className="text-slate-800">{alloy.equivalentDIN}</strong></div>
+                  {/* Mechanical Properties Table */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-200">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D] m-0">
+                        Minimum Mechanical Properties
+                      </h4>
+                      <span className="text-[11px] text-slate-400">Room Temp (20°C)</span>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left">
+                        <tbody className="divide-y divide-slate-100">
+                          <tr>
+                            <td className="py-2 text-slate-500 font-medium">Tensile Strength (Rm)</td>
+                            <td className="py-2 font-bold text-slate-800 tabular-nums">{selectedAlloy.mechanical.tensileStrengthMpa} MPa (min)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-slate-500 font-medium">Yield Strength (0.2% Rp0.2)</td>
+                            <td className="py-2 font-bold text-slate-800 tabular-nums">{selectedAlloy.mechanical.yieldStrengthMpa} MPa (min)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-slate-500 font-medium">Elongation in 50mm (A5)</td>
+                            <td className="py-2 font-bold text-slate-800 tabular-nums">{selectedAlloy.mechanical.elongationPct}% (min)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-slate-500 font-medium">Hardness</td>
+                            <td className="py-2 font-bold text-slate-800 tabular-nums">{selectedAlloy.mechanical.hardnessHB} HB</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-slate-500 font-medium">Standard Heat Treatment</td>
+                            <td className="py-2 text-slate-700">{selectedAlloy.mechanical.condition}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
 
-                {/* Key Attributes & Suitable Processes */}
-                <div className="px-6 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600">
-                    <span className="font-semibold text-slate-700">Suitable For:</span>
-                    {alloy.suitableProcesses.map(proc => (
-                      <span key={proc} className="text-[#1D4ED8] font-medium">✓ {proc}</span>
+                {/* Typical Applications Row */}
+                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200/70 text-xs space-y-2">
+                  <strong className="text-slate-800 block">Typical Components &amp; Service Applications:</strong>
+                  <div className="flex flex-wrap gap-2 text-slate-600">
+                    {selectedAlloy.applications.map((app, idx) => (
+                      <span key={idx} className="bg-white px-2.5 py-1 border border-slate-200 rounded-md">
+                        {app}
+                      </span>
                     ))}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setExpandedAlloyId(isExpanded ? null : alloy.id)}
-                      className="text-[#1D4ED8] hover:text-[#163A9E] font-bold flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>{isExpanded ? 'Hide Specifications' : 'View Full Chemical & Mechanical Data'}</span>
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Expanded Detailed Metallurgy Tables */}
-                {isExpanded && (
-                  <div className="p-6 space-y-6 bg-white animate-in fade-in duration-150">
-                    {/* 2-Column Split: Chemistry & Mechanical */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Chemical Composition Table */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between pb-1 border-b border-slate-200">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D]">
-                            Chemical Composition (% by Weight)
-                          </h4>
-                          <span className="text-[11px] text-slate-400">OES Certified</span>
-                        </div>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-xs text-left">
-                            <thead>
-                              <tr className="border-b border-slate-200 text-slate-400">
-                                <th className="py-1.5 font-semibold">Element</th>
-                                <th className="py-1.5 font-semibold">Min %</th>
-                                <th className="py-1.5 font-semibold">Max %</th>
-                                <th className="py-1.5 font-semibold">Typical</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              {alloy.composition.map((comp, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50">
-                                  <td className="py-1.5 font-medium text-slate-800">{comp.element}</td>
-                                  <td className="py-1.5 tabular-nums text-slate-600">{comp.min !== undefined ? `${comp.min}%` : '—'}</td>
-                                  <td className="py-1.5 tabular-nums text-slate-600">{comp.max !== undefined ? `${comp.max}%` : '—'}</td>
-                                  <td className="py-1.5 text-slate-600">{comp.typical || '—'}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      {/* Mechanical Properties Table */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between pb-1 border-b border-slate-200">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F1B2D]">
-                            Minimum Mechanical Properties
-                          </h4>
-                          <span className="text-[11px] text-slate-400">Room Temp (20°C)</span>
-                        </div>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-xs text-left">
-                            <tbody className="divide-y divide-slate-100">
-                              <tr>
-                                <td className="py-2 text-slate-500 font-medium">Tensile Strength (Rm)</td>
-                                <td className="py-2 font-bold text-slate-800 tabular-nums">{alloy.mechanical.tensileStrengthMpa} MPa (min)</td>
-                              </tr>
-                              <tr>
-                                <td className="py-2 text-slate-500 font-medium">Yield Strength (0.2% Rp0.2)</td>
-                                <td className="py-2 font-bold text-slate-800 tabular-nums">{alloy.mechanical.yieldStrengthMpa} MPa (min)</td>
-                              </tr>
-                              <tr>
-                                <td className="py-2 text-slate-500 font-medium">Elongation in 50mm (A5)</td>
-                                <td className="py-2 font-bold text-slate-800 tabular-nums">{alloy.mechanical.elongationPct}% (min)</td>
-                              </tr>
-                              <tr>
-                                <td className="py-2 text-slate-500 font-medium">Hardness</td>
-                                <td className="py-2 font-bold text-slate-800 tabular-nums">{alloy.mechanical.hardnessHB} HB</td>
-                              </tr>
-                              <tr>
-                                <td className="py-2 text-slate-500 font-medium">Standard Heat Treatment</td>
-                                <td className="py-2 text-slate-700">{alloy.mechanical.condition}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Typical Applications Row */}
-                    <div className="p-3 bg-slate-50 rounded text-xs space-y-1">
-                      <strong className="text-slate-800">Typical Components & Service Applications:</strong>
-                      <div className="flex flex-wrap gap-2 text-slate-600">
-                        {alloy.applications.map((app, idx) => (
-                          <span key={idx} className="bg-white px-2 py-0.5 border border-slate-200 rounded-sm">
-                            {app}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Bottom Card Actions */}
-                <div className="p-4 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>EN 10204 Type 3.1 Certified Test Certificates Available</span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => onSelectAlloyForQuote(alloy.name)}
-                      className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-sm transition-colors cursor-pointer"
-                    >
-                      Request a Quote for {alloy.castGrade}
-                    </button>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>EN 10204 Type 3.1 Certified Test Certificates Available</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setExpandedAlloyId(null)}
+                    className="px-4 py-2 border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      const alloyName = selectedAlloy.name;
+                      setExpandedAlloyId(null);
+                      onSelectAlloyForQuote(alloyName);
+                    }}
+                    className="px-5 py-2 bg-[#1D4ED8] hover:bg-[#163A9E] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Request a Quote for {selectedAlloy.castGrade}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { BLOG_POSTS, CASE_STUDIES, BlogPost, CaseStudy } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { ChevronRight, ArrowLeft, Calendar, User, Clock, FileText, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
@@ -35,7 +34,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
       : blogPost.content;
 
     return (
-      <div className="w-full m-0 p-0 pb-12">
+      <div className="w-full m-0 p-0">
         {/* Responsive Hero Banner Container - 100% Width, Auto Height, Zero Gaps, Full Preview */}
         <div 
           className="w-full h-auto m-0 p-0 relative overflow-hidden bg-transparent block"
@@ -51,7 +50,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
           />
         </div>
 
-        <div className="max-w-[800px] mx-auto px-4 sm:px-6 pt-6 space-y-8">
+        <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
             <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">
@@ -88,9 +87,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
           </div>
 
           {/* Body Prose */}
-          <div className="space-y-4 text-slate-700 text-base leading-relaxed">
+          <div className="bg-white border border-slate-200 rounded-sm p-6 sm:p-8 shadow-xs space-y-5 text-slate-700 text-base leading-relaxed">
             {displayContent.map((paragraph, idx) => (
-              <p key={idx} className="m-0">
+              <p key={idx} className="m-0 text-justify">
                 {paragraph}
               </p>
             ))}
@@ -114,11 +113,6 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
             </button>
           </div>
         </div>
-
-        <AskTheExpertsBand
-          onContactClick={() => onNavigate({ view: 'contact-us' })}
-          onRfqClick={() => onOpenRfq()}
-        />
       </div>
     );
   }
@@ -137,7 +131,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
     : '';
 
   return (
-    <div className="w-full m-0 p-0 pb-12">
+    <div className="w-full m-0 p-0">
       {/* Responsive Hero Banner Container - 100% Width, Auto Height, Zero Gaps, Full Preview */}
       <div 
         className="w-full h-auto m-0 p-0 relative overflow-hidden bg-transparent block"
@@ -152,7 +146,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
           showTextOverlay={false}
         />
       </div>
-      <div className="max-w-[800px] mx-auto px-4 sm:px-6 pt-6 space-y-8">
+      <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
         <nav className="flex items-center gap-1.5 text-xs text-slate-500">
           <button onClick={() => onNavigate({ view: 'home' })} className="hover:text-[#1D4ED8]">
             {isBn ? 'হোম' : 'Home'}
@@ -164,7 +158,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ slug, type, onNavigate
         </nav>
         {caseStudy && (
           <div className="space-y-6">
-            <div className="bg-slate-50 p-6 rounded-sm border border-slate-200 space-y-3">
+            <div className="bg-slate-50 p-6 sm:p-8 rounded-sm border border-slate-200 shadow-xs space-y-4">
               <span className="text-xs font-bold uppercase text-[#1D4ED8]">
                 {isBn ? 'শিল্পখাত' : 'Industry'}: {caseIndustry}
               </span>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { PageRoute } from '../types/navigation';
 import { CERTIFICATIONS } from '../data/siteData';
-import { AskTheExpertsBand } from '../components/AskTheExpertsBand';
 import { 
   ChevronRight, Award, ShieldCheck, History, CheckCircle, 
   FileText, Target, Eye, Users, Compass, Globe, Sparkles 
@@ -21,8 +20,7 @@ interface CompanyProfileViewProps {
 
 export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({ 
   section, 
-  onNavigate, 
-  onOpenRfq 
+  onNavigate
 }) => {
   const heroInfo = {
     'overview': {
@@ -69,7 +67,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
   };
 
   return (
-    <div className="w-full m-0 p-0 pb-12">
+    <div className="w-full m-0 p-0">
       {/* Responsive Hero Banner Container - 100% Width, Auto Height, Zero Gaps, Full Preview */}
       <div 
         className="w-full h-auto m-0 p-0 relative overflow-hidden bg-transparent block"
@@ -85,7 +83,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
         />
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 pt-6 space-y-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-10">
         {/* Breadcrumb & Navigation Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <nav className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -123,7 +121,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
         {(section === 'overview' || section === 'why-us') && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                 <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
                   <IndustrialIcon name="metallurgy" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
@@ -136,7 +134,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                 </p>
               </div>
 
-              <div className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                 <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
                   <IndustrialIcon name="traceability" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
@@ -149,7 +147,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                 </p>
               </div>
 
-              <div className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                 <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
                   <IndustrialIcon name="turnkey" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
@@ -178,7 +176,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
         {section === 'mission-vision' && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                 <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
                   <IndustrialIcon name="defense" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
@@ -191,7 +189,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                 </p>
               </div>
 
-              <div className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                 <div className="mb-4 transform group-hover:scale-105 transition-transform duration-300">
                   <IndustrialIcon name="quality" className="w-16 h-16 sm:w-20 sm:h-20" />
                 </div>
@@ -214,7 +212,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                 </h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
-                <div className="p-6 bg-slate-50 border border-slate-200 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all">
+                <div className="p-6 bg-slate-50 border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all duration-300">
                   <div className="mb-3 transform group-hover:scale-105 transition-transform">
                     <IndustrialIcon name="quality" className="w-12 h-12" />
                   </div>
@@ -225,7 +223,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                   </p>
                 </div>
 
-                <div className="p-6 bg-slate-50 border border-slate-200 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all">
+                <div className="p-6 bg-slate-50 border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all duration-300">
                   <div className="mb-3 transform group-hover:scale-105 transition-transform">
                     <IndustrialIcon name="traceability" className="w-12 h-12" />
                   </div>
@@ -236,7 +234,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                   </p>
                 </div>
 
-                <div className="p-6 bg-slate-50 border border-slate-200 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all">
+                <div className="p-6 bg-slate-50 border border-slate-200 hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm flex flex-col items-center text-center group hover:shadow-md transition-all duration-300">
                   <div className="mb-3 transform group-hover:scale-105 transition-transform">
                     <IndustrialIcon name="casting" className="w-12 h-12" />
                   </div>
@@ -285,7 +283,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
                   specialty: 'NDT & Metallurgical Testing',
                 },
               ].map((leader) => (
-                <div key={leader.name} className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center justify-between group">
+                <div key={leader.name} className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center justify-between group">
                   <div className="flex flex-col items-center text-center w-full space-y-3">
                     <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
                       <IndustrialIcon name="engineer" className="w-16 h-16" />
@@ -311,7 +309,7 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {CERTIFICATIONS.map((cert) => (
-                <div key={cert.name} className="bg-white border border-[#D9DCE1] rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center justify-between group">
+                <div key={cert.name} className="bg-white border border-[#D9DCE1] hover:border-[#1D4ED8] hover:ring-1 hover:ring-[#1D4ED8]/20 rounded-sm p-6 sm:p-8 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center justify-between group">
                   <div className="flex flex-col items-center text-center w-full space-y-3">
                     <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
                       <IndustrialIcon name="quality" className="w-16 h-16" />
@@ -386,11 +384,6 @@ export const CompanyProfileView: React.FC<CompanyProfileViewProps> = ({
           </div>
         )}
       </div>
-
-      <AskTheExpertsBand
-        onContactClick={() => onNavigate({ view: 'contact-us' })}
-        onRfqClick={() => onOpenRfq()}
-      />
     </div>
   );
 };

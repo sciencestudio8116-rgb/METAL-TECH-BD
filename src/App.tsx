@@ -132,7 +132,7 @@ function AppContent() {
         )}
 
         {currentRoute.view === 'alloys' && (
-          <div className="space-y-8 pb-12">
+          <div className="w-full">
             <PageHero
               title="Alloys & Materials"
               badge="Metallurgy Guide"
@@ -140,7 +140,7 @@ function AppContent() {
               imageSrc={IMAGES.alloysGuide}
               imageAlt="High-Performance Specialty Alloys & Metallurgy Guide at Metal Tech BD"
             />
-            <div className="max-w-[1100px] mx-auto px-4 sm:px-6 space-y-8">
+            <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-14 md:py-20 space-y-8">
               <AlloyFinder
                 onSelectAlloyForQuote={(alloyName) => handleOpenRfq({ alloy: alloyName })}
                 onOpenAlloyGuideDownload={() => handleOpenRfq({ alloy: 'All Alloy Master Guide' })}
